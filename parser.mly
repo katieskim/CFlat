@@ -73,14 +73,9 @@ formal_list
 	: typ ID			{ [($1, $2)]    }
 	| formal_list COMMA typ ID	{ ($3,$4) :: $1 }
   
-stmt_list
-	: /* nothing*/ 	{ [] }
-	| stmt_list stmt  {()}
-
 master_typ
 	: typ		     { () }
 	| array_typ	{ () }
-
 
 typ
 	: simpl_typ	{ () }
@@ -103,16 +98,16 @@ array_typ
 
 master_array
 	: array_primary	{ () }
-	| array_note	{ () }
+	/*| array_note	{ () }*/ 
 	| array_measure { () }
 
 array_primary
 	: primary_expr				{ [] }
 	| array_primary COMMA primary_expr	{ [] }
 
-array_note
+/*array_note
 	: note_expr				{ [] }
-	| array_note COMMA note_expr		{ [] }
+	| array_note COMMA note_expr		{ [] }*/
 
 array_measure
 	: measure_expr				{ [] }
@@ -154,13 +149,12 @@ primary_expr
 
    
 note_expr
-	: ID { () }
-	| LPAREN TLIT LITERAL LITERAL RPAREN	  { () }
+	:LPAREN TLIT LITERAL LITERAL RPAREN	  { () }
 	| LPAREN TLIT LITERAL FLIT RPAREN	      { () }
 
 measure_expr
-	: ID  { () }
-	| note_expr				{ () }
+
+	: note_expr				{ () }
 	| array_expr COMMA note_expr		{ () }
 
 un_op
