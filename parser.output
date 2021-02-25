@@ -1,0 +1,1469 @@
+   0  $accept : %entry% $end
+
+   1  program : master_decl EOF
+   2          | program master_decl
+
+   3  master_decl : init_decls
+   4              | vdecl
+   5              | adecl
+   6              | fdecl
+
+   7  init_decls : simpl_typ ID ASSIGN primary_expr SEMI
+   8             | array_typ ID ASSIGN array_expr SEMI
+   9             | NOTE ID ASSIGN note_expr SEMI
+  10             | MEASURE ID ASSIGN measure_expr SEMI
+
+  11  vdecl : simpl_typ ID SEMI
+  12        | NOTE ID SEMI
+  13        | MEASURE ID SEMI
+
+  14  adecl : array_typ ID SEMI
+
+  15  fdecl : DEF master_typ ID LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE
+
+  16  formal_opt :
+  17             | formal_list
+
+  18  formal_list : typ ID
+  19              | formal_list COMMA typ ID
+
+  20  stmt_list :
+  21            | stmt_list stmt
+
+  22  master_typ : typ
+  23             | array_typ
+
+  24  typ : simpl_typ
+  25      | NOTE
+  26      | MEASURE
+  27      | NONE
+  28      | VOID
+
+  29  simpl_typ : INT
+  30            | FLOAT
+  31            | CHAR
+  32            | STRING
+  33            | BOOL
+
+  34  array_typ : simpl_typ LBRACKET RBRACKET
+  35            | NOTE LBRACKET RBRACKET
+  36            | MEASURE LBRACKET RBRACKET
+
+  37  master_array : array_primary
+  38               | array_note
+  39               | array_measure
+
+  40  array_primary : primary_expr
+  41                | array_primary COMMA primary_expr
+
+  42  array_note : note_expr
+  43             | array_note COMMA note_expr
+
+  44  array_measure : measure_expr
+  45                | array_measure COMMA measure_expr
+
+  46  array_expr : LBRACKET master_array RBRACKET
+
+  47  stmt_list :
+  48            | stmt_list stmt
+
+  49  stmt : primary_expr SEMI
+  50       | RETURN expr_opt SEMI
+  51       | LBRACE stmt_list RBRACE
+  52       | IF LPAREN primary_expr RPAREN stmt
+  53       | IF LPAREN primary_expr RPAREN stmt ELSE stmt
+  54       | FOR LPAREN expr_opt SEMI primary_expr SEMI expr_opt RPAREN stmt
+  55       | WHILE LPAREN primary_expr RPAREN stmt
+
+  56  expr_opt :
+  57           | primary_expr
+
+  58  primary_expr : LITERAL
+  59               | FLIT
+  60               | BLIT
+  61               | TLIT
+  62               | STRLIT
+  63               | ID
+
+  64  note_expr : ID
+  65            | LPAREN TLIT LITERAL LITERAL RPAREN
+  66            | LPAREN TLIT LITERAL FLIT RPAREN
+
+  67  measure_expr : ID
+  68               | note_expr
+  69               | array_expr COMMA note_expr
+
+  70  un_op : NOT
+  71        | PLUS PLUS
+  72        | MINUS MINUS
+
+  73  un_expr : primary_expr
+  74          | MINUS un_expr
+  75          | NOT un_expr
+  76          | un_expr PLUS PLUS
+  77          | un_expr MINUS MINUS
+
+  78  mult_op : TIMES
+  79          | DIVIDE
+  80          | MOD
+
+  81  mult_expr : un_expr
+  82            | mult_expr mult_op un_expr
+
+  83  add_op : PLUS
+  84         | MINUS
+
+  85  add_expr : mult_expr
+  86           | add_expr add_op mult_expr
+
+  87  rel_op : LT
+  88         | GT
+  89         | LEQ
+  90         | GEQ
+
+  91  rel_expr : add_expr
+  92           | rel_expr rel_op add_expr
+
+  93  eq_expr : rel_expr
+  94          | eq_expr eq_op rel_expr
+
+  95  eq_op : EQ
+  96        | NEQ
+
+  97  eq_expr : rel_expr
+  98          | eq_expr eq_op rel_expr
+
+  99  bool_op : AND
+ 100          | OR
+
+ 101  bool_expr : eq_expr
+ 102            | bool_expr bool_op eq_expr
+
+ 103  assign_expr : bool_expr
+ 104              | ID ASSIGN assign_expr
+
+ 105  func_expr : ID LPAREN args_opt RPAREN
+
+ 106  built_in_func_expr : DOT ID LPAREN args_opt RPAREN
+
+ 107  args_opt :
+ 108           | args_list
+
+ 109  args_list : expr_opt
+ 110            | args_list COMMA expr_opt
+
+ 111  %entry% : '\001' program
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . program  (111)
+
+	NOTE  shift 3
+	MEASURE  shift 4
+	DEF  shift 5
+	CHAR  shift 6
+	STRING  shift 7
+	INT  shift 8
+	BOOL  shift 9
+	FLOAT  shift 10
+	.  error
+
+	program  goto 11
+	master_decl  goto 12
+	init_decls  goto 13
+	vdecl  goto 14
+	adecl  goto 15
+	fdecl  goto 16
+	simpl_typ  goto 17
+	array_typ  goto 18
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	init_decls : NOTE . ID ASSIGN note_expr SEMI  (9)
+	vdecl : NOTE . ID SEMI  (12)
+	array_typ : NOTE . LBRACKET RBRACKET  (35)
+
+	LBRACKET  shift 19
+	ID  shift 20
+	.  error
+
+
+state 4
+	init_decls : MEASURE . ID ASSIGN measure_expr SEMI  (10)
+	vdecl : MEASURE . ID SEMI  (13)
+	array_typ : MEASURE . LBRACKET RBRACKET  (36)
+
+	LBRACKET  shift 21
+	ID  shift 22
+	.  error
+
+
+state 5
+	fdecl : DEF . master_typ ID LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE  (15)
+
+	NOTE  shift 23
+	MEASURE  shift 24
+	NONE  shift 25
+	CHAR  shift 6
+	STRING  shift 7
+	INT  shift 8
+	BOOL  shift 9
+	FLOAT  shift 10
+	VOID  shift 26
+	.  error
+
+	simpl_typ  goto 27
+	array_typ  goto 28
+	master_typ  goto 29
+	typ  goto 30
+
+
+state 6
+	simpl_typ : CHAR .  (31)
+
+	.  reduce 31
+
+
+state 7
+	simpl_typ : STRING .  (32)
+
+	.  reduce 32
+
+
+state 8
+	simpl_typ : INT .  (29)
+
+	.  reduce 29
+
+
+state 9
+	simpl_typ : BOOL .  (33)
+
+	.  reduce 33
+
+
+state 10
+	simpl_typ : FLOAT .  (30)
+
+	.  reduce 30
+
+
+state 11
+	program : program . master_decl  (2)
+	%entry% : '\001' program .  (111)
+
+	NOTE  shift 3
+	MEASURE  shift 4
+	DEF  shift 5
+	CHAR  shift 6
+	STRING  shift 7
+	INT  shift 8
+	BOOL  shift 9
+	FLOAT  shift 10
+	$end  reduce 111
+
+	master_decl  goto 31
+	init_decls  goto 13
+	vdecl  goto 14
+	adecl  goto 15
+	fdecl  goto 16
+	simpl_typ  goto 17
+	array_typ  goto 18
+
+
+state 12
+	program : master_decl . EOF  (1)
+
+	EOF  shift 32
+	.  error
+
+
+state 13
+	master_decl : init_decls .  (3)
+
+	.  reduce 3
+
+
+state 14
+	master_decl : vdecl .  (4)
+
+	.  reduce 4
+
+
+state 15
+	master_decl : adecl .  (5)
+
+	.  reduce 5
+
+
+state 16
+	master_decl : fdecl .  (6)
+
+	.  reduce 6
+
+
+state 17
+	init_decls : simpl_typ . ID ASSIGN primary_expr SEMI  (7)
+	vdecl : simpl_typ . ID SEMI  (11)
+	array_typ : simpl_typ . LBRACKET RBRACKET  (34)
+
+	LBRACKET  shift 33
+	ID  shift 34
+	.  error
+
+
+state 18
+	init_decls : array_typ . ID ASSIGN array_expr SEMI  (8)
+	adecl : array_typ . ID SEMI  (14)
+
+	ID  shift 35
+	.  error
+
+
+state 19
+	array_typ : NOTE LBRACKET . RBRACKET  (35)
+
+	RBRACKET  shift 36
+	.  error
+
+
+state 20
+	init_decls : NOTE ID . ASSIGN note_expr SEMI  (9)
+	vdecl : NOTE ID . SEMI  (12)
+
+	SEMI  shift 37
+	ASSIGN  shift 38
+	.  error
+
+
+state 21
+	array_typ : MEASURE LBRACKET . RBRACKET  (36)
+
+	RBRACKET  shift 39
+	.  error
+
+
+state 22
+	init_decls : MEASURE ID . ASSIGN measure_expr SEMI  (10)
+	vdecl : MEASURE ID . SEMI  (13)
+
+	SEMI  shift 40
+	ASSIGN  shift 41
+	.  error
+
+
+state 23
+	typ : NOTE .  (25)
+	array_typ : NOTE . LBRACKET RBRACKET  (35)
+
+	LBRACKET  shift 19
+	ID  reduce 25
+
+
+state 24
+	typ : MEASURE .  (26)
+	array_typ : MEASURE . LBRACKET RBRACKET  (36)
+
+	LBRACKET  shift 21
+	ID  reduce 26
+
+
+state 25
+	typ : NONE .  (27)
+
+	.  reduce 27
+
+
+state 26
+	typ : VOID .  (28)
+
+	.  reduce 28
+
+
+state 27
+	typ : simpl_typ .  (24)
+	array_typ : simpl_typ . LBRACKET RBRACKET  (34)
+
+	LBRACKET  shift 33
+	ID  reduce 24
+
+
+state 28
+	master_typ : array_typ .  (23)
+
+	.  reduce 23
+
+
+state 29
+	fdecl : DEF master_typ . ID LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE  (15)
+
+	ID  shift 42
+	.  error
+
+
+state 30
+	master_typ : typ .  (22)
+
+	.  reduce 22
+
+
+state 31
+	program : program master_decl .  (2)
+
+	.  reduce 2
+
+
+state 32
+	program : master_decl EOF .  (1)
+
+	.  reduce 1
+
+
+state 33
+	array_typ : simpl_typ LBRACKET . RBRACKET  (34)
+
+	RBRACKET  shift 43
+	.  error
+
+
+state 34
+	init_decls : simpl_typ ID . ASSIGN primary_expr SEMI  (7)
+	vdecl : simpl_typ ID . SEMI  (11)
+
+	SEMI  shift 44
+	ASSIGN  shift 45
+	.  error
+
+
+state 35
+	init_decls : array_typ ID . ASSIGN array_expr SEMI  (8)
+	adecl : array_typ ID . SEMI  (14)
+
+	SEMI  shift 46
+	ASSIGN  shift 47
+	.  error
+
+
+state 36
+	array_typ : NOTE LBRACKET RBRACKET .  (35)
+
+	.  reduce 35
+
+
+state 37
+	vdecl : NOTE ID SEMI .  (12)
+
+	.  reduce 12
+
+
+state 38
+	init_decls : NOTE ID ASSIGN . note_expr SEMI  (9)
+
+	LPAREN  shift 48
+	ID  shift 49
+	.  error
+
+	note_expr  goto 50
+
+
+state 39
+	array_typ : MEASURE LBRACKET RBRACKET .  (36)
+
+	.  reduce 36
+
+
+state 40
+	vdecl : MEASURE ID SEMI .  (13)
+
+	.  reduce 13
+
+
+state 41
+	init_decls : MEASURE ID ASSIGN . measure_expr SEMI  (10)
+
+	LPAREN  shift 48
+	LBRACKET  shift 51
+	ID  shift 52
+	.  error
+
+	array_expr  goto 53
+	note_expr  goto 54
+	measure_expr  goto 55
+
+
+state 42
+	fdecl : DEF master_typ ID . LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE  (15)
+
+	LPAREN  shift 56
+	.  error
+
+
+state 43
+	array_typ : simpl_typ LBRACKET RBRACKET .  (34)
+
+	.  reduce 34
+
+
+state 44
+	vdecl : simpl_typ ID SEMI .  (11)
+
+	.  reduce 11
+
+
+state 45
+	init_decls : simpl_typ ID ASSIGN . primary_expr SEMI  (7)
+
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 63
+
+
+state 46
+	adecl : array_typ ID SEMI .  (14)
+
+	.  reduce 14
+
+
+state 47
+	init_decls : array_typ ID ASSIGN . array_expr SEMI  (8)
+
+	LBRACKET  shift 51
+	.  error
+
+	array_expr  goto 64
+
+
+state 48
+	note_expr : LPAREN . TLIT LITERAL LITERAL RPAREN  (65)
+	note_expr : LPAREN . TLIT LITERAL FLIT RPAREN  (66)
+
+	TLIT  shift 65
+	.  error
+
+
+state 49
+	note_expr : ID .  (64)
+
+	.  reduce 64
+
+
+state 50
+	init_decls : NOTE ID ASSIGN note_expr . SEMI  (9)
+
+	SEMI  shift 66
+	.  error
+
+
+state 51
+	array_expr : LBRACKET . master_array RBRACKET  (46)
+
+	LPAREN  shift 48
+	LBRACKET  shift 51
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 67
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 68
+	array_expr  goto 53
+	note_expr  goto 69
+	measure_expr  goto 70
+	master_array  goto 71
+	array_primary  goto 72
+	array_note  goto 73
+	array_measure  goto 74
+
+
+52: reduce/reduce conflict (reduce 64, reduce 67) on SEMI
+52: reduce/reduce conflict (reduce 64, reduce 67) on COMMA
+52: reduce/reduce conflict (reduce 64, reduce 67) on RBRACKET
+state 52
+	note_expr : ID .  (64)
+	measure_expr : ID .  (67)
+
+	.  reduce 64
+
+
+state 53
+	measure_expr : array_expr . COMMA note_expr  (69)
+
+	COMMA  shift 75
+	.  error
+
+
+state 54
+	measure_expr : note_expr .  (68)
+
+	.  reduce 68
+
+
+state 55
+	init_decls : MEASURE ID ASSIGN measure_expr . SEMI  (10)
+
+	SEMI  shift 76
+	.  error
+
+
+state 56
+	fdecl : DEF master_typ ID LPAREN . formal_opt RPAREN LBRACE stmt_list RBRACE  (15)
+	formal_opt : .  (16)
+
+	NOTE  shift 77
+	MEASURE  shift 78
+	NONE  shift 25
+	CHAR  shift 6
+	STRING  shift 7
+	INT  shift 8
+	BOOL  shift 9
+	FLOAT  shift 10
+	VOID  shift 26
+	RPAREN  reduce 16
+
+	simpl_typ  goto 79
+	formal_opt  goto 80
+	formal_list  goto 81
+	typ  goto 82
+
+
+state 57
+	primary_expr : LITERAL .  (58)
+
+	.  reduce 58
+
+
+state 58
+	primary_expr : BLIT .  (60)
+
+	.  reduce 60
+
+
+state 59
+	primary_expr : ID .  (63)
+
+	.  reduce 63
+
+
+state 60
+	primary_expr : FLIT .  (59)
+
+	.  reduce 59
+
+
+state 61
+	primary_expr : TLIT .  (61)
+
+	.  reduce 61
+
+
+state 62
+	primary_expr : STRLIT .  (62)
+
+	.  reduce 62
+
+
+state 63
+	init_decls : simpl_typ ID ASSIGN primary_expr . SEMI  (7)
+
+	SEMI  shift 83
+	.  error
+
+
+state 64
+	init_decls : array_typ ID ASSIGN array_expr . SEMI  (8)
+
+	SEMI  shift 84
+	.  error
+
+
+state 65
+	note_expr : LPAREN TLIT . LITERAL LITERAL RPAREN  (65)
+	note_expr : LPAREN TLIT . LITERAL FLIT RPAREN  (66)
+
+	LITERAL  shift 85
+	.  error
+
+
+state 66
+	init_decls : NOTE ID ASSIGN note_expr SEMI .  (9)
+
+	.  reduce 9
+
+
+67: reduce/reduce conflict (reduce 63, reduce 64) on COMMA
+67: reduce/reduce conflict (reduce 63, reduce 67) on COMMA
+67: reduce/reduce conflict (reduce 63, reduce 64) on RBRACKET
+67: reduce/reduce conflict (reduce 63, reduce 67) on RBRACKET
+state 67
+	primary_expr : ID .  (63)
+	note_expr : ID .  (64)
+	measure_expr : ID .  (67)
+
+	.  reduce 63
+
+
+state 68
+	array_primary : primary_expr .  (40)
+
+	.  reduce 40
+
+
+69: reduce/reduce conflict (reduce 42, reduce 68) on COMMA
+69: reduce/reduce conflict (reduce 42, reduce 68) on RBRACKET
+state 69
+	array_note : note_expr .  (42)
+	measure_expr : note_expr .  (68)
+
+	.  reduce 42
+
+
+state 70
+	array_measure : measure_expr .  (44)
+
+	.  reduce 44
+
+
+state 71
+	array_expr : LBRACKET master_array . RBRACKET  (46)
+
+	RBRACKET  shift 86
+	.  error
+
+
+state 72
+	master_array : array_primary .  (37)
+	array_primary : array_primary . COMMA primary_expr  (41)
+
+	COMMA  shift 87
+	RBRACKET  reduce 37
+
+
+state 73
+	master_array : array_note .  (38)
+	array_note : array_note . COMMA note_expr  (43)
+
+	COMMA  shift 88
+	RBRACKET  reduce 38
+
+
+state 74
+	master_array : array_measure .  (39)
+	array_measure : array_measure . COMMA measure_expr  (45)
+
+	COMMA  shift 89
+	RBRACKET  reduce 39
+
+
+state 75
+	measure_expr : array_expr COMMA . note_expr  (69)
+
+	LPAREN  shift 48
+	ID  shift 49
+	.  error
+
+	note_expr  goto 90
+
+
+state 76
+	init_decls : MEASURE ID ASSIGN measure_expr SEMI .  (10)
+
+	.  reduce 10
+
+
+state 77
+	typ : NOTE .  (25)
+
+	.  reduce 25
+
+
+state 78
+	typ : MEASURE .  (26)
+
+	.  reduce 26
+
+
+state 79
+	typ : simpl_typ .  (24)
+
+	.  reduce 24
+
+
+state 80
+	fdecl : DEF master_typ ID LPAREN formal_opt . RPAREN LBRACE stmt_list RBRACE  (15)
+
+	RPAREN  shift 91
+	.  error
+
+
+state 81
+	formal_opt : formal_list .  (17)
+	formal_list : formal_list . COMMA typ ID  (19)
+
+	COMMA  shift 92
+	RPAREN  reduce 17
+
+
+state 82
+	formal_list : typ . ID  (18)
+
+	ID  shift 93
+	.  error
+
+
+state 83
+	init_decls : simpl_typ ID ASSIGN primary_expr SEMI .  (7)
+
+	.  reduce 7
+
+
+state 84
+	init_decls : array_typ ID ASSIGN array_expr SEMI .  (8)
+
+	.  reduce 8
+
+
+state 85
+	note_expr : LPAREN TLIT LITERAL . LITERAL RPAREN  (65)
+	note_expr : LPAREN TLIT LITERAL . FLIT RPAREN  (66)
+
+	LITERAL  shift 94
+	FLIT  shift 95
+	.  error
+
+
+state 86
+	array_expr : LBRACKET master_array RBRACKET .  (46)
+
+	.  reduce 46
+
+
+state 87
+	array_primary : array_primary COMMA . primary_expr  (41)
+
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 96
+
+
+state 88
+	array_note : array_note COMMA . note_expr  (43)
+
+	LPAREN  shift 48
+	ID  shift 49
+	.  error
+
+	note_expr  goto 97
+
+
+state 89
+	array_measure : array_measure COMMA . measure_expr  (45)
+
+	LPAREN  shift 48
+	LBRACKET  shift 51
+	ID  shift 52
+	.  error
+
+	array_expr  goto 53
+	note_expr  goto 54
+	measure_expr  goto 98
+
+
+state 90
+	measure_expr : array_expr COMMA note_expr .  (69)
+
+	.  reduce 69
+
+
+state 91
+	fdecl : DEF master_typ ID LPAREN formal_opt RPAREN . LBRACE stmt_list RBRACE  (15)
+
+	LBRACE  shift 99
+	.  error
+
+
+state 92
+	formal_list : formal_list COMMA . typ ID  (19)
+
+	NOTE  shift 77
+	MEASURE  shift 78
+	NONE  shift 25
+	CHAR  shift 6
+	STRING  shift 7
+	INT  shift 8
+	BOOL  shift 9
+	FLOAT  shift 10
+	VOID  shift 26
+	.  error
+
+	simpl_typ  goto 79
+	typ  goto 100
+
+
+state 93
+	formal_list : typ ID .  (18)
+
+	.  reduce 18
+
+
+state 94
+	note_expr : LPAREN TLIT LITERAL LITERAL . RPAREN  (65)
+
+	RPAREN  shift 101
+	.  error
+
+
+state 95
+	note_expr : LPAREN TLIT LITERAL FLIT . RPAREN  (66)
+
+	RPAREN  shift 102
+	.  error
+
+
+state 96
+	array_primary : array_primary COMMA primary_expr .  (41)
+
+	.  reduce 41
+
+
+state 97
+	array_note : array_note COMMA note_expr .  (43)
+
+	.  reduce 43
+
+
+state 98
+	array_measure : array_measure COMMA measure_expr .  (45)
+
+	.  reduce 45
+
+
+99: reduce/reduce conflict (reduce 20, reduce 47) on LBRACE
+99: reduce/reduce conflict (reduce 20, reduce 47) on RBRACE
+99: reduce/reduce conflict (reduce 20, reduce 47) on RETURN
+99: reduce/reduce conflict (reduce 20, reduce 47) on IF
+99: reduce/reduce conflict (reduce 20, reduce 47) on FOR
+99: reduce/reduce conflict (reduce 20, reduce 47) on WHILE
+99: reduce/reduce conflict (reduce 20, reduce 47) on LITERAL
+99: reduce/reduce conflict (reduce 20, reduce 47) on BLIT
+99: reduce/reduce conflict (reduce 20, reduce 47) on ID
+99: reduce/reduce conflict (reduce 20, reduce 47) on FLIT
+99: reduce/reduce conflict (reduce 20, reduce 47) on TLIT
+99: reduce/reduce conflict (reduce 20, reduce 47) on STRLIT
+state 99
+	fdecl : DEF master_typ ID LPAREN formal_opt RPAREN LBRACE . stmt_list RBRACE  (15)
+	stmt_list : .  (20)
+	stmt_list : .  (47)
+
+	.  reduce 20
+
+	stmt_list  goto 103
+
+
+state 100
+	formal_list : formal_list COMMA typ . ID  (19)
+
+	ID  shift 104
+	.  error
+
+
+state 101
+	note_expr : LPAREN TLIT LITERAL LITERAL RPAREN .  (65)
+
+	.  reduce 65
+
+
+state 102
+	note_expr : LPAREN TLIT LITERAL FLIT RPAREN .  (66)
+
+	.  reduce 66
+
+
+state 103
+	fdecl : DEF master_typ ID LPAREN formal_opt RPAREN LBRACE stmt_list . RBRACE  (15)
+	stmt_list : stmt_list . stmt  (21)
+	stmt_list : stmt_list . stmt  (48)
+
+	LBRACE  shift 105
+	RBRACE  shift 106
+	RETURN  shift 107
+	IF  shift 108
+	FOR  shift 109
+	WHILE  shift 110
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 111
+	stmt  goto 112
+
+
+state 104
+	formal_list : formal_list COMMA typ ID .  (19)
+
+	.  reduce 19
+
+
+105: reduce/reduce conflict (reduce 20, reduce 47) on LBRACE
+105: reduce/reduce conflict (reduce 20, reduce 47) on RBRACE
+105: reduce/reduce conflict (reduce 20, reduce 47) on RETURN
+105: reduce/reduce conflict (reduce 20, reduce 47) on IF
+105: reduce/reduce conflict (reduce 20, reduce 47) on FOR
+105: reduce/reduce conflict (reduce 20, reduce 47) on WHILE
+105: reduce/reduce conflict (reduce 20, reduce 47) on LITERAL
+105: reduce/reduce conflict (reduce 20, reduce 47) on BLIT
+105: reduce/reduce conflict (reduce 20, reduce 47) on ID
+105: reduce/reduce conflict (reduce 20, reduce 47) on FLIT
+105: reduce/reduce conflict (reduce 20, reduce 47) on TLIT
+105: reduce/reduce conflict (reduce 20, reduce 47) on STRLIT
+state 105
+	stmt : LBRACE . stmt_list RBRACE  (51)
+	stmt_list : .  (20)
+	stmt_list : .  (47)
+
+	.  reduce 20
+
+	stmt_list  goto 113
+
+
+state 106
+	fdecl : DEF master_typ ID LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE .  (15)
+
+	.  reduce 15
+
+
+state 107
+	stmt : RETURN . expr_opt SEMI  (50)
+	expr_opt : .  (56)
+
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	SEMI  reduce 56
+
+	primary_expr  goto 114
+	expr_opt  goto 115
+
+
+state 108
+	stmt : IF . LPAREN primary_expr RPAREN stmt  (52)
+	stmt : IF . LPAREN primary_expr RPAREN stmt ELSE stmt  (53)
+
+	LPAREN  shift 116
+	.  error
+
+
+state 109
+	stmt : FOR . LPAREN expr_opt SEMI primary_expr SEMI expr_opt RPAREN stmt  (54)
+
+	LPAREN  shift 117
+	.  error
+
+
+state 110
+	stmt : WHILE . LPAREN primary_expr RPAREN stmt  (55)
+
+	LPAREN  shift 118
+	.  error
+
+
+state 111
+	stmt : primary_expr . SEMI  (49)
+
+	SEMI  shift 119
+	.  error
+
+
+112: reduce/reduce conflict (reduce 21, reduce 48) on LBRACE
+112: reduce/reduce conflict (reduce 21, reduce 48) on RBRACE
+112: reduce/reduce conflict (reduce 21, reduce 48) on RETURN
+112: reduce/reduce conflict (reduce 21, reduce 48) on IF
+112: reduce/reduce conflict (reduce 21, reduce 48) on FOR
+112: reduce/reduce conflict (reduce 21, reduce 48) on WHILE
+112: reduce/reduce conflict (reduce 21, reduce 48) on LITERAL
+112: reduce/reduce conflict (reduce 21, reduce 48) on BLIT
+112: reduce/reduce conflict (reduce 21, reduce 48) on ID
+112: reduce/reduce conflict (reduce 21, reduce 48) on FLIT
+112: reduce/reduce conflict (reduce 21, reduce 48) on TLIT
+112: reduce/reduce conflict (reduce 21, reduce 48) on STRLIT
+state 112
+	stmt_list : stmt_list stmt .  (21)
+	stmt_list : stmt_list stmt .  (48)
+
+	.  reduce 21
+
+
+state 113
+	stmt_list : stmt_list . stmt  (21)
+	stmt_list : stmt_list . stmt  (48)
+	stmt : LBRACE stmt_list . RBRACE  (51)
+
+	LBRACE  shift 105
+	RBRACE  shift 120
+	RETURN  shift 107
+	IF  shift 108
+	FOR  shift 109
+	WHILE  shift 110
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 111
+	stmt  goto 112
+
+
+state 114
+	expr_opt : primary_expr .  (57)
+
+	.  reduce 57
+
+
+state 115
+	stmt : RETURN expr_opt . SEMI  (50)
+
+	SEMI  shift 121
+	.  error
+
+
+state 116
+	stmt : IF LPAREN . primary_expr RPAREN stmt  (52)
+	stmt : IF LPAREN . primary_expr RPAREN stmt ELSE stmt  (53)
+
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 122
+
+
+state 117
+	stmt : FOR LPAREN . expr_opt SEMI primary_expr SEMI expr_opt RPAREN stmt  (54)
+	expr_opt : .  (56)
+
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	SEMI  reduce 56
+
+	primary_expr  goto 114
+	expr_opt  goto 123
+
+
+state 118
+	stmt : WHILE LPAREN . primary_expr RPAREN stmt  (55)
+
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 124
+
+
+state 119
+	stmt : primary_expr SEMI .  (49)
+
+	.  reduce 49
+
+
+state 120
+	stmt : LBRACE stmt_list RBRACE .  (51)
+
+	.  reduce 51
+
+
+state 121
+	stmt : RETURN expr_opt SEMI .  (50)
+
+	.  reduce 50
+
+
+state 122
+	stmt : IF LPAREN primary_expr . RPAREN stmt  (52)
+	stmt : IF LPAREN primary_expr . RPAREN stmt ELSE stmt  (53)
+
+	RPAREN  shift 125
+	.  error
+
+
+state 123
+	stmt : FOR LPAREN expr_opt . SEMI primary_expr SEMI expr_opt RPAREN stmt  (54)
+
+	SEMI  shift 126
+	.  error
+
+
+state 124
+	stmt : WHILE LPAREN primary_expr . RPAREN stmt  (55)
+
+	RPAREN  shift 127
+	.  error
+
+
+state 125
+	stmt : IF LPAREN primary_expr RPAREN . stmt  (52)
+	stmt : IF LPAREN primary_expr RPAREN . stmt ELSE stmt  (53)
+
+	LBRACE  shift 105
+	RETURN  shift 107
+	IF  shift 108
+	FOR  shift 109
+	WHILE  shift 110
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 111
+	stmt  goto 128
+
+
+state 126
+	stmt : FOR LPAREN expr_opt SEMI . primary_expr SEMI expr_opt RPAREN stmt  (54)
+
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 129
+
+
+state 127
+	stmt : WHILE LPAREN primary_expr RPAREN . stmt  (55)
+
+	LBRACE  shift 105
+	RETURN  shift 107
+	IF  shift 108
+	FOR  shift 109
+	WHILE  shift 110
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 111
+	stmt  goto 130
+
+
+state 128
+	stmt : IF LPAREN primary_expr RPAREN stmt .  (52)
+	stmt : IF LPAREN primary_expr RPAREN stmt . ELSE stmt  (53)
+
+	ELSE  shift 131
+	LBRACE  reduce 52
+	RBRACE  reduce 52
+	RETURN  reduce 52
+	IF  reduce 52
+	FOR  reduce 52
+	WHILE  reduce 52
+	LITERAL  reduce 52
+	BLIT  reduce 52
+	ID  reduce 52
+	FLIT  reduce 52
+	TLIT  reduce 52
+	STRLIT  reduce 52
+
+
+state 129
+	stmt : FOR LPAREN expr_opt SEMI primary_expr . SEMI expr_opt RPAREN stmt  (54)
+
+	SEMI  shift 132
+	.  error
+
+
+state 130
+	stmt : WHILE LPAREN primary_expr RPAREN stmt .  (55)
+
+	.  reduce 55
+
+
+state 131
+	stmt : IF LPAREN primary_expr RPAREN stmt ELSE . stmt  (53)
+
+	LBRACE  shift 105
+	RETURN  shift 107
+	IF  shift 108
+	FOR  shift 109
+	WHILE  shift 110
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 111
+	stmt  goto 133
+
+
+state 132
+	stmt : FOR LPAREN expr_opt SEMI primary_expr SEMI . expr_opt RPAREN stmt  (54)
+	expr_opt : .  (56)
+
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	RPAREN  reduce 56
+
+	primary_expr  goto 114
+	expr_opt  goto 134
+
+
+state 133
+	stmt : IF LPAREN primary_expr RPAREN stmt ELSE stmt .  (53)
+
+	.  reduce 53
+
+
+state 134
+	stmt : FOR LPAREN expr_opt SEMI primary_expr SEMI expr_opt . RPAREN stmt  (54)
+
+	RPAREN  shift 135
+	.  error
+
+
+state 135
+	stmt : FOR LPAREN expr_opt SEMI primary_expr SEMI expr_opt RPAREN . stmt  (54)
+
+	LBRACE  shift 105
+	RETURN  shift 107
+	IF  shift 108
+	FOR  shift 109
+	WHILE  shift 110
+	LITERAL  shift 57
+	BLIT  shift 58
+	ID  shift 59
+	FLIT  shift 60
+	TLIT  shift 61
+	STRLIT  shift 62
+	.  error
+
+	primary_expr  goto 111
+	stmt  goto 136
+
+
+state 136
+	stmt : FOR LPAREN expr_opt SEMI primary_expr SEMI expr_opt RPAREN stmt .  (54)
+
+	.  reduce 54
+
+
+Rules never reduced:
+	stmt_list :  (47)
+	stmt_list : stmt_list stmt  (48)
+	measure_expr : ID  (67)
+	un_op : NOT  (70)
+	un_op : PLUS PLUS  (71)
+	un_op : MINUS MINUS  (72)
+	un_expr : primary_expr  (73)
+	un_expr : MINUS un_expr  (74)
+	un_expr : NOT un_expr  (75)
+	un_expr : un_expr PLUS PLUS  (76)
+	un_expr : un_expr MINUS MINUS  (77)
+	mult_op : TIMES  (78)
+	mult_op : DIVIDE  (79)
+	mult_op : MOD  (80)
+	mult_expr : un_expr  (81)
+	mult_expr : mult_expr mult_op un_expr  (82)
+	add_op : PLUS  (83)
+	add_op : MINUS  (84)
+	add_expr : mult_expr  (85)
+	add_expr : add_expr add_op mult_expr  (86)
+	rel_op : LT  (87)
+	rel_op : GT  (88)
+	rel_op : LEQ  (89)
+	rel_op : GEQ  (90)
+	rel_expr : add_expr  (91)
+	rel_expr : rel_expr rel_op add_expr  (92)
+	eq_expr : rel_expr  (93)
+	eq_expr : eq_expr eq_op rel_expr  (94)
+	eq_op : EQ  (95)
+	eq_op : NEQ  (96)
+	eq_expr : rel_expr  (97)
+	eq_expr : eq_expr eq_op rel_expr  (98)
+	bool_op : AND  (99)
+	bool_op : OR  (100)
+	bool_expr : eq_expr  (101)
+	bool_expr : bool_expr bool_op eq_expr  (102)
+	assign_expr : bool_expr  (103)
+	assign_expr : ID ASSIGN assign_expr  (104)
+	func_expr : ID LPAREN args_opt RPAREN  (105)
+	built_in_func_expr : DOT ID LPAREN args_opt RPAREN  (106)
+	args_opt :  (107)
+	args_opt : args_list  (108)
+	args_list : expr_opt  (109)
+	args_list : args_list COMMA expr_opt  (110)
+
+
+State 52 contains 3 reduce/reduce conflicts.
+State 67 contains 4 reduce/reduce conflicts.
+State 69 contains 2 reduce/reduce conflicts.
+State 99 contains 12 reduce/reduce conflicts.
+State 105 contains 12 reduce/reduce conflicts.
+State 112 contains 12 reduce/reduce conflicts.
+
+
+57 terminals, 42 nonterminals
+112 grammar rules, 137 states

@@ -42,11 +42,10 @@ program
 
 
 master_decl
-	: /*Nothing	*/	              { [] }
-	| master_decl init_decls      {()}
-	| master_decl vdecl		{ () }              /*(($2 :: fst $1), snd $1) */
-	| master_decl adecl		{ () }
-	| master_decl fdecl		{ () }                /*(fst $1, ($2 :: snd $1))*/
+	: init_decls      {()}
+	| vdecl		{ () }              /*(($2 :: fst $1), snd $1) */
+	| adecl		{ () }
+	| fdecl		{ () }                /*(fst $1, ($2 :: snd $1))*/
 
 init_decls
 	: simpl_typ	ID ASSIGN primary_expr SEMI	{ () }
@@ -79,11 +78,9 @@ stmt_list
 	| stmt_list stmt  {()}
 
 master_typ
-	: typ		    { () }
-	| simpl_typ	{ () }
+	: typ		     { () }
 	| array_typ	{ () }
-	| NOTE	{ () }
-	| MEASURE	{ () }
+
 
 typ
 	: simpl_typ	{ () }
@@ -164,7 +161,7 @@ note_expr
 measure_expr
 	: ID  { () }
 	| note_expr				{ () }
-	| array_measure COMMA note_expr		{ [] }
+	| array_expr COMMA note_expr		{ () }
 
 un_op
 	: NOT		{ () }
