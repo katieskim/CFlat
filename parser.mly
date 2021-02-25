@@ -16,10 +16,11 @@ open Ast
 %token <string> TLIT         
 %token <string> STRLIT            
 %token EOF
-  
+
 %start program
 %type <Ast.program> program
   
+%left SEMI
 %nonassoc NOELSE
 %nonassoc ELSE
 %right ASSIGN
@@ -29,37 +30,38 @@ open Ast
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
-%right NOT
+%right NOT 
+
   
 %%
-  
-program
+
+
+program																				
 	: master_decl EOF		    { $1 }
 	| program master_decl		{ () }
 
 
 master_decl
-	: /*Nothing*/			              { [] }
+	: /*Nothing	*/	              { [] }
 	| master_decl init_decls      {()}
-	| master_decl vdecl		{ (($2 :: fst $1), snd $1) }           
+	| master_decl vdecl		{ () }              /*(($2 :: fst $1), snd $1) */
 	| master_decl adecl		{ () }
-	| master_decl fdecl		{ (fst $1, ($2 :: snd $1)) }
+	| master_decl fdecl		{ () }                /*(fst $1, ($2 :: snd $1))*/
 
 init_decls
 	: simpl_typ	ID ASSIGN primary_expr SEMI	{ () }
 	| array_typ	ID ASSIGN array_expr SEMI	{ () }
-	| note_typ	ID ASSIGN note_expr SEMI	{ () }
-	| measure_typ	ID ASSIGN measure_expr SEMI	{ () }
+	| NOTE	ID ASSIGN note_expr SEMI	{ () }
+	| MEASURE	ID ASSIGN measure_expr SEMI	{ () }
 
 vdecl
 	: simpl_typ	ID SEMI	{ ($1, $2) }
-	| note_typ	ID SEMI { () }
-	| measure_typ	ID SEMI	{ () }
+	| NOTE	ID SEMI { () }
+	| MEASURE	ID SEMI	{ () }
 
 adecl
-	: simpl_typ	LBRACKET RBRACKET ID SEMI	{ () }
-	| note_typ	LBRACKET RBRACKET ID SEMI	{ () }
-	| measure_typ	LBRACKET RBRACKET ID SEMI	{ () }
+	: array_typ ID SEMI	{ () }
+
 
 fdecl
 	: DEF master_typ ID LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE	{ () }
@@ -80,13 +82,13 @@ master_typ
 	: typ		    { () }
 	| simpl_typ	{ () }
 	| array_typ	{ () }
-	| note_typ	{ () }
-	| measure_typ	{ () }
+	| NOTE	{ () }
+	| MEASURE	{ () }
 
 typ
 	: simpl_typ	{ () }
-	| note_typ	{ () }
-	| measure_typ	{ () }
+	| NOTE	{ () }
+	| MEASURE	{ () }
 	| NONE		{ () }
 	| VOID		{ () }
 
@@ -97,16 +99,10 @@ simpl_typ
 	| STRING	{ () }
 	| BOOL		{ () }
 
-note_typ
-	: NOTE		{ () }
-
-measure_typ
-	: MEASURE	{ () }
-
 array_typ
 	: simpl_typ	LBRACKET RBRACKET	{ () }
-	| note_typ	LBRACKET RBRACKET	{ () }
-	| measure_typ	LBRACKET RBRACKET	{ () }
+	| NOTE	LBRACKET RBRACKET	{ () }
+	| MEASURE	LBRACKET RBRACKET	{ () }
 
 master_array
 	: array_primary	{ () }
@@ -129,7 +125,7 @@ array_expr
 	: LBRACKET master_array RBRACKET	{ () }
 
 stmt_list
-	: /* nothing */  { [] }
+	: /* nothing*/   { [] }
 	| stmt_list stmt { $2 :: $1 }
  
 stmt
@@ -141,7 +137,7 @@ stmt
 	| FOR LPAREN expr_opt SEMI primary_expr SEMI expr_opt RPAREN stmt	{ For($3, $5, $7, $9)   }
 	| WHILE LPAREN primary_expr RPAREN stmt					{ While($3, $5)         }
  
- 
+
 expr_opt
 	: /* nothing */ { Noexpr }
 	| primary_expr         { $1 }
@@ -152,14 +148,13 @@ primary_expr
 	| BLIT               { BoolLit($1)            }   
 	| TLIT 		     { TLiteral($1)	      }   
 	| STRLIT	     { String($1)	      }
+/*
 	| note_expr          { ()                     }   
-	| measure_expr       { ()                     }     
-	| array_expr         { ()                     }   
-	| func_expr          { ()                     }    
-	| array_expr         { ()                     }   
-	| func_expr          { ()                     } 
-	| built_in_func_expr { ()                     }
+	| measure_expr       { ()                     }     */   
+
 	| ID                 { ()                     }
+
+
    
 note_expr
 	: ID { () }
@@ -169,7 +164,7 @@ note_expr
 measure_expr
 	: ID  { () }
 	| note_expr				{ () }
-	| measure_expr COMMA note_expr		{ [] }
+	| array_measure COMMA note_expr		{ [] }
 
 un_op
 	: NOT		{ () }
@@ -177,6 +172,7 @@ un_op
 	| MINUS MINUS	{ () }
 
 un_expr
+
 	: primary_expr		{ () }
 	| MINUS un_expr		{ [] }
 	| NOT un_expr		{ [] }
