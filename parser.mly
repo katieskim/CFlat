@@ -11,8 +11,10 @@ open Ast
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT
-%token <> TLIT                     (* note to self, figure out what <> for TLIT *)
+%token <string> ID 
+%token <float> FLIT
+%token <string> TLIT         
+%token <string> STRLIT            
 %token EOF
   
 %start program
@@ -32,17 +34,18 @@ open Ast
 %%
   
 program
-	: master_decl EOF		{ $1 }
+	: master_decl EOF		    { $1 }
 	| program master_decl		{ () }
-  
+
+
 master_decl
-	: /* nothing */			{ [] }
-	| master_decl init_decls
-	| master_decl vdecl		{ (($2 :: fst $1), snd $1) }
+	: /*Nothing*/			              { [] }
+	| master_decl init_decls      {()}
+	| master_decl vdecl		{ (($2 :: fst $1), snd $1) }           
 	| master_decl adecl		{ () }
 	| master_decl fdecl		{ (fst $1, ($2 :: snd $1)) }
 
-init_decl
+init_decls
 	: simpl_typ	ID ASSIGN primary_expr SEMI	{ () }
 	| array_typ	ID ASSIGN array_expr SEMI	{ () }
 	| note_typ	ID ASSIGN note_expr SEMI	{ () }
@@ -62,7 +65,7 @@ fdecl
 	: DEF master_typ ID LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE	{ () }
   
 formal_opt
-	: /* nothing */	{ [] }
+	: /* nothing*/ 	{ [] }
 	| formal_list   { $1 }
   
 formal_list
@@ -70,18 +73,18 @@ formal_list
 	| formal_list COMMA typ ID	{ ($3,$4) :: $1 }
   
 stmt_list
-	: /* nothing */	{ [] }
-	| stmt_list stmt
+	: /* nothing*/ 	{ [] }
+	| stmt_list stmt  {()}
 
 master_typ
-	: typ		{ () }
+	: typ		    { () }
 	| simpl_typ	{ () }
 	| array_typ	{ () }
 	| note_typ	{ () }
 	| measure_typ	{ () }
 
 typ
-	: simp_typ	{ () }
+	: simpl_typ	{ () }
 	| note_typ	{ () }
 	| measure_typ	{ () }
 	| NONE		{ () }
@@ -126,27 +129,28 @@ array_expr
 	: LBRACKET master_array RBRACKET	{ () }
 
 stmt_list
-	: (* nothing *)  { [] }
+	: /* nothing */  { [] }
 	| stmt_list stmt { $2 :: $1 }
  
 stmt
-	: expr SEMI							{ Expr $1               }
+	: primary_expr SEMI							{ Expr $1               }
 	| RETURN expr_opt SEMI						{ Return $2             }
 	| LBRACE stmt_list RBRACE					{ Block(List.rev $2)    }
-	| IF LPAREN expr RPAREN stmt %prec NOELSE			{ If($3, $5, Block([])) }
-	| IF LPAREN expr RPAREN stmt ELSE stmt				{ If($3, $5, $7)        }
-	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt	{ For($3, $5, $7, $9)   }
-	| WHILE LPAREN expr RPAREN stmt					{ While($3, $5)         }
+	| IF LPAREN primary_expr RPAREN stmt %prec NOELSE			{ If($3, $5, Block([])) }
+	| IF LPAREN primary_expr RPAREN stmt ELSE stmt				{ If($3, $5, $7)        }
+	| FOR LPAREN expr_opt SEMI primary_expr SEMI expr_opt RPAREN stmt	{ For($3, $5, $7, $9)   }
+	| WHILE LPAREN primary_expr RPAREN stmt					{ While($3, $5)         }
+ 
  
 expr_opt
-	: (* nothing *) { Noexpr }
-	| expr          { $1 }
+	: /* nothing */ { Noexpr }
+	| primary_expr         { $1 }
  
 primary_expr
 	: LITERAL            { Literal($1)            }
 	| FLIT               { FLiteral($1)           }
 	| BLIT               { BoolLit($1)            }   
-	| TLIT 		     { TLiteral($1)	      } ?   
+	| TLIT 		     { TLiteral($1)	      }   
 	| STRLIT	     { String($1)	      }
 	| note_expr          { ()                     }   
 	| measure_expr       { ()                     }     
@@ -158,12 +162,12 @@ primary_expr
 	| ID                 { ()                     }
    
 note_expr
-	: ID 
-	| LPAREN TLIT LITERAL LITERAL RPAREN	{ () }
-	| LPAREN TLIT LITERAL FLIT RPAREN	{ () }
+	: ID { () }
+	| LPAREN TLIT LITERAL LITERAL RPAREN	  { () }
+	| LPAREN TLIT LITERAL FLIT RPAREN	      { () }
 
 measure_expr
-	: ID
+	: ID  { () }
 	| note_expr				{ () }
 	| measure_expr COMMA note_expr		{ [] }
 
@@ -204,7 +208,7 @@ rel_op
 	
 rel_expr
 	: add_expr			{ [] }
-	| rel_expr relation_op add_expr { [] }
+	| rel_expr rel_op add_expr { [] }
 
 eq_expr
 	: rel_expr			{ [] }
@@ -233,11 +237,14 @@ assign_expr
 func_expr
 	: ID LPAREN args_opt RPAREN	{ Call($1, $3) }
 
+built_in_func_expr
+	: DOT ID LPAREN args_opt RPAREN   { Call($2, $4) }
+
 args_opt
 	: /* nothing */	{ [] }
 	| args_list	{ List.rev $1 }
 
 args_list
-	: expr			{ [$1] }
-	| args_list COMMA expr	{ $3 :: $1 }
+	: expr_opt			{ [$1] }
+	| args_list COMMA expr_opt	{ $3 :: $1 }
 
