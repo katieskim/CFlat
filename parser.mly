@@ -4,9 +4,9 @@
 open Ast
 %}
   
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN QUES
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN PLUSPLUS MINUSMINUS
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token LBRACKET RBRACKET DOT DQUOTE SQUOTE MOD IN DO BREAK
+%token LBRACKET RBRACKET DOT DQUOTE SQUOTE MOD IN DO BREAK BAR
 %token NOTE MEASURE NONE CONTINUE DEF CHAR STRING 
 %token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
 %token <int> LITERAL
@@ -30,37 +30,34 @@ open Ast
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
-%right NOT 
-
+%right NOT
+%left PLUSPLUS MINUSMINUS
   
 %%
 
-
 program																				
-	: master_decl EOF		    { $1 }
+	: master_decl EOF		    { () }
 	| program master_decl		{ () }
 
-
 master_decl
-	: init_decls      {()}
-	| vdecl		{ () }              /*(($2 :: fst $1), snd $1) */
+	: init_decls            { () }
+	| vdecl		{ () }
 	| adecl		{ () }
-	| fdecl		{ () }                /*(fst $1, ($2 :: snd $1))*/
+	| fdecl		{ () }
 
 init_decls
 	: simpl_typ	ID ASSIGN primary_expr SEMI	{ () }
 	| array_typ	ID ASSIGN array_expr SEMI	{ () }
-	| NOTE	ID ASSIGN note_expr SEMI	{ () }
+	| NOTE ID ASSIGN note_expr SEMI	{ () }
 	| MEASURE	ID ASSIGN measure_expr SEMI	{ () }
 
 vdecl
 	: simpl_typ	ID SEMI	{ ($1, $2) }
-	| NOTE	ID SEMI { () }
+	| NOTE ID SEMI { () }
 	| MEASURE	ID SEMI	{ () }
 
 adecl
 	: array_typ ID SEMI	{ () }
-
 
 fdecl
 	: DEF master_typ ID LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE	{ () }
@@ -77,21 +74,21 @@ master_typ
 	: typ		     { () }
 	| array_typ	{ () }
 
-typ
+typ		
 	: simpl_typ	{ () }
 	| NOTE	{ () }
 	| MEASURE	{ () }
 	| NONE		{ () }
 	| VOID		{ () }
 
-simpl_typ
+simpl_typ			
 	: INT		{ () }
 	| FLOAT		{ () }
 	| CHAR		{ () }
 	| STRING	{ () }
 	| BOOL		{ () }
 
-array_typ
+array_typ       /* array-able types no NULL and VOID */
 	: simpl_typ	LBRACKET RBRACKET	{ () }
 	| NOTE	LBRACKET RBRACKET	{ () }
 	| MEASURE	LBRACKET RBRACKET	{ () }
@@ -128,7 +125,6 @@ stmt
 	| IF LPAREN primary_expr RPAREN stmt ELSE stmt				{ If($3, $5, $7)        }
 	| FOR LPAREN expr_opt SEMI primary_expr SEMI expr_opt RPAREN stmt	{ For($3, $5, $7, $9)   }
 	| WHILE LPAREN primary_expr RPAREN stmt					{ While($3, $5)         }
- 
 
 expr_opt
 	: /* nothing */ { Noexpr }
@@ -159,16 +155,16 @@ measure_expr
 
 un_op
 	: NOT		{ () }
-	| PLUS PLUS	{ () }
-	| MINUS MINUS	{ () }
+	| PLUSPLUS	{ () }
+	| MINUSMINUS	{ () }
 
 un_expr
 
 	: primary_expr		{ () }
 	| MINUS un_expr		{ [] }
 	| NOT un_expr		{ [] }
-	| un_expr PLUS PLUS	{ [] }
-	| un_expr MINUS MINUS	{ [] }
+	| un_expr PLUSPLUS	{ [] }
+	| un_expr MINUSMINUS	{ [] }
 
 mult_op
 	: TIMES		{ () }
@@ -235,3 +231,9 @@ args_list
 	: expr_opt			{ [$1] }
 	| args_list COMMA expr_opt	{ $3 :: $1 }
 
+/*
+
+1. How do we make operators mean different things for different data types?
+2. 
+
+*/

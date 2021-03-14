@@ -12,6 +12,7 @@ rule token = parse
 | ')'        { RPAREN }
 | '{'        { LBRACE }
 | '}'        { RBRACE } 
+| '|'        { BAR }
 | '['        { LBRACKET } 
 | ']'        { RBRACKET }
 | ';'        { SEMI } 
@@ -21,7 +22,9 @@ rule token = parse
 | '"'        { DQUOTE } 
 | '''        { SQUOTE }
 | '+'        { PLUS }
+| "++"       { PLUSPLUS }
 | '-'        { MINUS }
+| "--"       { MINUSMINUS }
 | '*'        { TIMES }
 | '/'        { DIVIDE } 
 | '%'        { MOD }
@@ -35,7 +38,6 @@ rule token = parse
 | "&&"       { AND }
 | "||"       { OR }
 | "!"        { NOT } 
-| "?"        { QUES }
 | "if"       { IF }
 | "else"     { ELSE }
 | "for"      { FOR }
@@ -60,18 +62,16 @@ rule token = parse
 | "void"     { VOID }
 | "true"     { BLIT(true)  }
 | "false"    { BLIT(false) }
-| digits as lxm { LITERAL(int_of_string lxm) }
-| digits '.' digit ( ['e' 'E'] ['+' '-']? digits )?	as lxm { FLIT(lxm) }
-| ['A'-'Z''a'-'z''0'-'9']    as lxm { STRLIT(lxm) }
-| ['A'-'Z''a'-'z''0'-'9']    as lxm { CHARLIT(lxm) }
-| ['A'-'G' 'R'] ['+' '-' '.']? as lxm { TLIT(lxm) }
-| ['A'-'G' 'R'] ['a'-'z' 'A'-'Z' '0'-'9' '_']+	as lxm { ID(lxm) }
-| ['a'-'z' 'H'-'Q' 'S'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
-							as lxm { ID(lxm) }
+| digits                                              as lxm { LITERAL(int_of_string lxm) }
+| digits '.' digit ( ['e' 'E'] ['+' '-']? digits )?	  as lxm { FLIT(lxm) }
+| ['"'] [A'-'Z''a'-'z''0'-'9']* ['"']                 as lxm { STRLIT(lxm) }
+| ['''] ['A'-'Z''a'-'z''0'-'9']? [''']                as lxm { CHARLIT(lxm) }
+| ['A'-'G' 'R'] ['+' '-' '.']?                        as lxm { TLIT(lxm) }
+| ['A'-'G' 'R'] ['a'-'z' 'A'-'Z' '0'-'9' '_']+	      as lxm { ID(lxm) }
+| ['a'-'z' 'H'-'Q' 'S'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*    as lxm { ID(lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
   
 and comment = parse
   ":)" { token lexbuf }
 | _    { comment lexbuf }
-
