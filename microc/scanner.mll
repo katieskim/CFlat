@@ -37,12 +37,12 @@ rule token = parse
 | "bool"   { BOOL }
 | "float"  { FLOAT }
 | "void"   { VOID }
-| "note"   { NOTE }
+| "note"   { NOTE }           (* Added note token  *)
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
-| ['('] ['A'-'G' 'R'] ['+' '-' '.']?[' ']['-']? ['0'-'9'] ' ' digit [')']   as lxm   { NOTELIT (lxm) }
+| '('['A'-'G' 'R'] ['+' '-' '.']? ' ' ['-']? digit ' ' digit ')'  as lxm   { NOTELIT (lxm) }         (* Added note literal *)
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
