@@ -5,7 +5,6 @@
 "Rule: ocaml: ml -> cmo & cmi (%=ast )": "\2383\169F\1771Y\b\200\217\024,\028\\\252\236"
 "Rule: ocaml: ml -> cmo & cmi (%=sast )": "\166\235]\214i\164[\153(\134\132\229wL\150\202"
 "Rule: ocaml: ml & cmi -> cmx & o (%=microcparse )": "\rs\22348\178z41\135w\220\tW\154@"
-"Resource: /Users/katiekim/Desktop/plt/microc/microc.ml": "V\201b1\238\218\253\177\229?R\186\141\015\018\207"
 "Rule: ocaml: ml & cmi -> cmx & o (%=sast )": "\165u\172\184\130\204\006\180\177+\206\147\211\143q\140"
 "Rule: ocaml: ml & cmi -> cmx & o (%=scanner )": "\186nN\224,\225~m\232\229\176X\241\140=\022"
 "Rule: ocaml: ml -> cmo & cmi (%=scanner )": "\017\199C\012wY\232\t\155\2307\228\143\149\192\212"
