@@ -64,11 +64,12 @@ rule token = parse
 | "false"    { BLIT(false) }
 | digits                                              as lxm { LITERAL(int_of_string lxm) }
 | digits '.' digit ( ['e' 'E'] ['+' '-']? digits )?	  as lxm { FLIT(lxm) }
-| ['"'] [A'-'Z''a'-'z''0'-'9']* ['"']                 as lxm { STRLIT(lxm) }
+| ['"'] ['A'-'Z' 'a'-'z' '0'-'9']* ['"']                 as lxm { STRLIT(lxm) }
 | ['''] ['A'-'Z''a'-'z''0'-'9']? [''']                as lxm { CHARLIT(lxm) }
 | ['A'-'G' 'R'] ['+' '-' '.']?                        as lxm { TLIT(lxm) }
 | ['A'-'G' 'R'] ['a'-'z' 'A'-'Z' '0'-'9' '_']+	      as lxm { ID(lxm) }
 | ['a'-'z' 'H'-'Q' 'S'-'Z' '_'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*    as lxm { ID(lxm) }
+| '(' ['A'-'G' 'R'] ['+' '-' '.']?' '['-']?['0'-'9'] ' ' digit ')'   as lxm { NOTELIT (lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
   
