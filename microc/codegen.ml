@@ -39,6 +39,7 @@ let translate (globals, functions) =
     | A.Bool  -> i1_t
     | A.Float -> float_t
     | A.Void  -> void_t
+    | A.Note  -> void_t
   in
 
   (* Create a map of global variables after creating each *)

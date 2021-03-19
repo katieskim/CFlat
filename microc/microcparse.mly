@@ -33,7 +33,7 @@ program:
 
 decls:
    /* nothing */ { ([], [])               }
- | decls vdecl { (($2 :: fst $1), snd $1) }
+ | decls vdecl { (($2 :: fst $1), snd $1m) }
  | decls fdecl { (fst $1, ($2 :: snd $1)) }
 
 fdecl:
@@ -86,9 +86,9 @@ expr_opt:
 
 expr:
     LITERAL          { Literal($1)            }
-  | FLIT	     { Fliteral($1)           }
+  | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
-  | NOTELIT          { Notelit ($1)           }
+  | NOTELIT          { NoteLit($1)           }
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }

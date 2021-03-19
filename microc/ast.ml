@@ -13,7 +13,7 @@ type expr =
     Literal of int
   | Fliteral of string
   | BoolLit of bool
-  | Notelit of string
+  | NoteLit of string
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
@@ -62,7 +62,7 @@ let string_of_uop = function
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | Fliteral(l) -> l
-  | Notelit(l) -> l
+  | NoteLit(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s

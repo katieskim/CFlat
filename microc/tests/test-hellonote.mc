@@ -1,5 +1,8 @@
 int main()
 {
-  note n = (C- 0 1);
-  print(n);
+  note n;
+  n = (C- 0 1);
+  printf(n);
+
+  return 0;
 }
