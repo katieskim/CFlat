@@ -1,0 +1,6 @@
+int main()
+{
+	note n;
+	n = (C- 0 3);
+	return 0;
+}
