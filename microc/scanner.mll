@@ -8,6 +8,7 @@ let digits = digit+
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "(:"     { comment lexbuf }           (* Comments *)
+| '(' ['A'-'G' 'R'] ['+' '-' '.']? ' ' ['-']? digit ' ' digit ')'  as lxm   { NOTELIT (lxm) }
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
@@ -41,7 +42,6 @@ rule token = parse
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | digits as lxm { LITERAL(int_of_string lxm) }
-| '(' ['A'-'G' 'R'] ['+' '-' '.']? ' ' ['-']? digit ' ' digit ')'  as lxm   { NOTELIT (lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
 | eof { EOF }

@@ -90,11 +90,8 @@ diff -b test-func1.out tests/test-func1.out > test-func1.diff
 
 ###### Testing test-func2
 ./microc.native tests/test-func2.mc > test-func2.ll
-llc -relocation-model=pic test-func2.ll > test-func2.s
-cc -o test-func2.exe test-func2.s printbig.o
-./test-func2.exe
-diff -b test-func2.out tests/test-func2.out > test-func2.diff
-###### SUCCESS
+Fatal error: exception Parsing.Parse_error
+###### FAILED
 
 ###### Testing test-func3
 ./microc.native tests/test-func3.mc > test-func3.ll
@@ -178,11 +175,8 @@ diff -b test-global1.out tests/test-global1.out > test-global1.diff
 
 ###### Testing test-global2
 ./microc.native tests/test-global2.mc > test-global2.ll
-llc -relocation-model=pic test-global2.ll > test-global2.s
-cc -o test-global2.exe test-global2.s printbig.o
-./test-global2.exe
-diff -b test-global2.out tests/test-global2.out > test-global2.diff
-###### SUCCESS
+Fatal error: exception Parsing.Parse_error
+###### FAILED
 
 ###### Testing test-global3
 ./microc.native tests/test-global3.mc > test-global3.ll
@@ -202,7 +196,7 @@ diff -b test-hello.out tests/test-hello.out > test-hello.diff
 
 ###### Testing test-hellonote
 ./microc.native tests/test-hellonote.mc > test-hellonote.ll
-Fatal error: exception Parsing.Parse_error
+Fatal error: exception Failure("illegal argument found note expected float in a")
 ###### FAILED
 
 ###### Testing test-if1
@@ -255,11 +249,8 @@ diff -b test-if6.out tests/test-if6.out > test-if6.diff
 
 ###### Testing test-local1
 ./microc.native tests/test-local1.mc > test-local1.ll
-llc -relocation-model=pic test-local1.ll > test-local1.s
-cc -o test-local1.exe test-local1.s printbig.o
-./test-local1.exe
-diff -b test-local1.out tests/test-local1.out > test-local1.diff
-###### SUCCESS
+Fatal error: exception Parsing.Parse_error
+###### FAILED
 
 ###### Testing test-local2
 ./microc.native tests/test-local2.mc > test-local2.ll
@@ -287,11 +278,8 @@ diff -b test-ops2.out tests/test-ops2.out > test-ops2.diff
 
 ###### Testing test-printbig
 ./microc.native tests/test-printbig.mc > test-printbig.ll
-llc -relocation-model=pic test-printbig.ll > test-printbig.s
-cc -o test-printbig.exe test-printbig.s printbig.o
-./test-printbig.exe
-diff -b test-printbig.out tests/test-printbig.out > test-printbig.diff
-###### SUCCESS
+Fatal error: exception Parsing.Parse_error
+###### FAILED
 
 ###### Testing test-var1
 ./microc.native tests/test-var1.mc > test-var1.ll
@@ -328,147 +316,176 @@ diff -b test-while2.out tests/test-while2.out > test-while2.diff
 ###### Testing fail-assign1
 ./microc.native < tests/fail-assign1.mc 2> fail-assign1.err >> testall.log
 diff -b fail-assign1.err tests/fail-assign1.err > fail-assign1.diff
-###### SUCCESS
+FAILED fail-assign1.err differs from tests/fail-assign1.err
+###### FAILED
 
 ###### Testing fail-assign2
 ./microc.native < tests/fail-assign2.mc 2> fail-assign2.err >> testall.log
 diff -b fail-assign2.err tests/fail-assign2.err > fail-assign2.diff
-###### SUCCESS
+FAILED fail-assign2.err differs from tests/fail-assign2.err
+###### FAILED
 
 ###### Testing fail-assign3
 ./microc.native < tests/fail-assign3.mc 2> fail-assign3.err >> testall.log
 diff -b fail-assign3.err tests/fail-assign3.err > fail-assign3.diff
-###### SUCCESS
+FAILED fail-assign3.err differs from tests/fail-assign3.err
+###### FAILED
 
 ###### Testing fail-dead1
 ./microc.native < tests/fail-dead1.mc 2> fail-dead1.err >> testall.log
 diff -b fail-dead1.err tests/fail-dead1.err > fail-dead1.diff
-###### SUCCESS
+FAILED fail-dead1.err differs from tests/fail-dead1.err
+###### FAILED
 
 ###### Testing fail-dead2
 ./microc.native < tests/fail-dead2.mc 2> fail-dead2.err >> testall.log
 diff -b fail-dead2.err tests/fail-dead2.err > fail-dead2.diff
-###### SUCCESS
+FAILED fail-dead2.err differs from tests/fail-dead2.err
+###### FAILED
 
 ###### Testing fail-expr1
 ./microc.native < tests/fail-expr1.mc 2> fail-expr1.err >> testall.log
 diff -b fail-expr1.err tests/fail-expr1.err > fail-expr1.diff
-###### SUCCESS
+FAILED fail-expr1.err differs from tests/fail-expr1.err
+###### FAILED
 
 ###### Testing fail-expr2
 ./microc.native < tests/fail-expr2.mc 2> fail-expr2.err >> testall.log
 diff -b fail-expr2.err tests/fail-expr2.err > fail-expr2.diff
-###### SUCCESS
+FAILED fail-expr2.err differs from tests/fail-expr2.err
+###### FAILED
 
 ###### Testing fail-expr3
 ./microc.native < tests/fail-expr3.mc 2> fail-expr3.err >> testall.log
 diff -b fail-expr3.err tests/fail-expr3.err > fail-expr3.diff
-###### SUCCESS
+FAILED fail-expr3.err differs from tests/fail-expr3.err
+###### FAILED
 
 ###### Testing fail-float1
 ./microc.native < tests/fail-float1.mc 2> fail-float1.err >> testall.log
 diff -b fail-float1.err tests/fail-float1.err > fail-float1.diff
-###### SUCCESS
+FAILED fail-float1.err differs from tests/fail-float1.err
+###### FAILED
 
 ###### Testing fail-float2
 ./microc.native < tests/fail-float2.mc 2> fail-float2.err >> testall.log
 diff -b fail-float2.err tests/fail-float2.err > fail-float2.diff
-###### SUCCESS
+FAILED fail-float2.err differs from tests/fail-float2.err
+###### FAILED
 
 ###### Testing fail-for1
 ./microc.native < tests/fail-for1.mc 2> fail-for1.err >> testall.log
 diff -b fail-for1.err tests/fail-for1.err > fail-for1.diff
-###### SUCCESS
+FAILED fail-for1.err differs from tests/fail-for1.err
+###### FAILED
 
 ###### Testing fail-for2
 ./microc.native < tests/fail-for2.mc 2> fail-for2.err >> testall.log
 diff -b fail-for2.err tests/fail-for2.err > fail-for2.diff
-###### SUCCESS
+FAILED fail-for2.err differs from tests/fail-for2.err
+###### FAILED
 
 ###### Testing fail-for3
 ./microc.native < tests/fail-for3.mc 2> fail-for3.err >> testall.log
 diff -b fail-for3.err tests/fail-for3.err > fail-for3.diff
-###### SUCCESS
+FAILED fail-for3.err differs from tests/fail-for3.err
+###### FAILED
 
 ###### Testing fail-for4
 ./microc.native < tests/fail-for4.mc 2> fail-for4.err >> testall.log
 diff -b fail-for4.err tests/fail-for4.err > fail-for4.diff
-###### SUCCESS
+FAILED fail-for4.err differs from tests/fail-for4.err
+###### FAILED
 
 ###### Testing fail-for5
 ./microc.native < tests/fail-for5.mc 2> fail-for5.err >> testall.log
 diff -b fail-for5.err tests/fail-for5.err > fail-for5.diff
-###### SUCCESS
+FAILED fail-for5.err differs from tests/fail-for5.err
+###### FAILED
 
 ###### Testing fail-func1
 ./microc.native < tests/fail-func1.mc 2> fail-func1.err >> testall.log
 diff -b fail-func1.err tests/fail-func1.err > fail-func1.diff
-###### SUCCESS
+FAILED fail-func1.err differs from tests/fail-func1.err
+###### FAILED
 
 ###### Testing fail-func2
 ./microc.native < tests/fail-func2.mc 2> fail-func2.err >> testall.log
 diff -b fail-func2.err tests/fail-func2.err > fail-func2.diff
-###### SUCCESS
+FAILED fail-func2.err differs from tests/fail-func2.err
+###### FAILED
 
 ###### Testing fail-func3
 ./microc.native < tests/fail-func3.mc 2> fail-func3.err >> testall.log
 diff -b fail-func3.err tests/fail-func3.err > fail-func3.diff
-###### SUCCESS
+FAILED fail-func3.err differs from tests/fail-func3.err
+###### FAILED
 
 ###### Testing fail-func4
 ./microc.native < tests/fail-func4.mc 2> fail-func4.err >> testall.log
 diff -b fail-func4.err tests/fail-func4.err > fail-func4.diff
-###### SUCCESS
+FAILED fail-func4.err differs from tests/fail-func4.err
+###### FAILED
 
 ###### Testing fail-func5
 ./microc.native < tests/fail-func5.mc 2> fail-func5.err >> testall.log
 diff -b fail-func5.err tests/fail-func5.err > fail-func5.diff
-###### SUCCESS
+FAILED fail-func5.err differs from tests/fail-func5.err
+###### FAILED
 
 ###### Testing fail-func6
 ./microc.native < tests/fail-func6.mc 2> fail-func6.err >> testall.log
 diff -b fail-func6.err tests/fail-func6.err > fail-func6.diff
-###### SUCCESS
+FAILED fail-func6.err differs from tests/fail-func6.err
+###### FAILED
 
 ###### Testing fail-func7
 ./microc.native < tests/fail-func7.mc 2> fail-func7.err >> testall.log
 diff -b fail-func7.err tests/fail-func7.err > fail-func7.diff
-###### SUCCESS
+FAILED fail-func7.err differs from tests/fail-func7.err
+###### FAILED
 
 ###### Testing fail-func8
 ./microc.native < tests/fail-func8.mc 2> fail-func8.err >> testall.log
 diff -b fail-func8.err tests/fail-func8.err > fail-func8.diff
-###### SUCCESS
+FAILED fail-func8.err differs from tests/fail-func8.err
+###### FAILED
 
 ###### Testing fail-func9
 ./microc.native < tests/fail-func9.mc 2> fail-func9.err >> testall.log
 diff -b fail-func9.err tests/fail-func9.err > fail-func9.diff
-###### SUCCESS
+FAILED fail-func9.err differs from tests/fail-func9.err
+###### FAILED
 
 ###### Testing fail-global1
 ./microc.native < tests/fail-global1.mc 2> fail-global1.err >> testall.log
 diff -b fail-global1.err tests/fail-global1.err > fail-global1.diff
-###### SUCCESS
+FAILED fail-global1.err differs from tests/fail-global1.err
+###### FAILED
 
 ###### Testing fail-global2
 ./microc.native < tests/fail-global2.mc 2> fail-global2.err >> testall.log
 diff -b fail-global2.err tests/fail-global2.err > fail-global2.diff
-###### SUCCESS
+FAILED fail-global2.err differs from tests/fail-global2.err
+###### FAILED
 
 ###### Testing fail-if1
 ./microc.native < tests/fail-if1.mc 2> fail-if1.err >> testall.log
 diff -b fail-if1.err tests/fail-if1.err > fail-if1.diff
-###### SUCCESS
+FAILED fail-if1.err differs from tests/fail-if1.err
+###### FAILED
 
 ###### Testing fail-if2
 ./microc.native < tests/fail-if2.mc 2> fail-if2.err >> testall.log
 diff -b fail-if2.err tests/fail-if2.err > fail-if2.diff
-###### SUCCESS
+FAILED fail-if2.err differs from tests/fail-if2.err
+###### FAILED
 
 ###### Testing fail-if3
 ./microc.native < tests/fail-if3.mc 2> fail-if3.err >> testall.log
 diff -b fail-if3.err tests/fail-if3.err > fail-if3.diff
-###### SUCCESS
+FAILED fail-if3.err differs from tests/fail-if3.err
+###### FAILED
 
 ###### Testing fail-nomain
 ./microc.native < tests/fail-nomain.mc 2> fail-nomain.err >> testall.log
@@ -478,34 +495,41 @@ diff -b fail-nomain.err tests/fail-nomain.err > fail-nomain.diff
 ###### Testing fail-print
 ./microc.native < tests/fail-print.mc 2> fail-print.err >> testall.log
 diff -b fail-print.err tests/fail-print.err > fail-print.diff
-###### SUCCESS
+FAILED fail-print.err differs from tests/fail-print.err
+###### FAILED
 
 ###### Testing fail-printb
 ./microc.native < tests/fail-printb.mc 2> fail-printb.err >> testall.log
 diff -b fail-printb.err tests/fail-printb.err > fail-printb.diff
-###### SUCCESS
+FAILED fail-printb.err differs from tests/fail-printb.err
+###### FAILED
 
 ###### Testing fail-printbig
 ./microc.native < tests/fail-printbig.mc 2> fail-printbig.err >> testall.log
 diff -b fail-printbig.err tests/fail-printbig.err > fail-printbig.diff
-###### SUCCESS
+FAILED fail-printbig.err differs from tests/fail-printbig.err
+###### FAILED
 
 ###### Testing fail-return1
 ./microc.native < tests/fail-return1.mc 2> fail-return1.err >> testall.log
 diff -b fail-return1.err tests/fail-return1.err > fail-return1.diff
-###### SUCCESS
+FAILED fail-return1.err differs from tests/fail-return1.err
+###### FAILED
 
 ###### Testing fail-return2
 ./microc.native < tests/fail-return2.mc 2> fail-return2.err >> testall.log
 diff -b fail-return2.err tests/fail-return2.err > fail-return2.diff
-###### SUCCESS
+FAILED fail-return2.err differs from tests/fail-return2.err
+###### FAILED
 
 ###### Testing fail-while1
 ./microc.native < tests/fail-while1.mc 2> fail-while1.err >> testall.log
 diff -b fail-while1.err tests/fail-while1.err > fail-while1.diff
-###### SUCCESS
+FAILED fail-while1.err differs from tests/fail-while1.err
+###### FAILED
 
 ###### Testing fail-while2
 ./microc.native < tests/fail-while2.mc 2> fail-while2.err >> testall.log
 diff -b fail-while2.err tests/fail-while2.err > fail-while2.diff
-###### SUCCESS
+FAILED fail-while2.err differs from tests/fail-while2.err
+###### FAILED
