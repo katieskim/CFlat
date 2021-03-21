@@ -200,6 +200,11 @@ cc -o test-hello.exe test-hello.s printbig.o
 diff -b test-hello.out tests/test-hello.out > test-hello.diff
 ###### SUCCESS
 
+###### Testing test-hellonote
+./microc.native tests/test-hellonote.mc > test-hellonote.ll
+Fatal error: exception Parsing.Parse_error
+###### FAILED
+
 ###### Testing test-if1
 ./microc.native tests/test-if1.mc > test-if1.ll
 llc -relocation-model=pic test-if1.ll > test-if1.s

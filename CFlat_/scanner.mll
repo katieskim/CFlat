@@ -1,37 +1,24 @@
-(* Ocamllex scanner for MicroC *)
+(* Ocamllex scanner for CFlat *)
 
-{ open Microcparse }
+{ open Parser }
 
 let digit = ['0' - '9']
 let digits = digit+
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*"     { comment lexbuf }           (* Comments *)
+| "(:"     { comment lexbuf }           (* Comments *)
+| '(' ['A'-'G' 'R'] ['+' '-' '.']? ' ' ['+' '-']? digit ' ' digit ')'
+					       as lxm{ NOTELIT (lxm) }
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
 | '}'      { RBRACE }
 | ';'      { SEMI }
-| ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }
-| '*'      { TIMES }
-| '/'      { DIVIDE }
 | '='      { ASSIGN }
-| "=="     { EQ }
-| "!="     { NEQ }
-| '<'      { LT }
-| "<="     { LEQ }
-| ">"      { GT }
-| ">="     { GEQ }
-| "&&"     { AND }
-| "||"     { OR }
-| "!"      { NOT }
-| "if"     { IF }
-| "else"   { ELSE }
-| "for"    { FOR }
-| "while"  { WHILE }
+| "note"   { NOTE }
 | "return" { RETURN }
 | "int"    { INT }
 | "bool"   { BOOL }
@@ -46,5 +33,5 @@ rule token = parse
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
 and comment = parse
-  "*/" { token lexbuf }
+  ":)" { token lexbuf }
 | _    { comment lexbuf }
