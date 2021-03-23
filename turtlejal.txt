@@ -1,0 +1,25 @@
+
+
+Scanner
+
+| ['('] ['A'-'G' 'R'] ['+' '-' '.']?[' ']['-']? ['0'-'9'] ' ' digit [')']   as lxm   { NOTELIT (lxm) } 
+
+| "note"   { NOTE }                    (* note token added  *) 
+
+
+Parser
+
+%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID NOTE
+%token <string> NOTELIT
+
+in expr
+  | NOTELIT          { Notelit ($1)           }
+in typ
+  | NOTE	{ Note }
+
+
+
+AST 
+  | Notelit(l) -> l
+
+  in string of typ  | Note -> "note"
