@@ -1,0 +1,7 @@
+int main()
+{
+	int i;
+	note n;
+	i = n;
+	return 0;
+}
