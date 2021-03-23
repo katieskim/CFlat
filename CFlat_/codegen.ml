@@ -39,7 +39,7 @@ let translate (globals, functions) =
     | A.Bool  -> i1_t
     | A.Float -> float_t
     | A.Void  -> void_t
-    | A.Note  -> i32_t
+    | A.Note  -> L.llvalue
   in
 
   (* Create a map of global variables after creating each *)
@@ -61,6 +61,10 @@ let translate (globals, functions) =
   let printbig_func : L.llvalue =
       L.declare_function "printbig" printbig_t the_module in
 
+  (* :)))))))))))))))))))) MAKE PRINTN THING *)
+  (* :)))))))))))))))))))) MAKE NOTE STRUCT *)
+  (* :)))))))))))))))))))) MAKE PLAY STRUCT *)
+
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -78,6 +82,7 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and note_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -126,6 +131,10 @@ let translate (globals, functions) =
       | SCall ("printf", [e]) -> 
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
+      | SCall ("printn", [e]) ->
+          L.build_call printf_func [| note_format_str ; (expr builder e) |]
+            "printf" builder
+
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
