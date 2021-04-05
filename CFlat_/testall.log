@@ -1,0 +1,118 @@
+/usr/bin/lli
+
+###### Testing test-binop0
+./cflat.native tests/test-binop0.cf > test-binop0.ll
+llc -relocation-model=pic test-binop0.ll > test-binop0.s
+cc -o test-binop0.exe test-binop0.s printbig.o
+./test-binop0.exe
+diff -b test-binop0.out tests/test-binop0.out > test-binop0.diff
+###### SUCCESS
+
+###### Testing test-binop1
+./cflat.native tests/test-binop1.cf > test-binop1.ll
+llc -relocation-model=pic test-binop1.ll > test-binop1.s
+cc -o test-binop1.exe test-binop1.s printbig.o
+./test-binop1.exe
+diff -b test-binop1.out tests/test-binop1.out > test-binop1.diff
+###### SUCCESS
+
+###### Testing test-for0
+./cflat.native tests/test-for0.cf > test-for0.ll
+llc -relocation-model=pic test-for0.ll > test-for0.s
+cc -o test-for0.exe test-for0.s printbig.o
+./test-for0.exe
+diff -b test-for0.out tests/test-for0.out > test-for0.diff
+###### SUCCESS
+
+###### Testing test-for1
+./cflat.native tests/test-for1.cf > test-for1.ll
+llc -relocation-model=pic test-for1.ll > test-for1.s
+cc -o test-for1.exe test-for1.s printbig.o
+./test-for1.exe
+diff -b test-for1.out tests/test-for1.out > test-for1.diff
+###### SUCCESS
+
+###### Testing test-hellonote
+./cflat.native tests/test-hellonote.cf > test-hellonote.ll
+llc -relocation-model=pic test-hellonote.ll > test-hellonote.s
+cc -o test-hellonote.exe test-hellonote.s printbig.o
+./test-hellonote.exe
+diff -b test-hellonote.out tests/test-hellonote.out > test-hellonote.diff
+###### SUCCESS
+
+###### Testing test-helloworld0
+./cflat.native tests/test-helloworld0.cf > test-helloworld0.ll
+llc -relocation-model=pic test-helloworld0.ll > test-helloworld0.s
+cc -o test-helloworld0.exe test-helloworld0.s printbig.o
+./test-helloworld0.exe
+diff -b test-helloworld0.out tests/test-helloworld0.out > test-helloworld0.diff
+###### SUCCESS
+
+###### Testing test-helloworld1
+./cflat.native tests/test-helloworld1.cf > test-helloworld1.ll
+llc -relocation-model=pic test-helloworld1.ll > test-helloworld1.s
+cc -o test-helloworld1.exe test-helloworld1.s printbig.o
+./test-helloworld1.exe
+diff -b test-helloworld1.out tests/test-helloworld1.out > test-helloworld1.diff
+###### SUCCESS
+
+###### Testing test-if0
+./cflat.native tests/test-if0.cf > test-if0.ll
+llc -relocation-model=pic test-if0.ll > test-if0.s
+cc -o test-if0.exe test-if0.s printbig.o
+./test-if0.exe
+diff -b test-if0.out tests/test-if0.out > test-if0.diff
+###### SUCCESS
+
+###### Testing test-if1
+./cflat.native tests/test-if1.cf > test-if1.ll
+llc -relocation-model=pic test-if1.ll > test-if1.s
+cc -o test-if1.exe test-if1.s printbig.o
+./test-if1.exe
+diff -b test-if1.out tests/test-if1.out > test-if1.diff
+###### SUCCESS
+
+###### Testing test-if2
+./cflat.native tests/test-if2.cf > test-if2.ll
+llc -relocation-model=pic test-if2.ll > test-if2.s
+cc -o test-if2.exe test-if2.s printbig.o
+./test-if2.exe
+diff -b test-if2.out tests/test-if2.out > test-if2.diff
+###### SUCCESS
+
+###### Testing test-micrloat1.cf
+./cflat.native tests/test-microcfloat1.cf > test-micrloat1.cf.ll
+llc -relocation-model=pic test-micrloat1.cf.ll > test-micrloat1.cf.s
+cc -o test-micrloat1.cf.exe test-micrloat1.cf.s printbig.o
+./test-micrloat1.cf.exe
+diff -b test-micrloat1.cf.out tests/test-microcfloat1.out > test-micrloat1.cf.diff
+###### SUCCESS
+
+###### Testing test-printfloat
+./cflat.native tests/test-printfloat.cf > test-printfloat.ll
+llc -relocation-model=pic test-printfloat.ll > test-printfloat.s
+cc -o test-printfloat.exe test-printfloat.s printbig.o
+./test-printfloat.exe
+diff -b test-printfloat.out tests/test-printfloat.out > test-printfloat.diff
+###### SUCCESS
+
+###### Testing test-unop0
+./cflat.native tests/test-unop0.cf > test-unop0.ll
+llc -relocation-model=pic test-unop0.ll > test-unop0.s
+cc -o test-unop0.exe test-unop0.s printbig.o
+./test-unop0.exe
+diff -b test-unop0.out tests/test-unop0.out > test-unop0.diff
+###### SUCCESS
+
+###### Testing test-while0
+./cflat.native tests/test-while0.cf > test-while0.ll
+llc -relocation-model=pic test-while0.ll > test-while0.s
+cc -o test-while0.exe test-while0.s printbig.o
+./test-while0.exe
+diff -b test-while0.out tests/test-while0.out > test-while0.diff
+###### SUCCESS
+
+###### Testing fail-assign_int_note
+./cflat.native < tests/fail-assign_int_note.cf 2> fail-assign_int_note.err >> testall.log
+diff -b fail-assign_int_note.err tests/fail-assign_int_note.err > fail-assign_int_note.diff
+###### SUCCESS
