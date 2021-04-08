@@ -1,6 +1,6 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
-type typ = Int | Bool | Float | Void | Note | String
+type typ = Int | Bool | Float | Void | Note | String | Tone | Octave | Rhythm
 
 type bind = typ * string
 
@@ -13,7 +13,10 @@ type expr =
     Literal of int
   | Fliteral of string
   | BoolLit of bool
-  | NoteLit of string
+  | NoteLit of expr * expr * expr
+  | ToneLit of string
+  | OctaveLit of string
+  | RhythmLit of string
   | StrLit of string
   | Id of string
   | Assign of string * expr
@@ -66,6 +69,9 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | NoteLit(l) -> l
+  | ToneLit(l) -> l
+  | OctaveLit(l) -> l
+  | RhythmLit(l) -> l
   | StrLit(l) -> l
   | Id(s) -> s
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
@@ -95,6 +101,9 @@ let string_of_typ = function
   | Float -> "float"
   | Void -> "void"
   | Note -> "note"
+  | Tone -> "tone"
+  | Octave -> "octave"
+  | Rhythm -> "rhythm"
   | String -> "string"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"

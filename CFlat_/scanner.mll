@@ -30,6 +30,9 @@ rule token = parse
 | "||"     { OR }
 | "!"      { NOT }
 | "note"   { NOTE }
+| "tone"   { TONE }
+| "octave" { OCTAVE }
+| "rhythm" { RHYTHM }
 | "string" { STRING }
 | "if"     { IF }
 | "else"   { ELSE }
@@ -42,6 +45,9 @@ rule token = parse
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
+| '/' ((['A'-'G']['+''-''.']?) as lxm) '/'  { TLIT(lxm) }
+| '/' ((['0'-'9'] | "-1") as lxm) '/'              { OLIT(lxm) } (* need to check -1 *)
+| '/' ((['s''e''q''h''w']['.']?) as lxm) '/'                     { RLIT(lxm) }
 | '"' (['a'-'z' 'A'-'Z' '0'-'9' '_' ' ']* as lxm) '"'                { STRLIT(lxm) }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )?   as lxm { FLIT(lxm) }
@@ -52,3 +58,5 @@ rule token = parse
 and comment = parse
   ":)" { token lexbuf }
 | _    { comment lexbuf }
+
+
