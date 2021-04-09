@@ -7,14 +7,14 @@
 #endif
 #include "midifile.h"
 
-
-
+/* Note struct */
 struct note{
     char tlit[2];
     int olit;
     char rlit[2];
 }note;
 
+/*Mallocs space for and initializes a new note struct */
 struct note *new_note(char *tone, int octave, char *rhythm){
 
     struct note *n = malloc(sizeof(struct note));
@@ -28,9 +28,20 @@ struct note *new_note(char *tone, int octave, char *rhythm){
 }
 
 /*Function declarations*/
+
+/*INPUT: Takes in a pointer to a single note struct */ 
+/*OUTPUT: A midifile called "hellonote.mid" that plays the note */ 
 void play_note(struct note *n);
+
+/*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
+/*OUTPUT: No output but it will add the note to the midi_file */ 
 void add_note(struct note *note_ptr, MIDI_FILE *mf);
+
+/*INPUT: Takes in a pointer to an array of note struct pointers */ 
+/*OUTPUT: A midifile called "notearray.mid" that plays a C Major scale.  */ 
 void play_note_arr(struct note *arr[]);
+
+
 
 void play_note_arr(struct note *note_arr[]){
 
@@ -47,6 +58,8 @@ void play_note_arr(struct note *note_arr[]){
             note_arr++;
         }*/
 
+        /*Currently hardcoded 8 but we will want arrays of any lengths */
+
         int i;
         for (i=0; i<8; i++){
             add_note((note_arr[i]), mf);
@@ -58,7 +71,7 @@ void play_note_arr(struct note *note_arr[]){
 void play_note(struct note *note_ptr) {
 /*char *tlit, int olit, char *rlit */
 MIDI_FILE *mf;
-	if ((mf = midiFileCreate("helloworld.mid", TRUE))){
+	if ((mf = midiFileCreate("hellonote.mid", TRUE))){
 		add_note(note_ptr, mf);
 		midiFileClose(mf);
 		}
@@ -126,14 +139,15 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
 }
 
 
+/*DRIVER CODE FOR PLAY_NOTE_ARR: Creates a midifile with a C Major Scale */
 int main(int argc, char* argv[])
 {
-    struct note *arr[8];
+    struct note *arr[9];
     int i;
     for (i=0; i<8; i++){
         arr[i] = malloc(sizeof(struct note*));
     }
-
+    arr[8] = NULL;
     struct note *c = new_note("C", 4, "q");
     struct note *d = new_note("D", 4, "q");
     struct note *e = new_note("E", 4, "q");
