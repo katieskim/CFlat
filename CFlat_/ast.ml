@@ -68,7 +68,7 @@ let rec string_of_expr = function
   | Fliteral(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
-  | NoteLit(l) -> l
+  | NoteLit(t, o, r) -> string_of_expr t ^ ", " ^ string_of_expr o ^ ", " ^ string_of_expr r
   | ToneLit(l) -> l
   | OctaveLit(l) -> l
   | RhythmLit(l) -> l

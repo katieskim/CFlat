@@ -8,8 +8,6 @@ let digits = digit+
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "(:"     { comment lexbuf }           (* Comments *)
-| '(' ['A'-'G' 'R'] ['+' '-' '.']? ' ' ['+' '-']? digit ' ' digit ')'
-					       as lxm{ NOTELIT (lxm) }
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
@@ -46,9 +44,9 @@ rule token = parse
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | '/' ((['A'-'G']['+''-''.']?) as lxm) '/'  { TLIT(lxm) }
-| '/' ((['0'-'9'] | "-1") as lxm) '/'              { OLIT(lxm) } (* need to check -1 *)
-| '/' ((['s''e''q''h''w']['.']?) as lxm) '/'                     { RLIT(lxm) }
-| '"' (['a'-'z' 'A'-'Z' '0'-'9' '_' ' ']* as lxm) '"'                { STRLIT(lxm) }
+| '/' ((['0'-'9'] | "-1") as lxm) '/'       { OLIT(int_of_string lxm) }
+| '/' ((['s''e''q''h''w']['.']?) as lxm) '/'            { RLIT(lxm) }
+| '"' (['a'-'z' 'A'-'Z' '0'-'9' '_' ' ']* as lxm) '"'   { STRLIT(lxm) }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )?   as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*       as lxm { ID(lxm) }

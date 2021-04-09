@@ -64,8 +64,6 @@ typ:
   | RHYTHM  { Rhythm }
   | STRING  { String }
 
-(* add rests!!!! *)
-
 literal:
     LITERAL          { Literal($1)            }
   | FLIT	           { Fliteral($1)           }
@@ -77,19 +75,17 @@ literal:
   | rlit             { $1                     }
 
 tlit:
-  | TLIT             { ToneLit($1)            }
+    TLIT             { ToneLit($1)            }
 
 olit:
-  | OLIT             { OctaveLit($1)          }
+    OLIT             { OctaveLit($1)          }
 
 rlit:
-  | RLIT             { OctaveLit($1)          }
-
+    RLIT             { OctaveLit($1)          }
 
 notelit:
     LPAREN tlit olit rlit RPAREN    { NoteLit($2, $3, $4)}
-(* allow for default values? *)
-
+    /* allow for default values? */
 
 vdecl_list:
     /* nothing */    { [] }
@@ -117,7 +113,7 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    literal ?
+    literal          { () }
   | ID               { Id($1)                 }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
@@ -136,8 +132,6 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3)   }
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
   | NOT expr         { Unop(Not, $2)          }
-
-
 
 args_opt:
     /* nothing */ { [] }

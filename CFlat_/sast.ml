@@ -46,7 +46,7 @@ let rec string_of_sexpr (t, e) =
   | SFliteral(l) -> l
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
-  | SNoteLit(l) -> l
+  | SNoteLit(t, o, r) -> string_of_sexpr t ^ ", " ^ string_of_sexpr o ^ ", " ^ string_of_sexpr r
   | SToneLit(l) -> l
   | SOctaveLit(l) -> l
   | SRhythmLit(l) -> l

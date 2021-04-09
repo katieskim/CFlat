@@ -32,8 +32,8 @@ let translate (globals, functions) =
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
   and void_t     = L.void_type   context in
-  let note_t     = L.array_type i8_t 9
-  and str_t      = L.pointer_type i8_t in
+  let str_t      = L.pointer_type i8_t in
+  let note_t     = L.struct_type context [| L.pointer_type i8_t; L.i32_type context ; L.pointer_type i8_t |] in
 
   (* Return the LLVM type for a CFlat type *)
   let ltype_of_typ = function
@@ -42,6 +42,9 @@ let translate (globals, functions) =
     | A.Float -> float_t
     | A.Void  -> void_t
     | A.Note  -> note_t
+    | A.Tone  -> str_t
+    | A.Octave  -> i32_t
+    | A.Rhythm  -> str_t
     | A.String -> str_t
   in
 
@@ -119,7 +122,7 @@ let translate (globals, functions) =
 
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
-	SLiteral i  -> L.const_int i32_t i
+	      SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
       | SNoteLit l  -> L.const_stringz context l
