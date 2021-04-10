@@ -120,12 +120,16 @@ let translate (globals, functions) =
                    with Not_found -> StringMap.find n global_vars
     in
 
+    (* creates struct *)
+    let codegen_note
+    
+
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
 	      SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
-      | SNoteLit l  -> L.const_stringz context l
+      | SNoteLit (t, o, r)  -> codegen_note t o r builder  *)         (* build note struct here? *)
       | SStrLit l   -> L.build_global_stringptr (l ^ "\x00") "_sstrlit_" builder 
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder

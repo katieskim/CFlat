@@ -3,12 +3,21 @@ source_filename = "struct.c"
 target datalayout = "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.15.0"
 
-%struct.Note = type { [2 x i8], i32, [2 x i8] }
+%struct.Note = type { i8*, i32, i8* }
+
+@.str = private unnamed_addr constant [3 x i8] c"C-\00", align 1
+@.str.1 = private unnamed_addr constant [3 x i8] c"s.\00", align 1
 ; Function Attrs: noinline nounwind optnone ssp uwtable
 define i32 @main() #0 {
   %1 = alloca i32, align 4
-  %2 = alloca %struct.Note, align 4
+  %2 = alloca %struct.Note, align 8
   store i32 0, i32* %1, align 4
+  %3 = getelementptr inbounds %struct.Note, %struct.Note* %2, i32 0, i32 0
+  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i64 0, i64 0), i8** %3, align 8
+  %4 = getelementptr inbounds %struct.Note, %struct.Note* %2, i32 0, i32 1
+  store i32 4, i32* %4, align 8
+  %5 = getelementptr inbounds %struct.Note, %struct.Note* %2, i32 0, i32 2
+  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.1, i64 0, i64 0), i8** %5, align 8
   ret i32 0
 }
 

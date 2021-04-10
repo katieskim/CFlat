@@ -98,7 +98,7 @@ let check (globals, functions) =
         Literal  l -> (Int, SLiteral l)
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
-      | NoteLit l -> (Note, SNoteLit l)
+      | NoteLit (t, o, r) -> (Note, SNoteLit (expr t, expr o, expr r))
       | ToneLit l -> (Tone, SToneLit l)
       | OctaveLit l -> (Octave, SOctaveLit l)
       | RhythmLit l -> (Rhythm, SRhythmLit l)

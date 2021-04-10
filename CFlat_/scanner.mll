@@ -44,7 +44,7 @@ rule token = parse
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | '/' ((['A'-'G']['+''-''.']?) as lxm) '/'  { TLIT(lxm) }
-| '/' ((['0'-'9'] | "-1") as lxm) '/'       { OLIT(int_of_string lxm) }
+| '/' ((['0'-'9'] | "-1") as lxm) '/'       { OLIT(lxm) }
 | '/' ((['s''e''q''h''w']['.']?) as lxm) '/'            { RLIT(lxm) }
 | '"' (['a'-'z' 'A'-'Z' '0'-'9' '_' ' ']* as lxm) '"'   { STRLIT(lxm) }
 | digits as lxm { LITERAL(int_of_string lxm) }

@@ -1,7 +1,6 @@
 int main()
 {
 	note n;
-	n = (C- 0 q);
 
 	return 0;
 }

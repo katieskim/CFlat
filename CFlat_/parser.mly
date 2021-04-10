@@ -69,7 +69,7 @@ literal:
   | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
   | STRLIT           { StrLit($1)             }
-  | notelit          { NoteLit($1)            }
+  | notelit          { $1                     }
   | tlit             { $1                     }
   | olit             { $1                     }
   | rlit             { $1                     }
@@ -113,7 +113,7 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    literal          { () }
+    literal          { $1 }
   | ID               { Id($1)                 }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
