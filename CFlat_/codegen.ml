@@ -33,7 +33,9 @@ let translate (globals, functions) =
   and float_t    = L.double_type context
   and void_t     = L.void_type   context in
   let str_t      = L.pointer_type i8_t in
-  let note_t     = L.struct_type context [| L.pointer_type i8_t; L.i32_type context ; L.pointer_type i8_t |] in
+  let unnamed_struct_note_t  = L.struct_type context [| L.pointer_type i8_t; L.pointer_type i8_t ; L.pointer_type i8_t |] in
+  let named_struct_note_t = L.named_struct_type context "named_struct_note_t" in 
+  let unit3 = L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; L.pointer_type i8_t; L.pointer_type i8_t |] false in
 
   (* Return the LLVM type for a CFlat type *)
   let ltype_of_typ = function
@@ -41,9 +43,9 @@ let translate (globals, functions) =
     | A.Bool  -> i1_t
     | A.Float -> float_t
     | A.Void  -> void_t
-    | A.Note  -> note_t
+    | A.Note  -> named_struct_note_t
     | A.Tone  -> str_t
-    | A.Octave  -> i32_t
+    | A.Octave  -> str_t
     | A.Rhythm  -> str_t
     | A.String -> str_t
   in
@@ -121,7 +123,7 @@ let translate (globals, functions) =
     in
 
     (* creates struct *)
-    let codegen_note
+    (* let codegen_note t o r builder *)
     
 
     (* Construct code for an expression; return its value *)
@@ -129,8 +131,16 @@ let translate (globals, functions) =
 	      SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
-      | SNoteLit (t, o, r)  -> codegen_note t o r builder  *)         (* build note struct here? *)
-      | SStrLit l   -> L.build_global_stringptr (l ^ "\x00") "_sstrlit_" builder 
+      | SNoteLit (t, o, r) ->   L.build_global_stringptr ("hiiiiiiiii\x00") "_sstrlit_" builder 
+     
+      (* let t' = expr builder t and o' = expr builder o and r' = expr builder r in *)
+
+                               (* L.build_global_stringptr (t' ^ o' ^ r' ^ "\x00") "_sstrlit_" builder  *)
+                                (* codegen_note t' o' r' builder *)
+      | SToneLit t ->  L.build_global_stringptr (t ^ "\x00") "hi" builder 
+      | SOctaveLit o ->  L.build_global_stringptr (o ^ "\x00") "bue" builder 
+      | SRhythmLit r ->  L.build_global_stringptr (r ^ "\x00") "hfadi" builder 
+      | SStrLit l   -> L.build_global_stringptr (l ^ "\x00") "ad" builder 
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in

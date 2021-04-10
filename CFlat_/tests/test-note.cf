@@ -1,6 +1,14 @@
 int main()
 {
+	tone t;
+	(: t = /C-/; :)
+	octave o;
+	(: o = /4/; :)
+	rhythm r;
+	(: r = /s./; :)
 	note n;
+	n = ( /C-/ /4/ /s./ );
+
 
 	return 0;
 }
