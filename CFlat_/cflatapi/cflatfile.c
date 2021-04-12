@@ -9,9 +9,9 @@
 
 /* Note struct */
 struct note{
-    char tlit[2];
+    char tlit[3];
     int olit;
-    char rlit[2];
+    char rlit[3];
 }note;
 
 /*Mallocs space for and initializes a new note struct */
@@ -62,7 +62,7 @@ void play_note_arr(struct note *note_arr[]){
 
         int i;
         
-        /*size_t n = sizeof(note_arr)/sizeof(*note_arr);*/
+        size_t n = sizeof(note_arr)/sizeof(*note_arr);
 
         for (i=0; i<9; i++){
             add_note((note_arr[i]), mf);
@@ -100,12 +100,10 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
     int accidental = 0;
 
     /*char acc = tlit[1];*/
-    if (strlen(tlit) > 1 && tlit[1] == '.') {accidental = 1;}
-
-/*
+    char acc = tlit[1];
     if (acc == '-') {accidental = -1;} 
     else if (acc == '+') {accidental = 1;}
-    else if (acc == '.') {accidental = 0;}*/
+    else if (acc == '.') {accidental = 0;}
     /*  else {printf("%s\n", "This is not an allowable accidental value.");}*/
 
     miditone = (miditone + accidental)%12;    /*Accounts for any wraparound needed for B# or Cflat*/
@@ -161,11 +159,11 @@ int main(int argc, char* argv[])
     struct note *d = new_note("D", 4, "s.");
     struct note *e = new_note("E", 4, "e");
     struct note *f = new_note("F", 4, "e.");
-    struct note *g = new_note("G", 4, "q");
+    struct note *g = new_note("G+", 5, "q");
     struct note *a = new_note("A", 4, "q.");
     struct note *b = new_note("B", 4, "h");
-    struct note *c_2 = new_note("C", 5, "h.");
-    struct note *d_2 = new_note("D", 5, "w");
+    struct note *c_2 = new_note("C+", 5, "h.");
+    struct note *d_2 = new_note("F-", 5, "w");
 
     
 
