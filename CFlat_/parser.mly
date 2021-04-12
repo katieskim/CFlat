@@ -8,9 +8,9 @@ open Ast
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE 
 %token INT BOOL FLOAT VOID NOTE STRING TONE OCTAVE RHYTHM
-%token <int> LITERAL
+%token <int> LITERAL OLIT
 %token <bool> BLIT
-%token <string> ID FLIT STRLIT TLIT OLIT RLIT
+%token <string> ID FLIT STRLIT TLIT RLIT
 %token EOF
 
 %start program
@@ -81,10 +81,10 @@ olit:
     OLIT             { OctaveLit($1)          }
 
 rlit:
-    RLIT             { OctaveLit($1)          }
+    RLIT             { RhythmLit($1)          }
 
 notelit:
-    LPAREN tlit olit rlit RPAREN    { NoteLit($2, $3, $4)}
+    LPAREN DIVIDE tlit DIVIDE DIVIDE olit DIVIDE DIVIDE rlit DIVIDE RPAREN    { NoteLit($3, $6, $9)}
     /* allow for default values? */
 
 vdecl_list:

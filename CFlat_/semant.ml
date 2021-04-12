@@ -44,7 +44,11 @@ let check (globals, functions) =
 			                         ("printf", Float);
 			                         ("printbig", Int);
                                ("prints", String);
-						                   ("printn", Note) ]
+						                   ("printn", Note);
+                               ("printt", Tone);
+                               ("printr", Rhythm);
+                               ("printo", Octave);
+                               ]
   in
 
   (* Add function name to symbol table *)

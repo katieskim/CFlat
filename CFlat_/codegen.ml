@@ -1,4 +1,6 @@
-(* Code generation: translate takes a semantically checked AST and
+(*
+
+Code generation: translate takes a semantically checked AST and
 produces LLVM IR
 
 LLVM tutorial: Make sure to read the OCaml version of the tutorial
@@ -33,7 +35,7 @@ let translate (globals, functions) =
   and float_t    = L.double_type context
   and void_t     = L.void_type   context in
   let str_t      = L.pointer_type i8_t in
-  let unnamed_struct_note_t  = L.struct_type context [| L.pointer_type i8_t; L.pointer_type i8_t ; L.pointer_type i8_t |] in
+  (* let unnamed_struct_note_t  = L.struct_type context [| L.pointer_type i8_t; L.pointer_type i8_t ; L.pointer_type i8_t |] in *)
   let named_struct_note_t = L.named_struct_type context "named_struct_note_t" in 
   let unit3 = L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; L.pointer_type i8_t; L.pointer_type i8_t |] false in
 
@@ -45,7 +47,7 @@ let translate (globals, functions) =
     | A.Void  -> void_t
     | A.Note  -> named_struct_note_t
     | A.Tone  -> str_t
-    | A.Octave  -> str_t
+    | A.Octave  -> i32_t
     | A.Rhythm  -> str_t
     | A.String -> str_t
   in
@@ -92,6 +94,9 @@ let translate (globals, functions) =
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
     and note_format_str = L.build_global_stringptr "%c\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder 
+    and tone_format_str = L.build_global_stringptr "%s\n" "fmt" builder 
+    and octave_format_str = L.build_global_stringptr "%d\n" "fmt" builder 
+    and rhythm_format_str = L.build_global_stringptr "%s\n" "fmt" builder 
     and str_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -123,28 +128,49 @@ let translate (globals, functions) =
     in
 
     (* creates struct *)
-    (* let codegen_note t o r builder *)
-    
+    (* let codegen_note t' o' r' builder = 
+          L.build_struct_gep named_struct_note_t 0 "@.strrrr" builder
+          lookup  *)
 
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
 	      SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
-      | SNoteLit (t, o, r) ->   L.build_global_stringptr ("hiiiiiiiii\x00") "_sstrlit_" builder 
+      | SNoteLit (t, o, r) -> 
+      
+      L.build_global_stringptr ("hiiiiiiiii\x00") "_sstrlit_" builder 
+
+      
+                                (* let t' = expr builder t and 
+                                  o' = expr builder o and 
+                                  r' = expr builder r in
+                                  codegen_note t' o' r' builder *)
+      
      
-      (* let t' = expr builder t and o' = expr builder o and r' = expr builder r in *)
+      (*  *)
 
                                (* L.build_global_stringptr (t' ^ o' ^ r' ^ "\x00") "_sstrlit_" builder  *)
                                 (* codegen_note t' o' r' builder *)
       | SToneLit t ->  L.build_global_stringptr (t ^ "\x00") "hi" builder 
-      | SOctaveLit o ->  L.build_global_stringptr (o ^ "\x00") "bue" builder 
+      | SOctaveLit o ->  L.const_int i32_t o
       | SRhythmLit r ->  L.build_global_stringptr (r ^ "\x00") "hfadi" builder 
       | SStrLit l   -> L.build_global_stringptr (l ^ "\x00") "ad" builder 
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
-      | SAssign (s, e) -> let e' = expr builder e in
-                            ignore(L.build_store e' (lookup s) builder); e'
+      | SAssign (s, e) -> 
+      
+                          (* let (_, x) = e in 
+                            ( match x with
+                              SNoteLit (t, o, r) -> let (t', o', r') = expr builder e in
+                                                      ignore(L.build_store t' (lookup s) builder); (t', o', r')
+                              | _ ->  *)
+                              
+                              let e' = expr builder e in
+                                    ignore(L.build_store e' (lookup s) builder); e'
+
+                                      (* ) *)
+
       | SBinop ((A.Float,_ ) as e1, op, e2) ->
                           let e1' = expr builder e1 and e2' = expr builder e2 in
                             ( match op with 
@@ -195,10 +221,18 @@ let translate (globals, functions) =
       | SCall ("prints", [e]) -> 
 	  L.build_call printf_func [| str_format_str ; (expr builder e) |]
 	    "printf" builder
+      | SCall ("printt", [e]) -> 
+	  L.build_call printf_func [| tone_format_str ; (expr builder e) |]
+	    "printf" builder
       | SCall ("printn", [e]) ->
     L.build_call printf_func [| note_format_str ; (expr builder e) |]
       "printf" builder
-
+      | SCall ("printo", [e]) ->
+    L.build_call printf_func [| octave_format_str ; (expr builder e) |]
+      "printf" builder
+      | SCall ("printr", [e]) ->
+    L.build_call printf_func [| rhythm_format_str ; (expr builder e) |]
+      "printf" builder
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in

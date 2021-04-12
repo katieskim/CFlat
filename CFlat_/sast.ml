@@ -10,7 +10,7 @@ and sx =
   | SBoolLit of bool
   | SNoteLit of sexpr * sexpr * sexpr
   | SToneLit of string
-  | SOctaveLit of string
+  | SOctaveLit of int
   | SRhythmLit of string
   | SStrLit of string
   | SId of string
@@ -48,7 +48,7 @@ let rec string_of_sexpr (t, e) =
   | SBoolLit(false) -> "false"
   | SNoteLit(t, o, r) -> string_of_sexpr t ^ ", " ^ string_of_sexpr o ^ ", " ^ string_of_sexpr r
   | SToneLit(l) -> l
-  | SOctaveLit(l) -> l
+  | SOctaveLit(l) -> string_of_int l
   | SRhythmLit(l) -> l
   | SStrLit(l) -> l
   | SId(s) -> s

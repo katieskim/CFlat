@@ -15,7 +15,7 @@ type expr =
   | BoolLit of bool
   | NoteLit of expr * expr * expr
   | ToneLit of string
-  | OctaveLit of string
+  | OctaveLit of int
   | RhythmLit of string
   | StrLit of string
   | Id of string
@@ -70,7 +70,7 @@ let rec string_of_expr = function
   | BoolLit(false) -> "false"
   | NoteLit(t, o, r) -> string_of_expr t ^ ", " ^ string_of_expr o ^ ", " ^ string_of_expr r
   | ToneLit(l) -> l
-  | OctaveLit(l) -> l
+  | OctaveLit(l) -> string_of_int l
   | RhythmLit(l) -> l
   | StrLit(l) -> l
   | Id(s) -> s
