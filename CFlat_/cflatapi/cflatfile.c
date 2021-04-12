@@ -61,7 +61,10 @@ void play_note_arr(struct note *note_arr[]){
         /*Currently hardcoded 8 but we will want arrays of any lengths */
 
         int i;
-        for (i=0; i<8; i++){
+        
+        /*size_t n = sizeof(note_arr)/sizeof(*note_arr);*/
+
+        for (i=0; i<9; i++){
             add_note((note_arr[i]), mf);
         }
         midiFileClose(mf);
@@ -77,7 +80,6 @@ MIDI_FILE *mf;
 		}
 }
 
-
 void add_note(struct note *note_ptr, MIDI_FILE *mf){
 
     char *tlit = note_ptr -> tlit;
@@ -86,6 +88,7 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
 
     int miditone;
     char tone = tlit[0];
+    printf("%s", tlit);
     if (tone == 'C') {miditone = 0;}
     if (tone == 'D') {miditone = 2;}
     if (tone == 'E') {miditone = 4;}
@@ -95,14 +98,18 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
     if (tone == 'B') {miditone = 11;}
 
     int accidental = 0;
-    if (strlen(tlit) > 1) {
-        char acc = tlit[1];
-        if (acc == '-') {accidental = -1;} 
-        else if (acc == '+') {accidental = 1;}
-        else if (acc == '.') {accidental = 0;}
-      /*  else {printf("%s\n", "This is not an allowable accidental value.");}*/
-        miditone = (miditone + accidental)%12;             /*Accounts for any wraparound needed for B# or Cflat*/
-    }
+
+    /*char acc = tlit[1];*/
+    if (strlen(tlit) > 1 && tlit[1] == '.') {accidental = 1;}
+
+/*
+    if (acc == '-') {accidental = -1;} 
+    else if (acc == '+') {accidental = 1;}
+    else if (acc == '.') {accidental = 0;}*/
+    /*  else {printf("%s\n", "This is not an allowable accidental value.");}*/
+
+    miditone = (miditone + accidental)%12;    /*Accounts for any wraparound needed for B# or Cflat*/
+    
 
     /*CONVERTING CFLAT RHYTHM => MIDI RHYTHM*/
     int midirhythm = MIDI_NOTE_CROCHET;
@@ -142,20 +149,38 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
 /*DRIVER CODE FOR PLAY_NOTE_ARR: Creates a midifile with a C Major Scale */
 int main(int argc, char* argv[])
 {
-    struct note *arr[9];
+    struct note *arr[10];
     int i;
-    for (i=0; i<8; i++){
+    
+    for (i=0; i<9; i++){
         arr[i] = malloc(sizeof(struct note*));
     }
-    arr[8] = NULL;
-    struct note *c = new_note("C", 4, "q");
-    struct note *d = new_note("D", 4, "q");
-    struct note *e = new_note("E", 4, "q");
-    struct note *f = new_note("F", 4, "q");
+    arr[9] = NULL;
+
+    struct note *c = new_note("C", 4, "s");
+    struct note *d = new_note("D", 4, "s.");
+    struct note *e = new_note("E", 4, "e");
+    struct note *f = new_note("F", 4, "e.");
     struct note *g = new_note("G", 4, "q");
-    struct note *a = new_note("A", 4, "q");
-    struct note *b = new_note("B", 4, "q");
-    struct note *c_2 = new_note("C", 5, "q");
+    struct note *a = new_note("A", 4, "q.");
+    struct note *b = new_note("B", 4, "h");
+    struct note *c_2 = new_note("C", 5, "h.");
+    struct note *d_2 = new_note("D", 5, "w");
+
+    
+
+    /*
+    struct note *d_2 = new_note("D", 5, "q");
+    struct note *d_s = new_note("D+", 5, "q");
+    struct note *e_2 = new_note("E", 5, "q");
+    struct note *f_2 = new_note("F", 5, "q");
+    struct note *f_s = new_note("F+", 5, "q");
+    struct note *g_2 = new_note("G", 5, "q");
+    struct note *g_s = new_note("G+", 5, "q");
+    struct note *a_2 = new_note("A", 5, "q");
+    struct note *a_s = new_note("A+", 5, "q");
+    struct note *b_2 = new_note("B", 5, "q");
+    struct note *c_3 = new_note("C", 6, "q"); */
 
     arr[0] = c;
     arr[1] = d;
@@ -165,7 +190,22 @@ int main(int argc, char* argv[])
     arr[5] = a;
     arr[6] = b;
     arr[7] = c_2;
+    arr[8] = d_2;
 
+
+    // arr[9] = d_2;
+    // arr[10] = d_s;
+    // arr[11] = e_2;
+    // arr[12] = f_2;
+    // arr[13] = f_s;
+    // arr[14] = g_2;
+    // arr[15] = g_s;
+    // arr[16] = a_2;
+    // arr[17] = a_s;
+    // arr[18] = b_2;
+    // arr[20] = c_3;  
+
+    play_note(c);
     play_note_arr(arr);
 	return 0;
 }
