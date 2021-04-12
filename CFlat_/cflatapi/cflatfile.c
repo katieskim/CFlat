@@ -47,7 +47,7 @@ void play_note_arr(struct note *note_arr[]){
 
     MIDI_FILE *mf;
     if ((mf = midiFileCreate("notearray.mid", TRUE))){
-/*
+
         while (*note_arr){
 
             printf("%s%d\n", "OCTAVE,", (*note_arr) -> olit);
@@ -56,17 +56,8 @@ void play_note_arr(struct note *note_arr[]){
 
             add_note((*note_arr), mf);
             note_arr++;
-        }*/
-
-        /*Currently hardcoded 8 but we will want arrays of any lengths */
-
-        int i;
-        
-        size_t n = sizeof(note_arr)/sizeof(*note_arr);
-
-        for (i=0; i<9; i++){
-            add_note((note_arr[i]), mf);
         }
+
         midiFileClose(mf);
     }
 }
@@ -86,16 +77,19 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
     int olit = note_ptr -> olit;
     char *rlit = note_ptr -> rlit;
 
-    int miditone;
+    int miditone = 0;
+    int is_rest = 0;
     char tone = tlit[0];
-    printf("%s", tlit);
-    if (tone == 'C') {miditone = 0;}
-    if (tone == 'D') {miditone = 2;}
-    if (tone == 'E') {miditone = 4;}
-    if (tone == 'F') {miditone = 5;}
-    if (tone == 'G') {miditone = 7;}
-    if (tone == 'A') {miditone = 9;}
-    if (tone == 'B') {miditone = 11;}
+    printf("%s\n", tlit);
+    if (tone == 'R') {is_rest = 1;}
+    else if (tone == 'C') {miditone = 0;}
+    else if (tone == 'D') {miditone = 2;}
+    else if (tone == 'E') {miditone = 4;}
+    else if (tone == 'F') {miditone = 5;}
+    else if (tone == 'G') {miditone = 7;}
+    else if (tone == 'A') {miditone = 9;}
+    else if (tone == 'B') {miditone = 11;}
+    else {printf("%s", "This is not a valid tone.");}
 
     int accidental = 0;
 
@@ -121,7 +115,7 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
     else if (rhythm == 'h') {midirhythm = MIDI_NOTE_MINIM;}
     else if (rhythm == 'w') {midirhythm = MIDI_NOTE_BREVE;}
 
-    else {printf("%s%c\n", "Rhythm: ", rhythm);}
+    else {printf("%s%c\n", "Rhythm is not a valid rhythm.", rhythm);}
 
 
     if (dotted) { midirhythm += midirhythm/2; }  /* adds the dotted portion */
@@ -139,7 +133,11 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
     midiTrackAddProgramChange(mf, 1, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);    /*We only want to set this as instrument if instrument is not set already*/
     midiTrackAddText(mf, 1, textLyric, tlit);
 
-    midiTrackAddNote(mf, 1, miditone + midioctave, midirhythm, MIDI_VOL_MEZZO, TRUE, FALSE);
+    int volume = MIDI_VOL_MEZZO;
+    if (is_rest){
+        volume = 0;
+    }
+    midiTrackAddNote(mf, 1, miditone + midioctave, midirhythm, volume, TRUE, FALSE);
 
 }
 
@@ -147,23 +145,29 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
 /*DRIVER CODE FOR PLAY_NOTE_ARR: Creates a midifile with a C Major Scale */
 int main(int argc, char* argv[])
 {
-    struct note *arr[10];
+
+    /*Need the size of the array*/
+    int num_notes = 11;
+    struct note *arr[num_notes + 1];
+
+    /* Creates space for the array */
     int i;
-    
-    for (i=0; i<9; i++){
+    for (i=0; i<num_notes; i++){
         arr[i] = malloc(sizeof(struct note*));
     }
-    arr[9] = NULL;
+    arr[num_notes] = NULL;
 
     struct note *c = new_note("C", 4, "s");
     struct note *d = new_note("D", 4, "s.");
     struct note *e = new_note("E", 4, "e");
     struct note *f = new_note("F", 4, "e.");
-    struct note *g = new_note("G+", 5, "q");
-    struct note *a = new_note("A", 4, "q.");
+    struct note *g = new_note("G", 4, "q");
+    struct note *a = new_note("R", 4, "q.");
     struct note *b = new_note("B", 4, "h");
-    struct note *c_2 = new_note("C+", 5, "h.");
-    struct note *d_2 = new_note("F-", 5, "w");
+    struct note *c_2 = new_note("C", 5, "h.");
+    struct note *d_2 = new_note("R", 5, "w");
+    struct note *e_2 = new_note("E", 5, "w");
+    struct note *f_2 = new_note("F", 5, "w");
 
     
 
@@ -189,6 +193,8 @@ int main(int argc, char* argv[])
     arr[6] = b;
     arr[7] = c_2;
     arr[8] = d_2;
+    arr[9] = e_2;
+    arr[10] = f_2;
 
 
     // arr[9] = d_2;
