@@ -1,18 +1,7 @@
 int main()
 {
-	tone t;
-	octave o;
-	rhythm r;
 	note n;
-
-	t = /C-/;
-	o = /4/;
-	r = /s./;
-	(: n = ( /C-/ /4/ /s./ ); :)
-
-	printt(t);
-	printo(o);
-	printr(r);
+	n = ( /C-/ /4/ /s./ );
 
 	return 0;
 }
