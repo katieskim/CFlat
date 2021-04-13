@@ -99,7 +99,8 @@ llc -relocation-model=pic test-note.ll > test-note.s
 cc -o test-note.exe test-note.s printbig.o
 ./test-note.exe
 diff -b test-note.out tests/test-note.out > test-note.diff
-###### SUCCESS
+FAILED test-note.out differs from tests/test-note.out
+###### FAILED
 
 ###### Testing test-printfloat
 ./cflat.native tests/test-printfloat.cf > test-printfloat.ll

@@ -92,7 +92,7 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
-    and note_format_str = L.build_global_stringptr "%c\n" "fmt" builder
+    and note_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder 
     and tone_format_str = L.build_global_stringptr "%s\n" "fmt" builder 
     and octave_format_str = L.build_global_stringptr "%d\n" "fmt" builder 
@@ -141,12 +141,10 @@ let translate (globals, functions) =
                                   o' = expr builder o and 
                                   r' = expr builder r in
                                 L.const_named_struct named_struct_note_t [| t'; o'; r' |]
-                               (* L.build_global_stringptr (t' ^ o' ^ r' ^ "\x00") "_sstrlit_" builder  *)
-                                (* codegen_note t' o' r' builder *)
-      | SToneLit t ->  L.build_global_stringptr (t ^ "\x00") "hi" builder 
+      | SToneLit t ->  L.build_global_stringptr (t ^ "\x00") "tone_ptr" builder 
       | SOctaveLit o ->  L.const_int i32_t o
-      | SRhythmLit r ->  L.build_global_stringptr (r ^ "\x00") "hfadi" builder 
-      | SStrLit l   -> L.build_global_stringptr (l ^ "\x00") "ad" builder 
+      | SRhythmLit r ->  L.build_global_stringptr (r ^ "\x00") "rhythm_ptr" builder 
+      | SStrLit l   -> L.build_global_stringptr (l ^ "\x00") "str_ptr" builder 
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
@@ -188,13 +186,15 @@ let translate (globals, functions) =
                             | A.Greater -> L.build_icmp L.Icmp.Sgt
                             | A.Geq     -> L.build_icmp L.Icmp.Sge
                             ) e1' e2' "tmp" builder
-      | SUnop(op, ((t, _) as e)) ->
+      | SUnop (op, ((t, _) as e)) ->
                           let e' = expr builder e in
                             ( match op with
                               A.Neg when t = A.Float -> L.build_fneg 
                             | A.Neg                  -> L.build_neg
                             | A.Not                  -> L.build_not
                             ) e' "tmp" builder
+      | SAccessTone 
+      | SAccessOctave
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
