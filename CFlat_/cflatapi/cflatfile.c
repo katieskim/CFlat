@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 {
 
     /*Need the size of the array*/
-    int num_notes = 11;
+    int num_notes = 12;
     struct note *arr[num_notes + 1];
 
     /* Creates space for the array */
@@ -155,12 +155,12 @@ int main(int argc, char* argv[])
     for (i=0; i<num_notes; i++){
         arr[i] = malloc(sizeof(struct note*));
     }
+    
     arr[num_notes] = NULL;
-
     struct note *c = new_note("C", 4, "s");
     struct note *d = new_note("D", 4, "s.");
     struct note *e = new_note("E", 4, "e");
-    struct note *f = new_note("F", 4, "e.");
+    struct note *f = new_note("F+", 4, "e.");
     struct note *g = new_note("G", 4, "q");
     struct note *a = new_note("R", 4, "q.");
     struct note *b = new_note("B", 4, "h");
@@ -168,6 +168,7 @@ int main(int argc, char* argv[])
     struct note *d_2 = new_note("R", 5, "w");
     struct note *e_2 = new_note("E", 5, "w");
     struct note *f_2 = new_note("F", 5, "w");
+    struct note *c_flat = new_note("C-", 5, "h");
 
     
 
@@ -195,6 +196,7 @@ int main(int argc, char* argv[])
     arr[8] = d_2;
     arr[9] = e_2;
     arr[10] = f_2;
+    arr[11] = c_flat;
 
 
     // arr[9] = d_2;
