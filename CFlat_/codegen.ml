@@ -193,8 +193,6 @@ let translate (globals, functions) =
                             | A.Neg                  -> L.build_neg
                             | A.Not                  -> L.build_not
                             ) e' "tmp" builder
-      | SAccessTone 
-      | SAccessOctave
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
@@ -210,8 +208,11 @@ let translate (globals, functions) =
 	  L.build_call printf_func [| tone_format_str ; (expr builder e) |]
 	    "printf" builder
       | SCall ("printn", [e]) ->
-    L.build_call printf_func [| note_format_str ; (expr builder e) |]
+    L.build_call printf_func [| note_format_str ; (expr builder e) |] 
       "printf" builder
+
+
+
       | SCall ("printo", [e]) ->
     L.build_call printf_func [| octave_format_str ; (expr builder e) |]
       "printf" builder

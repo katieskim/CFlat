@@ -7,6 +7,7 @@ target triple = "x86_64-apple-macosx10.15.0"
 
 @.str = private unnamed_addr constant [3 x i8] c"C-\00", align 1
 @.str.1 = private unnamed_addr constant [3 x i8] c"s.\00", align 1
+@.str.2 = private unnamed_addr constant [9 x i8] c"%s %d %s\00", align 1
 ; Function Attrs: noinline nounwind optnone ssp uwtable
 define i32 @main() #0 {
   %1 = alloca i32, align 4
@@ -18,10 +19,19 @@ define i32 @main() #0 {
   store i32 4, i32* %4, align 8
   %5 = getelementptr inbounds %struct.Note, %struct.Note* %2, i32 0, i32 2
   store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.1, i64 0, i64 0), i8** %5, align 8
+  %6 = getelementptr inbounds %struct.Note, %struct.Note* %2, i32 0, i32 0
+  %7 = load i8*, i8** %6, align 8
+  %8 = getelementptr inbounds %struct.Note, %struct.Note* %2, i32 0, i32 1
+  %9 = load i32, i32* %8, align 8
+  %10 = getelementptr inbounds %struct.Note, %struct.Note* %2, i32 0, i32 2
+  %11 = load i8*, i8** %10, align 8
+  %12 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.2, i64 0, i64 0), i8* %7, i32 %9, i8* %11)
   ret i32 0
 }
+declare i32 @printf(i8*, ...) #1
 
 attributes #0 = { noinline nounwind optnone ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "darwin-stkchk-strong-link" "disable-tail-calls"="false" "frame-pointer"="all" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "probe-stack"="___chkstk_darwin" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { "correctly-rounded-divide-sqrt-fp-math"="false" "darwin-stkchk-strong-link" "disable-tail-calls"="false" "frame-pointer"="all" "less-precise-fpmad"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "probe-stack"="___chkstk_darwin" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 
 !llvm.module.flags = !{!0, !1, !2}
 !llvm.ident = !{!3}

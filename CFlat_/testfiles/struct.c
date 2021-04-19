@@ -12,6 +12,9 @@ int main() {
 	note1.tone = "C-";
 	note1.octave = 4;
 	note1.rhythm = "s.";
+
+	printf("%s %d %s", note1.tone, note1.octave, note1.rhythm);
+
 	
 	return 0;
 }
