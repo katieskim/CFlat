@@ -37,7 +37,7 @@ let translate (globals, functions) =
   let str_t      = L.pointer_type i8_t in
   (* let unnamed_struct_note_t  = L.struct_type context [| L.pointer_type i8_t; L.pointer_type i8_t ; L.pointer_type i8_t |] in *)
   let named_struct_note_t = L.named_struct_type context "named_struct_note_t" in 
-  let unit3 = L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; L.pointer_type i8_t; L.pointer_type i8_t |] false in
+  let unit3 = L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; i32_t; L.pointer_type i8_t |] false in
 
   (* Return the LLVM type for a CFlat type *)
   let ltype_of_typ = function
@@ -137,40 +137,20 @@ let translate (globals, functions) =
 	      SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
-      | SNoteLit (t, o, r) -> 
-      
-      L.build_global_stringptr ("hiiiiiiiii\x00") "_sstrlit_" builder 
-
-      
-                                (* let t' = expr builder t and 
+      | SNoteLit (t, o, r) -> let t' = expr builder t and 
                                   o' = expr builder o and 
                                   r' = expr builder r in
-                                  codegen_note t' o' r' builder *)
-      
-     
-      (*  *)
-
-                               (* L.build_global_stringptr (t' ^ o' ^ r' ^ "\x00") "_sstrlit_" builder  *)
-                                (* codegen_note t' o' r' builder *)
+                                  L.const_named_struct 
+                                  named_struct_note_t 
+                                  [| t'; o'; r' |]
       | SToneLit t ->  L.build_global_stringptr (t ^ "\x00") "hi" builder 
       | SOctaveLit o ->  L.const_int i32_t o
       | SRhythmLit r ->  L.build_global_stringptr (r ^ "\x00") "hfadi" builder 
       | SStrLit l   -> L.build_global_stringptr (l ^ "\x00") "ad" builder 
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
-      | SAssign (s, e) -> 
-      
-                          (* let (_, x) = e in 
-                            ( match x with
-                              SNoteLit (t, o, r) -> let (t', o', r') = expr builder e in
-                                                      ignore(L.build_store t' (lookup s) builder); (t', o', r')
-                              | _ ->  *)
-                              
-                              let e' = expr builder e in
-                                    ignore(L.build_store e' (lookup s) builder); e'
-
-                                      (* ) *)
-
+      | SAssign (s, e) -> let e' = expr builder e in
+                            ignore(L.build_store e' (lookup s) builder); e'
       | SBinop ((A.Float,_ ) as e1, op, e2) ->
                           let e1' = expr builder e1 and e2' = expr builder e2 in
                             ( match op with 
