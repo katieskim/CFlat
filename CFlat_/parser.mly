@@ -4,7 +4,7 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
+%token SEMI DOT LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE 
 %token INT BOOL FLOAT VOID NOTE STRING TONE OCTAVE RHYTHM
@@ -114,7 +114,7 @@ expr_opt:
 
 expr:
     literal          { $1 }
-  | ID               { Id($1)                 }
+  | id               { $1                 }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
@@ -132,6 +132,12 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3)   }
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
   | NOT expr         { Unop(Not, $2)          }
+
+id:
+     ID                  { Id($1) }
+   | ID DOT TONE        { Id($1) } 
+   | ID DOT OCTAVE      { Id($1) }
+   | ID DOT RHYTHM      { Id($1) }
 
 args_opt:
     /* nothing */ { [] }

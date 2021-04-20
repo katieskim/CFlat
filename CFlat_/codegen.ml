@@ -35,7 +35,6 @@ let translate (globals, functions) =
   and float_t    = L.double_type context
   and void_t     = L.void_type   context in
   let str_t      = L.pointer_type i8_t in
-  (* let unnamed_struct_note_t  = L.struct_type context [| L.pointer_type i8_t; L.pointer_type i8_t ; L.pointer_type i8_t |] in *)
   let named_struct_note_t = L.named_struct_type context "named_struct_note_t" in 
   let unit3 = L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; L.i32_type context; L.pointer_type i8_t |] false in
 

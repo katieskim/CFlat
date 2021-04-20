@@ -86,10 +86,25 @@ let check (globals, functions) =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in   
 
-    (* Build local symbol table of variables for this function *)
+    (* Build local symbol table of variables for this function
     let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
 	                StringMap.empty (globals @ func.formals @ func.locals )
+    in *)
+
+    (* Build local symbol table of variables for this function *)
+    let symbols = List.fold_left (fun m (ty, name) -> ignore (match ty with 
+                                    (* for every note n, add in tone, octave, rhythm into 
+                                    symbol table with ids as n.tone, n.octave, n.rhythm *)
+                                      Note -> ignore( StringMap.add (name ^ ".tone") Tone m;
+                                              StringMap.add (name ^ ".octave") Octave m;
+                                              StringMap.add (name ^ ".rhythm") Rhythm m; ); None
+                                    | _ -> None
+                                  ); StringMap.add name ty m)
+	                StringMap.empty (globals @ func.formals @ func.locals )
     in
+
+    
+            
 
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
@@ -194,7 +209,7 @@ let check (globals, functions) =
       sformals = func.formals;
       slocals  = func.locals;
       sbody = match check_stmt (Block func.body) with
-	SBlock(sl) -> sl
-      | _ -> raise (Failure ("internal error: block didn't become a block?"))
+	                SBlock(sl) -> sl
+                | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
   in (globals, List.map check_function functions)
