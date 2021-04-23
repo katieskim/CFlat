@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #ifndef  __APPLE__
 #include <malloc.h>
 #endif
@@ -35,17 +36,36 @@ struct note *new_note(char *tone, int octave, char *rhythm){
 void play_note(struct note *n); 
 void bplay_note(struct note *n, int beat); /* bplay_note takes in beat (beats/min) */
 
-/*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
-/*OUTPUT: No output but it will add the note to the midi_file */ 
-void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat);
-
 /*INPUT: Takes in a pointer to an array of note struct pointers */ 
 /*OUTPUT: A midifile called "notearray.mid" that plays a C Major scale.  */ 
-void play_note_arr(struct note *arr[]);
-void bplay_note_arr(struct note *arr[], int beat); /* bplay_note_arr takes in beat (beats/min) */
+void play_note_arr(struct note *note_arr[]);
+void bplay_note_arr(struct note *note_arr[], int beat); /* bplay_note_arr takes in beat (beats/min) */
 
+/*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
+/*OUTPUT: No output but it will add the note to the midi_file */ 
+void add_note(struct note *note_ptr, MIDI_FILE *mf, int track, int beat);
 
+/*INPUT: Takes in a pointer to an array of note struct, pointer to a midi_file */ 
+/*OUTPUT: No output but it will add track with notes to the midifile */ 
+void add_track(struct note *note_arr[], MIDI_FILE *mf, int track, int beat);
 
+void play_note(struct note *note_ptr) {
+/*char *tlit, int olit, char *rlit */
+MIDI_FILE *mf;
+	if ((mf = midiFileCreate("hellonote.mid", TRUE))){
+		add_note(note_ptr, mf, 1, 120);
+		midiFileClose(mf);
+		}
+}
+
+void bplay_note(struct note *note_ptr, int beat) {
+/*char *tlit, int olit, char *rlit */
+MIDI_FILE *mf;
+	if ((mf = midiFileCreate("hellonotebeat.mid", TRUE))){
+		add_note(note_ptr, mf, 1, beat);
+		midiFileClose(mf);
+		}
+}
 
 void play_note_arr(struct note *note_arr[]){
 
@@ -58,7 +78,7 @@ void play_note_arr(struct note *note_arr[]){
             printf("%s%s\n", "RHYTHM,", (*note_arr) -> rlit);
             printf("%s%s\n", "OCTAVE,", (*note_arr) -> tlit);
 
-            add_note((*note_arr), mf, 120);
+            add_note((*note_arr), mf, 1, 120);
             note_arr++;
         }
 
@@ -70,32 +90,14 @@ void bplay_note_arr(struct note *note_arr[], int beat){
     MIDI_FILE *mf;
     if ((mf = midiFileCreate("helloarraybeat.mid", TRUE))){
         while (*note_arr){
-            add_note((*note_arr), mf, beat);
+            add_note((*note_arr), mf, 1, beat);
             note_arr++;
         }
         midiFileClose(mf);
     }  
 }
 
-void play_note(struct note *note_ptr) {
-/*char *tlit, int olit, char *rlit */
-MIDI_FILE *mf;
-	if ((mf = midiFileCreate("hellonote.mid", TRUE))){
-		add_note(note_ptr, mf, 120);
-		midiFileClose(mf);
-		}
-}
-
-void bplay_note(struct note *note_ptr, int beat) {
-/*char *tlit, int olit, char *rlit */
-MIDI_FILE *mf;
-	if ((mf = midiFileCreate("hellonotebeat.mid", TRUE))){
-		add_note(note_ptr, mf, beat);
-		midiFileClose(mf);
-		}
-}
-
-void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat){
+void add_note(struct note *note_ptr, MIDI_FILE *mf, int track, int beat){
 
     char *tlit = note_ptr -> tlit;
     int olit = note_ptr -> olit;
@@ -150,29 +152,49 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat){
         midioctave *= 12;
     }
     /*DEFAULT TIME SIGNATURE */
-    midiSongAddTempo(mf, 1, beat);
-    midiSongAddSimpleTimeSig(mf, 1, 4, MIDI_NOTE_CROCHET); 
+    midiSongAddTempo(mf, track, beat);
+    midiSongAddSimpleTimeSig(mf, track, 4, MIDI_NOTE_CROCHET); 
 
-    midiFileSetTracksDefaultChannel(mf, 1, MIDI_CHANNEL_1);
-    midiTrackAddProgramChange(mf, 1, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);    /*We only want to set this as instrument if instrument is not set already*/
-    midiTrackAddText(mf, 1, textLyric, tlit);
+    midiFileSetTracksDefaultChannel(mf, track, MIDI_CHANNEL_1); 
+    midiTrackAddProgramChange(mf, track, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);    /*We only want to set this as instrument if instrument is not set already*/
+    midiTrackAddText(mf, track, textLyric, tlit);
 
     int volume = MIDI_VOL_MEZZO;
     if (is_rest){
         volume = 0;
     }
-    midiTrackAddNote(mf, 1, miditone + midioctave, midirhythm, volume, TRUE, FALSE);
+    midiTrackAddNote(mf, track, miditone + midioctave, midirhythm, volume, TRUE, FALSE);
 
 }
 
+void add_track(struct note *note_arr[], MIDI_FILE *mf, int track, int beat){
 
+    printf("%d", track);
+    while (*note_arr){
+        add_note((*note_arr), mf, track, beat);
+        note_arr++;
+    }
+}
+/*struct note *A[], struct note *B[]*/
+void play_tracks(int num_tracks, ){
+    MIDI_FILE *mf;
+    va_list valist;
+    int i;
+    if ((mf = midiFileCreate("playTracks.mid", TRUE))){
 
+        
+        add_track(A, mf, 1, 120);
+        add_track(B, mf, 2, 120);
+
+        midiFileClose(mf);
+    }
+}
 
 /*DRIVER CODE FOR PLAY_NOTE_ARR: Creates a midifile with a C Major Scale */
 int main(int argc, char* argv[])
 {
-
     /*Need the size of the array*/
+    
     int num_notes = 12;
     struct note *arr[num_notes + 1];
 
@@ -222,10 +244,40 @@ int main(int argc, char* argv[])
     arr[20] = c_3;  */
 
 
-    bplay_note(c, 60);
+    /*bplay_note(c, 60);
     bplay_note(c, 160);
 
     play_note_arr(arr);
-    bplay_note_arr(arr, 360);
+    bplay_note_arr(arr, 360);*/ 
+
+
+    struct note *A[4];  A[3] = NULL;
+    struct note *B[4];  B[3] = NULL;
+
+    for (i=0; i<3; i++){
+        A[i] = malloc(sizeof(struct note*));
+        B[i] = malloc(sizeof(struct note*));
+    }
+     
+    struct note *et = new_note("E", 4, "h");
+    struct note *dt = new_note("D", 4, "h");
+    struct note *ct = new_note("C", 4, "h");
+
+    struct note *gt = new_note("G", 4, "h");
+    struct note *ft = new_note("F", 4, "h");
+
+    
+
+    A[0] = et;
+    A[1] = dt;
+    A[2] = ct;
+
+    B[0] = gt;
+    B[1] = ft;
+    B[2] = et;
+
+    play_two_tracks(A, B);
+
+
 	return 0;
 }
