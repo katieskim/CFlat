@@ -1,0 +1,8 @@
+int main()
+{
+	note n;
+	n = ( /C-/ /3/ /s/ );
+	playnote(n);
+	
+	return 0;
+}
