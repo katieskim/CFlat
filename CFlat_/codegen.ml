@@ -96,7 +96,7 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
  
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
-    and note_format_str = L.build_global_stringptr "/%s/\n" "fmt" builder
+    and note_format_str = L.build_global_stringptr "/%s/ /%d/ /%s/\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder 
     and tone_format_str = L.build_global_stringptr "%s\n" "fmt" builder 
     and octave_format_str = L.build_global_stringptr "%d\n" "fmt" builder 
@@ -230,13 +230,10 @@ let translate (globals, functions) =
 	      L.build_call printf_func [| str_format_str ; (expr builder e) |]
 	      "printf" builder
       | SCall ("printn", [e]) -> let (_, SId n) = e in
-                            let t' = expr builder (Tone, SToneAccess n) in
-        
-        
-                            (* let nv = (expr builder e) in
-                            let tb = L.build_struct_gep nv 0 "@tone_print" builder in
-                            let t' = L.build_load tb ".tone_print" builder in *)
-        L.build_call printf_func [| note_format_str ; t' |]
+                            let t' = expr builder (Tone, SToneAccess n) 
+                            and o' = expr builder (Octave, SOctaveAccess n)
+                            and r' = expr builder (Rhythm, SRhythmAccess n) in
+        L.build_call printf_func [| note_format_str ; t'; o'; r' |]
         "printf" builder
       | SCall ("printt", [e]) -> 
 	      L.build_call printf_func [| tone_format_str ; (expr builder e) |]

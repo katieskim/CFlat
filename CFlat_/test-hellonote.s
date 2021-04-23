@@ -8,12 +8,13 @@ main:                                   # @main
 # %bb.0:                                # %entry
 	subq	$24, %rsp
 	.cfi_def_cfa_offset 32
-	leaq	.Lrhythm_ptr(%rip), %rax
-	movq	%rax, 16(%rsp)
+	leaq	.Lrhythm_ptr(%rip), %rcx
+	movq	%rcx, 16(%rsp)
 	leaq	.Ltone_ptr(%rip), %rsi
 	movq	%rsi, (%rsp)
-	movl	$4, 8(%rsp)
+	movl	$0, 8(%rsp)
 	leaq	.Lfmt.1(%rip), %rdi
+	xorl	%edx, %edx
 	xorl	%eax, %eax
 	callq	printf@PLT
 	xorl	%eax, %eax
@@ -31,8 +32,8 @@ main:                                   # @main
 
 	.type	.Lfmt.1,@object         # @fmt.1
 .Lfmt.1:
-	.asciz	"/%s/\n"
-	.size	.Lfmt.1, 6
+	.asciz	"/%s/ /%d/ /%s/\n"
+	.size	.Lfmt.1, 16
 
 	.type	.Lfmt.2,@object         # @fmt.2
 .Lfmt.2:

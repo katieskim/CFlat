@@ -30,8 +30,8 @@ main:                                   # @main
 
 	.type	.Lfmt.1,@object         # @fmt.1
 .Lfmt.1:
-	.asciz	"/%s/\n"
-	.size	.Lfmt.1, 6
+	.asciz	"/%s/ /%d/ /%s/\n"
+	.size	.Lfmt.1, 16
 
 	.type	.Lfmt.2,@object         # @fmt.2
 .Lfmt.2:
