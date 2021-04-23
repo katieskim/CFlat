@@ -8,13 +8,17 @@ main:                                   # @main
 # %bb.0:                                # %entry
 	subq	$24, %rsp
 	.cfi_def_cfa_offset 32
-	leaq	.Lrhythm_ptr(%rip), %rdx
-	movq	%rdx, 16(%rsp)
-	leaq	.Ltone_ptr(%rip), %rdi
-	movq	%rdi, (%rsp)
-	movl	$3, 8(%rsp)
-	movl	$3, %esi
-	callq	play_note@PLT
+	leaq	.Lrhythm_ptr(%rip), %r9
+	movq	%r9, 16(%rsp)
+	leaq	.Ltone_ptr(%rip), %rcx
+	movq	%rcx, (%rsp)
+	movl	$0, 8(%rsp)
+	leaq	.Lfmt.2(%rip), %rdi
+	leaq	.Lfmt.3(%rip), %rsi
+	leaq	.Lfmt.4(%rip), %rdx
+	xorl	%r8d, %r8d
+	xorl	%eax, %eax
+	callq	printf@PLT
 	xorl	%eax, %eax
 	addq	$24, %rsp
 	retq
@@ -30,33 +34,28 @@ main:                                   # @main
 
 	.type	.Lfmt.1,@object         # @fmt.1
 .Lfmt.1:
-	.asciz	"/%s/\n"
-	.size	.Lfmt.1, 6
+	.asciz	"%g\n"
+	.size	.Lfmt.1, 4
 
 	.type	.Lfmt.2,@object         # @fmt.2
 .Lfmt.2:
-	.asciz	"%g\n"
+	.asciz	"%s\n"
 	.size	.Lfmt.2, 4
 
 	.type	.Lfmt.3,@object         # @fmt.3
 .Lfmt.3:
-	.asciz	"%s\n"
+	.asciz	"%d\n"
 	.size	.Lfmt.3, 4
 
 	.type	.Lfmt.4,@object         # @fmt.4
 .Lfmt.4:
-	.asciz	"%d\n"
+	.asciz	"%s\n"
 	.size	.Lfmt.4, 4
 
 	.type	.Lfmt.5,@object         # @fmt.5
 .Lfmt.5:
 	.asciz	"%s\n"
 	.size	.Lfmt.5, 4
-
-	.type	.Lfmt.6,@object         # @fmt.6
-.Lfmt.6:
-	.asciz	"%s\n"
-	.size	.Lfmt.6, 4
 
 	.type	.Ltone_ptr,@object      # @tone_ptr
 .Ltone_ptr:
@@ -65,8 +64,8 @@ main:                                   # @main
 
 	.type	.Lrhythm_ptr,@object    # @rhythm_ptr
 .Lrhythm_ptr:
-	.asciz	"s"
-	.size	.Lrhythm_ptr, 2
+	.asciz	"s."
+	.size	.Lrhythm_ptr, 3
 
 
 	.section	".note.GNU-stack","",@progbits

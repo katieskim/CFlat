@@ -4,7 +4,7 @@ source_filename = "CFlat"
 %named_struct_note_t = type { i8*, i32, i8* }
 
 @fmt = private unnamed_addr constant [4 x i8] c"%d\0A\00"
-@fmt.1 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
+@fmt.1 = private unnamed_addr constant [6 x i8] c"/%s/\0A\00"
 @fmt.2 = private unnamed_addr constant [4 x i8] c"%g\0A\00"
 @fmt.3 = private unnamed_addr constant [4 x i8] c"%s\0A\00"
 @fmt.4 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
