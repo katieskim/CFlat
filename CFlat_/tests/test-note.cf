@@ -1,8 +1,0 @@
-int main()
-{
-	note n;
-	n = ( /C-/ /4/ /s./ );
-	printn(n);
-	
-	return 0;
-}
