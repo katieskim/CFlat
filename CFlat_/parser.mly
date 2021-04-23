@@ -4,13 +4,13 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
+%token SEMI DOT LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE 
-%token INT BOOL FLOAT VOID NOTE STRING
-%token <int> LITERAL
+%token INT BOOL FLOAT VOID NOTE STRING TONE OCTAVE RHYTHM
+%token <int> LITERAL OLIT
 %token <bool> BLIT
-%token <string> ID FLIT NOTELIT STRLIT
+%token <string> ID FLIT STRLIT TLIT RLIT
 %token EOF
 
 %start program
@@ -58,8 +58,34 @@ typ:
   | BOOL    { Bool  }
   | FLOAT   { Float }
   | VOID    { Void  }
-  | NOTE    { Note }
+  | NOTE    { Note  }
+  | TONE    { Tone  }
+  | OCTAVE  { Octave }
+  | RHYTHM  { Rhythm }
   | STRING  { String }
+
+literal:
+    LITERAL          { Literal($1)            }
+  | FLIT	           { Fliteral($1)           }
+  | BLIT             { BoolLit($1)            }
+  | STRLIT           { StrLit($1)             }
+  | notelit          { $1                     }
+  | tlit             { $1                     }
+  | olit             { $1                     }
+  | rlit             { $1                     }
+
+tlit:
+    TLIT             { ToneLit($1)            }
+
+olit:
+    OLIT             { OctaveLit($1)          }
+
+rlit:
+    RLIT             { RhythmLit($1)          }
+
+notelit:
+    LPAREN tlit olit rlit RPAREN    { NoteLit($2, $3, $4)}
+    /* allow for default values? */
 
 vdecl_list:
     /* nothing */    { [] }
@@ -87,12 +113,8 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1)            }
-  | FLIT	           { Fliteral($1)           }
-  | BLIT             { BoolLit($1)            }
-  | NOTELIT          { NoteLit($1)            }
-  | STRLIT           { StrLit($1) }
-  | ID               { Id($1)                 }
+    literal          { $1 }
+  | id               { $1                 }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
@@ -110,6 +132,12 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3)   }
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
   | NOT expr         { Unop(Not, $2)          }
+
+id:
+     ID                  { Id($1) }
+   | ID DOT TONE        { Id($1) } 
+   | ID DOT OCTAVE      { Id($1) }
+   | ID DOT RHYTHM      { Id($1) }
 
 args_opt:
     /* nothing */ { [] }

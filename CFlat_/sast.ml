@@ -8,7 +8,10 @@ and sx =
     SLiteral of int
   | SFliteral of string
   | SBoolLit of bool
-  | SNoteLit of string
+  | SNoteLit of sexpr * sexpr * sexpr
+  | SToneLit of string
+  | SOctaveLit of int
+  | SRhythmLit of string
   | SStrLit of string
   | SId of string
   | SAssign of string * sexpr
@@ -43,7 +46,10 @@ let rec string_of_sexpr (t, e) =
   | SFliteral(l) -> l
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
-  | SNoteLit(l) -> l
+  | SNoteLit(t, o, r) -> string_of_sexpr t ^ ", " ^ string_of_sexpr o ^ ", " ^ string_of_sexpr r
+  | SToneLit(l) -> l
+  | SOctaveLit(l) -> string_of_int l
+  | SRhythmLit(l) -> l
   | SStrLit(l) -> l
   | SId(s) -> s
   | SCall(f, el) ->

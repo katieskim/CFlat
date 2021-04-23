@@ -1,0 +1,16 @@
+int main()
+{
+	tone t;
+	octave o;
+	rhythm r;
+
+	t = /C-/;
+	o = /4/;
+	r = /s./;
+
+	printt(t);
+	printo(o);
+	printr(r);
+
+	return 0;
+}

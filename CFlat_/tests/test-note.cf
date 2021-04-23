@@ -1,7 +1,8 @@
 int main()
 {
 	note n;
-	n = ( /C-/ /0/ /3/ );
+	n = ( /C-/ /4/ /s./ );
 	printn(n);
+	
 	return 0;
 }

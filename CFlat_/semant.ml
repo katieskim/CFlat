@@ -44,7 +44,11 @@ let check (globals, functions) =
 			                         ("printf", Float);
 			                         ("printbig", Int);
                                ("prints", String);
-						                   ("printn", Note) ]
+						                   ("printn", Note);
+                               ("printt", Tone);
+                               ("printr", Rhythm);
+                               ("printo", Octave);
+                               ]
   in
 
   (* Add function name to symbol table *)
@@ -70,7 +74,6 @@ let check (globals, functions) =
   in
 
   let _ = find_func "main" in (* Ensure "main" is defined *)
-
   let check_function func =
     (* Make sure no formals or locals are void or duplicates *)
     check_binds "formal" func.formals;
@@ -87,6 +90,20 @@ let check (globals, functions) =
 	                StringMap.empty (globals @ func.formals @ func.locals )
     in
 
+    (* let printMap mp = StringMap.iter (fun key value -> Printf.eprintf "HIIII %s -> %s\n" (key) (string_of_typ value)) mp 
+    in
+    (* Build local symbol table of variables for this function *)
+    let symbols = List.fold_left (fun m (ty, name) -> ignore (match ty with 
+                                    (* for every note n, add in tone, octave, rhythm into 
+                                    symbol table with ids as n.tone, n.octave, n.rhythm *)
+                                      Note -> ignore( StringMap.add (name ^ ".tone") Tone m;
+                                              StringMap.add (name ^ ".octave") Octave m;
+                                              StringMap.add (name ^ ".rhythm") Rhythm m; ); None
+                                    | _ -> None
+                                  ); StringMap.add name ty m)
+	                StringMap.empty (globals @ func.formals @ func.locals )
+    in printMap symbols; *)
+
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
       try StringMap.find s symbols
@@ -98,7 +115,10 @@ let check (globals, functions) =
         Literal  l -> (Int, SLiteral l)
       | Fliteral l -> (Float, SFliteral l)
       | BoolLit l  -> (Bool, SBoolLit l)
-      | NoteLit l -> (Note, SNoteLit l)
+      | NoteLit (t, o, r) -> (Note, SNoteLit (expr t, expr o, expr r))
+      | ToneLit l -> (Tone, SToneLit l)
+      | OctaveLit l -> (Octave, SOctaveLit l)
+      | RhythmLit l -> (Rhythm, SRhythmLit l)
       | StrLit l -> (String, SStrLit l)
       | Noexpr     -> (Void, SNoexpr)
       | Id s       -> (type_of_identifier s, SId s)
@@ -187,7 +207,7 @@ let check (globals, functions) =
       sformals = func.formals;
       slocals  = func.locals;
       sbody = match check_stmt (Block func.body) with
-	SBlock(sl) -> sl
-      | _ -> raise (Failure ("internal error: block didn't become a block?"))
+	                SBlock(sl) -> sl
+                | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
   in (globals, List.map check_function functions)

@@ -1,0 +1,3 @@
+HIIII i -> int
+HIIII n -> note
+Fatal error: exception Failure("illegal assignment int = note in i = n")
