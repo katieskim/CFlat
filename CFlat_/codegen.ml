@@ -229,17 +229,18 @@ let translate (globals, functions) =
       | SCall ("prints", [e]) -> 
 	      L.build_call printf_func [| str_format_str ; (expr builder e) |]
 	      "printf" builder
-      | SCall ("printn", [e]) -> let nv = (expr builder e) in
-        let tb = L.build_struct_gep nv 0 "@tone_print" builder in
-        let t' = L.build_load tb ".tone_print" builder in
+      | SCall ("printn", [e]) -> let (_, SId n) = e in
+                            let t' = expr builder (Tone, SToneAccess n) in
+        
+        
+                            (* let nv = (expr builder e) in
+                            let tb = L.build_struct_gep nv 0 "@tone_print" builder in
+                            let t' = L.build_load tb ".tone_print" builder in *)
         L.build_call printf_func [| note_format_str ; t' |]
         "printf" builder
       | SCall ("printt", [e]) -> 
 	      L.build_call printf_func [| tone_format_str ; (expr builder e) |]
 	      "printf" builder
-      | SCall ("printn", [e]) ->
-        L.build_call printf_func [| note_format_str ; (expr builder e) |] 
-        "printf" builder
       | SCall ("printo", [e]) ->
         L.build_call printf_func [| octave_format_str ; (expr builder e) |]
         "printf" builder
