@@ -74,7 +74,6 @@ let check (globals, functions) =
   in
 
   let _ = find_func "main" in (* Ensure "main" is defined *)
-
   let check_function func =
     (* Make sure no formals or locals are void or duplicates *)
     check_binds "formal" func.formals;
@@ -86,11 +85,13 @@ let check (globals, functions) =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in   
 
-    (* Build local symbol table of variables for this function
+    (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
 	                StringMap.empty (globals @ func.formals @ func.locals )
-    in *)
+    in
 
+    (* let printMap mp = StringMap.iter (fun key value -> Printf.eprintf "HIIII %s -> %s\n" (key) (string_of_typ value)) mp 
+    in
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name) -> ignore (match ty with 
                                     (* for every note n, add in tone, octave, rhythm into 
@@ -101,10 +102,7 @@ let check (globals, functions) =
                                     | _ -> None
                                   ); StringMap.add name ty m)
 	                StringMap.empty (globals @ func.formals @ func.locals )
-    in
-
-    
-            
+    in printMap symbols; *)
 
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
