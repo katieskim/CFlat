@@ -7,6 +7,7 @@
 #endif
 #include "midifile.h"
 
+
 /* Note struct */
 struct note{
     char tlit[3];
@@ -31,22 +32,25 @@ struct note *new_note(char *tone, int octave, char *rhythm){
 
 /*INPUT: Takes in a pointer to a single note struct */ 
 /*OUTPUT: A midifile called "hellonote.mid" that plays the note */ 
-void play_note(struct note *n);
+void play_note(struct note *n); 
+void bplay_note(struct note *n, int beat); /* bplay_note takes in beat (beats/min) */
 
 /*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
 /*OUTPUT: No output but it will add the note to the midi_file */ 
-void add_note(struct note *note_ptr, MIDI_FILE *mf);
+void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat);
 
 /*INPUT: Takes in a pointer to an array of note struct pointers */ 
 /*OUTPUT: A midifile called "notearray.mid" that plays a C Major scale.  */ 
 void play_note_arr(struct note *arr[]);
+void bplay_note_arr(struct note *arr[], int beat); /* bplay_note_arr takes in beat (beats/min) */
+
 
 
 
 void play_note_arr(struct note *note_arr[]){
 
     MIDI_FILE *mf;
-    if ((mf = midiFileCreate("notearray.mid", TRUE))){
+    if ((mf = midiFileCreate("helloarray.mid", TRUE))){
 
         while (*note_arr){
 
@@ -54,7 +58,7 @@ void play_note_arr(struct note *note_arr[]){
             printf("%s%s\n", "RHYTHM,", (*note_arr) -> rlit);
             printf("%s%s\n", "OCTAVE,", (*note_arr) -> tlit);
 
-            add_note((*note_arr), mf);
+            add_note((*note_arr), mf, 120);
             note_arr++;
         }
 
@@ -62,16 +66,36 @@ void play_note_arr(struct note *note_arr[]){
     }
 }
 
+void bplay_note_arr(struct note *note_arr[], int beat){
+    MIDI_FILE *mf;
+    if ((mf = midiFileCreate("helloarraybeat.mid", TRUE))){
+        while (*note_arr){
+            add_note((*note_arr), mf, beat);
+            note_arr++;
+        }
+        midiFileClose(mf);
+    }  
+}
+
 void play_note(struct note *note_ptr) {
 /*char *tlit, int olit, char *rlit */
 MIDI_FILE *mf;
 	if ((mf = midiFileCreate("hellonote.mid", TRUE))){
-		add_note(note_ptr, mf);
+		add_note(note_ptr, mf, 120);
 		midiFileClose(mf);
 		}
 }
 
-void add_note(struct note *note_ptr, MIDI_FILE *mf){
+void bplay_note(struct note *note_ptr, int beat) {
+/*char *tlit, int olit, char *rlit */
+MIDI_FILE *mf;
+	if ((mf = midiFileCreate("hellonotebeat.mid", TRUE))){
+		add_note(note_ptr, mf, beat);
+		midiFileClose(mf);
+		}
+}
+
+void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat){
 
     char *tlit = note_ptr -> tlit;
     int olit = note_ptr -> olit;
@@ -126,7 +150,7 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
         midioctave *= 12;
     }
     /*DEFAULT TIME SIGNATURE */
-    midiSongAddTempo(mf, 1, 120);
+    midiSongAddTempo(mf, 1, beat);
     midiSongAddSimpleTimeSig(mf, 1, 4, MIDI_NOTE_CROCHET); 
 
     midiFileSetTracksDefaultChannel(mf, 1, MIDI_CHANNEL_1);
@@ -140,6 +164,8 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
     midiTrackAddNote(mf, 1, miditone + midioctave, midirhythm, volume, TRUE, FALSE);
 
 }
+
+
 
 
 /*DRIVER CODE FOR PLAY_NOTE_ARR: Creates a midifile with a C Major Scale */
@@ -170,21 +196,6 @@ int main(int argc, char* argv[])
     struct note *f_2 = new_note("F", 5, "w");
     struct note *c_flat = new_note("C-", 5, "h");
 
-    
-
-    /*
-    struct note *d_2 = new_note("D", 5, "q");
-    struct note *d_s = new_note("D+", 5, "q");
-    struct note *e_2 = new_note("E", 5, "q");
-    struct note *f_2 = new_note("F", 5, "q");
-    struct note *f_s = new_note("F+", 5, "q");
-    struct note *g_2 = new_note("G", 5, "q");
-    struct note *g_s = new_note("G+", 5, "q");
-    struct note *a_2 = new_note("A", 5, "q");
-    struct note *a_s = new_note("A+", 5, "q");
-    struct note *b_2 = new_note("B", 5, "q");
-    struct note *c_3 = new_note("C", 6, "q"); */
-
     arr[0] = c;
     arr[1] = d;
     arr[2] = e;
@@ -197,21 +208,24 @@ int main(int argc, char* argv[])
     arr[9] = e_2;
     arr[10] = f_2;
     arr[11] = c_flat;
+/*
+    arr[9] = d_2;
+    arr[10] = d_s;
+    arr[11] = e_2;
+    arr[12] = f_2;
+    arr[13] = f_s;
+    arr[14] = g_2;
+    arr[15] = g_s;
+    arr[16] = a_2;
+    arr[17] = a_s;
+    arr[18] = b_2;
+    arr[20] = c_3;  */
 
 
-    // arr[9] = d_2;
-    // arr[10] = d_s;
-    // arr[11] = e_2;
-    // arr[12] = f_2;
-    // arr[13] = f_s;
-    // arr[14] = g_2;
-    // arr[15] = g_s;
-    // arr[16] = a_2;
-    // arr[17] = a_s;
-    // arr[18] = b_2;
-    // arr[20] = c_3;  
+    bplay_note(c, 60);
+    bplay_note(c, 160);
 
-    play_note(c);
     play_note_arr(arr);
+    bplay_note_arr(arr, 360);
 	return 0;
 }

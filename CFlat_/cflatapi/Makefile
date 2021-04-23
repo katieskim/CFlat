@@ -11,8 +11,6 @@ miditest:   miditest.c   midifile.o
 helloworld: cflatfile.c midifile.o
 	$(CC) $(CFLAGS) $(LFLAGS) midifile.o cflatfile.c -o helloworld
 
-makenotetest:   makenotetest.c   midifile.o	
-	$(CC) $(CFLAGS) $(LFLAGS) midifile.o makenotetest.c -o makenotetest 
 
 #mfc120: mfcmain.c   mfc120.c   midifile.o
 #	$(CC) $(CFLAGS) $(LFLAGS) midifile.o mfc120.c mfcmain.c -o mfc120
