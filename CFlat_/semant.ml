@@ -48,6 +48,7 @@ let check (globals, functions) =
                                ("printt", Tone);
                                ("printr", Rhythm);
                                ("printo", Octave);
+                               ("playnote", Note);
                                ]
   in
 

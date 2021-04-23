@@ -71,7 +71,7 @@ MIDI_FILE *mf;
 		}
 }
 
-void add_note(struct note *note_ptr, MIDI_FILE *mf){
+void add_note(struct note *note_ptr, MIDI_FILE *mf) {
 
     char *tlit = note_ptr -> tlit;
     int olit = note_ptr -> olit;
@@ -93,7 +93,7 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf){
 
     int accidental = 0;
 
-    /*char acc = tlit[1];*/
+    /* char acc = tlit[1]; */
     char acc = tlit[1];
     if (acc == '-') {accidental = -1;} 
     else if (acc == '+') {accidental = 1;}

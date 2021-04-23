@@ -8,15 +8,13 @@ main:                                   # @main
 # %bb.0:                                # %entry
 	subq	$24, %rsp
 	.cfi_def_cfa_offset 32
-	leaq	.Lrhythm_ptr(%rip), %rcx
-	movq	%rcx, 16(%rsp)
-	leaq	.Ltone_ptr(%rip), %rsi
-	movq	%rsi, (%rsp)
-	movl	$4, 8(%rsp)
-	leaq	.Lfmt.1(%rip), %rdi
-	movl	$4, %edx
-	xorl	%eax, %eax
-	callq	printf@PLT
+	leaq	.Lrhythm_ptr(%rip), %rdx
+	movq	%rdx, 16(%rsp)
+	leaq	.Ltone_ptr(%rip), %rdi
+	movq	%rdi, (%rsp)
+	movl	$3, 8(%rsp)
+	movl	$3, %esi
+	callq	play_note@PLT
 	xorl	%eax, %eax
 	addq	$24, %rsp
 	retq
@@ -67,8 +65,8 @@ main:                                   # @main
 
 	.type	.Lrhythm_ptr,@object    # @rhythm_ptr
 .Lrhythm_ptr:
-	.asciz	"s."
-	.size	.Lrhythm_ptr, 3
+	.asciz	"s"
+	.size	.Lrhythm_ptr, 2
 
 
 	.section	".note.GNU-stack","",@progbits

@@ -114,7 +114,7 @@ expr_opt:
 
 expr:
     literal          { $1 }
-  | id               { $1                 }
+  | id               { $1 }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
@@ -134,7 +134,7 @@ expr:
   | NOT expr         { Unop(Not, $2)          }
 
 id:
-     ID                  { Id($1) }
+     ID                 { Id($1) }
    | ID DOT TONE        { Id($1) } 
    | ID DOT OCTAVE      { Id($1) }
    | ID DOT RHYTHM      { Id($1) }

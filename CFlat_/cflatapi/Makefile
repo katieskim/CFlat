@@ -3,7 +3,7 @@ LINK = $(CC)
 CFLAGS = -O2 -ansi -Wall
 LDFLAGS = -s
 
-all:	miditest  helloworld
+all:	 miditest  helloworld
 
 miditest:   miditest.c   midifile.o	
 	$(CC) $(CFLAGS) $(LFLAGS) midifile.o miditest.c -o miditest 
@@ -30,4 +30,3 @@ install:
 clean:
 	rm -f *.o  *.mid
 	rm -f miditest mozart mfc120 mididump m2rtttl
-

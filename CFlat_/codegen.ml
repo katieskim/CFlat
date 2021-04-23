@@ -70,6 +70,11 @@ let translate (globals, functions) =
   let printbig_func : L.llvalue =
       L.declare_function "printbig" printbig_t the_module in
 
+  let play_note_t : L.lltype =
+      L.function_type i32_t [| named_struct_note_t |] in
+  let play_note_func : L.llvalue =
+      L.declare_function "play_note" play_note_t the_module in
+
   (* :)))))))))))))))))))) MAKE PRINTN THING *)
   (* :)))))))))))))))))))) MAKE NOTE STRUCT *)
   (* :)))))))))))))))))))) MAKE PLAY STRUCT *)
@@ -89,7 +94,7 @@ let translate (globals, functions) =
   let build_function_body fdecl =
     let (the_function, _) = StringMap.find fdecl.sfname function_decls in
     let builder = L.builder_at_end context (L.entry_block the_function) in
-
+ 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
     and note_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder 
@@ -137,9 +142,15 @@ let translate (globals, functions) =
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
       | SNoteLit (t, o, r) -> let t' = expr builder t and 
+                                o' = expr builder o and 
+                                r' = expr builder r in
+                                L.const_named_struct named_struct_note_t [| t'; o'; r' |]
+                                (* let note_struct = (let t' = expr builder t and 
                                   o' = expr builder o and 
                                   r' = expr builder r in
-                                L.const_named_struct named_struct_note_t [| t'; o'; r' |]
+                                L.const_named_struct named_struct_note_t [| t'; o'; r' |]) in
+                                L.build_gep note_struct [| note_struct |] "note_ptr" builder
+                                *)
       | SToneLit t ->  L.build_global_stringptr (t ^ "\x00") "tone_ptr" builder 
       | SOctaveLit o ->  L.const_int i32_t o
       | SRhythmLit r ->  L.build_global_stringptr (r ^ "\x00") "rhythm_ptr" builder 
@@ -148,11 +159,6 @@ let translate (globals, functions) =
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
                             ignore(L.build_store e' (lookup s) builder); e'
-                          (* let (_, x) = e in 
-                            ( match x with
-                              SNoteLit (t, o, r) -> let (t', o', r') = expr builder e in
-                                                      ignore(L.build_store t' (lookup s) builder); (t', o', r')
-                              | _ ->  *)   
       | SBinop ((A.Float,_ ) as e1, op, e2) ->
                           let e1' = expr builder e1 and e2' = expr builder e2 in
                             ( match op with 
@@ -197,6 +203,8 @@ let translate (globals, functions) =
 	    "printf" builder
       | SCall ("printbig", [e]) ->
 	  L.build_call printbig_func [| (expr builder e) |] "printbig" builder
+      | SCall ("playnote", [e]) ->
+    L.build_call play_note_func [| (expr builder e) |] "play_note" builder
       | SCall ("printf", [e]) -> 
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
@@ -209,9 +217,6 @@ let translate (globals, functions) =
       | SCall ("printn", [e]) ->
     L.build_call printf_func [| note_format_str ; (expr builder e) |] 
       "printf" builder
-
-
-
       | SCall ("printo", [e]) ->
     L.build_call printf_func [| octave_format_str ; (expr builder e) |]
       "printf" builder
