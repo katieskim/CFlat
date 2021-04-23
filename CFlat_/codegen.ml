@@ -217,42 +217,42 @@ let translate (globals, functions) =
                             L.build_load tb ".tone" builder *)
 
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
-	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
-	    "printf" builder
+	      L.build_call printf_func [| int_format_str ; (expr builder e) |]
+	      "printf" builder
       | SCall ("printbig", [e]) ->
-	  L.build_call printbig_func [| (expr builder e) |] "printbig" builder
+	      L.build_call printbig_func [| (expr builder e) |] "printbig" builder
       | SCall ("playnote", [e]) ->
-    L.build_call play_note_func [| (expr builder e) |] "play_note" builder
+        L.build_call play_note_func [| (expr builder e) |] "play_note" builder
       | SCall ("printf", [e]) -> 
-	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
-	    "printf" builder
+	      L.build_call printf_func [| float_format_str ; (expr builder e) |]
+	      "printf" builder
       | SCall ("prints", [e]) -> 
-	  L.build_call printf_func [| str_format_str ; (expr builder e) |]
-	    "printf" builder
+	      L.build_call printf_func [| str_format_str ; (expr builder e) |]
+	      "printf" builder
       | SCall ("printn", [e]) -> let nv = (expr builder e) in
-      let tb = L.build_struct_gep nv 0 "@tone_print" builder in
-      let t' = L.build_load tb ".tone_print" builder in
-    L.build_call printf_func [| note_format_str ; t' |]
-      "printf" builder
+        let tb = L.build_struct_gep nv 0 "@tone_print" builder in
+        let t' = L.build_load tb ".tone_print" builder in
+        L.build_call printf_func [| note_format_str ; t' |]
+        "printf" builder
       | SCall ("printt", [e]) -> 
-	  L.build_call printf_func [| tone_format_str ; (expr builder e) |]
-	    "printf" builder
+	      L.build_call printf_func [| tone_format_str ; (expr builder e) |]
+	      "printf" builder
       | SCall ("printn", [e]) ->
-    L.build_call printf_func [| note_format_str ; (expr builder e) |] 
-      "printf" builder
+        L.build_call printf_func [| note_format_str ; (expr builder e) |] 
+        "printf" builder
       | SCall ("printo", [e]) ->
-    L.build_call printf_func [| octave_format_str ; (expr builder e) |]
-      "printf" builder
+        L.build_call printf_func [| octave_format_str ; (expr builder e) |]
+        "printf" builder
       | SCall ("printr", [e]) ->
-    L.build_call printf_func [| rhythm_format_str ; (expr builder e) |]
-      "printf" builder
+        L.build_call printf_func [| rhythm_format_str ; (expr builder e) |]
+        "printf" builder
       | SCall (f, args) ->
-         let (fdef, fdecl) = StringMap.find f function_decls in
-	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
-	 let result = (match fdecl.styp with 
+        let (fdef, fdecl) = StringMap.find f function_decls in
+	      let llargs = List.rev (List.map (expr builder) (List.rev args)) in
+	      let result = (match fdecl.styp with 
                         A.Void -> ""
                       | _ -> f ^ "_result") in
-         L.build_call fdef (Array.of_list llargs) result builder
+        L.build_call fdef (Array.of_list llargs) result builder
     in
     
     (* LLVM insists each basic block end with exactly one "terminator" 
