@@ -8,8 +8,8 @@ all:	miditest  helloworld
 miditest:   miditest.c   midifile.o	
 	$(CC) $(CFLAGS) $(LFLAGS) midifile.o miditest.c -o miditest 
 
-helloworld: cflatfile.c midifile.o
-	$(CC) $(CFLAGS) $(LFLAGS) midifile.o cflatfile.c -o helloworld
+helloworld: cflatapi.c midifile.o
+	$(CC) $(CFLAGS) $(LFLAGS) midifile.o cflatapi.c -o helloworld
 
 
 #mfc120: mfcmain.c   mfc120.c   midifile.o
@@ -26,6 +26,6 @@ install:
 	@echo Just copy the files somewhere useful!
 
 clean:
-	rm -f *.o  *.mid
-	rm -f miditest mozart mfc120 mididump m2rtttl
+	rm -f *.o  *.mid 
+	rm -f miditest mozart mfc120 mididump m2rtttl helloworld
 
