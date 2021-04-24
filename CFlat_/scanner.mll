@@ -12,6 +12,8 @@ rule token = parse
 | ')'      { RPAREN }
 | '{'      { LBRACE }
 | '}'      { RBRACE }
+| '['      { LBRACK }
+| ']'      { RBRACK }
 | ';'      { SEMI }
 | '+'      { PLUS }
 | '-'      { MINUS }
@@ -34,15 +36,18 @@ rule token = parse
 | ".tone"  { TONEACCESS }
 | ".octave" { OCTAVEACCESS }
 | ".rhythm" { RHYTHMACCESS }
-| "string" { STRING }
+(*---------------------------------------------Control-------------------------------------------------------*)
 | "if"     { IF }
 | "else"   { ELSE }
 | "for"    { FOR }
 | "while"  { WHILE }
 | "return" { RETURN }
+(*----------------------------------------------Types-------------------------------------------------------*)
 | "int"    { INT }
 | "bool"   { BOOL }
 | "float"  { FLOAT }
+| "string" { STRING }
+| "array"  { ARRAY }        (*Just added this *)
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }

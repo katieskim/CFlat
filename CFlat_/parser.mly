@@ -8,7 +8,7 @@ open Ast
 %token TONEACCESS OCTAVEACCESS RHYTHMACCESS
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE 
-%token INT BOOL FLOAT VOID NOTE STRING TONE OCTAVE RHYTHM
+%token INT BOOL FLOAT VOID NOTE STRING TONE OCTAVE RHYTHM ARRAY
 %token <int> LITERAL OLIT
 %token <bool> BLIT
 %token <string> ID FLIT STRLIT TLIT RLIT
@@ -65,6 +65,10 @@ typ:
   | OCTAVE  { Octave }
   | RHYTHM  { Rhythm }
   | STRING  { String }
+  | array_type  { $1 }
+
+array_type:
+  |typ LBRACK RBRACK {  ArrayType($1) }
 
 literal:
     LITERAL          { Literal($1)            }
@@ -75,6 +79,7 @@ literal:
   | tlit             { $1                     }
   | olit             { $1                     }
   | rlit             { $1                     }
+  | arraylit         { $1                     }
 
 tlit:
     TLIT             { ToneLit($1)            }
@@ -88,6 +93,9 @@ rlit:
 notelit:
     LPAREN tlit olit rlit RPAREN    { NoteLit($2, $3, $4)}
     /* allow for default values? */
+
+arraylit: 
+    LPAREN array_type RPAREN LBRACE args_opt RBRACE { ArrayLit($2, $5) }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -118,10 +126,13 @@ expr:
     literal          { $1 }
   | ID               { Id($1) }
   | ID ASSIGN expr   { Assign($1, $3)         }
+  | MAKE LPAREN typ COMMA expr RPAREN  { MakeArray($3, $5) }     (* Karray *)
   | ID LPAREN args_opt RPAREN { Call($1, $3)  }
   | ID TONEACCESS    { ToneAccess($1)         }
   | ID OCTAVEACCESS  { OctaveAccess($1)       }
   | ID RHYTHMACCESS  { RhythmAccess($1)       }
+  | ID LBRACK expr RBRACK { ArrayAccess($1, $3) }       (* Karray *)
+  | ID LBRACK expr RBRACK ASSIGN expr { ArrayAssign($1, $3, $6) }    (*Karray *)
   | LPAREN expr RPAREN { $2                   }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
