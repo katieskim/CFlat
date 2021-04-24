@@ -8,12 +8,12 @@ main:                                   # @main
 # %bb.0:                                # %entry
 	subq	$24, %rsp
 	.cfi_def_cfa_offset 32
-	leaq	.Lrhythm_ptr(%rip), %rdx
-	movq	%rdx, 16(%rsp)
-	leaq	.Ltone_ptr(%rip), %rdi
-	movq	%rdi, (%rsp)
+	leaq	.Lrhythm_ptr(%rip), %rax
+	movq	%rax, 16(%rsp)
+	leaq	.Ltone_ptr(%rip), %rax
+	movq	%rax, (%rsp)
 	movl	$3, 8(%rsp)
-	movl	$3, %esi
+	movq	%rsp, %rdi
 	callq	play_note@PLT
 	xorl	%eax, %eax
 	addq	$24, %rsp

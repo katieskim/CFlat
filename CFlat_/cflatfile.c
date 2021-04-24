@@ -9,9 +9,9 @@
 
 /* Note struct */
 struct note{
-    char tlit[3];
+    char *tlit;
     int olit;
-    char rlit[3];
+    char *rlit;
 } note;
 
 /*Mallocs space for and initializes a new note struct */
@@ -81,8 +81,9 @@ void add_note(struct note* note_ptr, MIDI_FILE *mf){
     int miditone = 0;
     int is_rest = 0;
     char tone = tlit[0];
-    printf("%s\n", tlit);
-    printf("%d\n", olit);
+    printf("tone: %s\n", tlit);
+    printf("octave: %d\n", olit);
+    printf("rhythm: %s\n", rlit);
     if (tone == 'R') {is_rest = 1;}
     else if (tone == 'C') {miditone = 0;}
     else if (tone == 'D') {miditone = 2;}

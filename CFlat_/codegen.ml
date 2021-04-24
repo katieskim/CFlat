@@ -71,7 +71,7 @@ let translate (globals, functions) =
       L.declare_function "printbig" printbig_t the_module in
 
   let play_note_t : L.lltype =
-      L.function_type i32_t [| named_struct_note_t |] in
+      L.function_type i32_t [| L.pointer_type named_struct_note_t |] in
   let play_note_func : L.llvalue =
       L.declare_function "play_note" play_note_t the_module in
 
@@ -107,17 +107,16 @@ let translate (globals, functions) =
        declared variables.  Allocate each on the stack, initialize their
        value, if appropriate, and remember their values in the "locals" map *)
     let local_vars =
-      let add_formal m (t, n) p = 
-        L.set_value_name n p;
-	let local = L.build_alloca (ltype_of_typ t) n builder in
+      let add_formal m (t, n) p = L.set_value_name n p;
+	    let local = L.build_alloca (ltype_of_typ t) n builder in
         ignore (L.build_store p local builder);
-	StringMap.add n local m 
+	    StringMap.add n local m 
 
       (* Allocate space for any locally declared variables and add the
        * resulting registers to our map *)
       and add_local m (t, n) =
-	let local_var = L.build_alloca (ltype_of_typ t) n builder
-	in StringMap.add n local_var m 
+	      let local_var = L.build_alloca (ltype_of_typ t) n builder
+	      in StringMap.add n local_var m 
       in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -221,8 +220,8 @@ let translate (globals, functions) =
 	      "printf" builder
       | SCall ("printbig", [e]) ->
 	      L.build_call printbig_func [| (expr builder e) |] "printbig" builder
-      | SCall ("playnote", [e]) ->
-        L.build_call play_note_func [| (expr builder e) |] "play_note" builder
+      | SCall ("playnote", [e]) -> let (_, SId n) = e in
+        L.build_call play_note_func [| (lookup n) |] "play_note" builder
       | SCall ("printf", [e]) -> 
 	      L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	      "printf" builder
