@@ -41,6 +41,12 @@ void bplay_note(struct note *n, int beat); /* bplay_note takes in beat (beats/mi
 void play_note_arr(struct note *note_arr[]);
 void bplay_note_arr(struct note *note_arr[], int beat); /* bplay_note_arr takes in beat (beats/min) */
 
+
+
+
+
+/* INTERNAL FUNCTIONS, CFLAT USERS SHOULD NOT CALL THESE */
+
 /*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
 /*OUTPUT: No output but it will add the note to the midi_file */ 
 void add_note(struct note *note_ptr, MIDI_FILE *mf, int track, int beat);
@@ -48,6 +54,9 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int track, int beat);
 /*INPUT: Takes in a pointer to an array of note struct, pointer to a midi_file */ 
 /*OUTPUT: No output but it will add track with notes to the midifile */ 
 void add_track(struct note *note_arr[], MIDI_FILE *mf, int track, int beat);
+
+
+
 
 void play_note(struct note *note_ptr) {
 /*char *tlit, int olit, char *rlit */
@@ -73,10 +82,10 @@ void play_note_arr(struct note *note_arr[]){
     if ((mf = midiFileCreate("helloarray.mid", TRUE))){
 
         while (*note_arr){
-
+/*
             printf("%s%d\n", "OCTAVE,", (*note_arr) -> olit);
             printf("%s%s\n", "RHYTHM,", (*note_arr) -> rlit);
-            printf("%s%s\n", "OCTAVE,", (*note_arr) -> tlit);
+            printf("%s%s\n", "OCTAVE,", (*note_arr) -> tlit); */
 
             add_note((*note_arr), mf, 1, 120);
             note_arr++;
@@ -175,17 +184,21 @@ void add_track(struct note *note_arr[], MIDI_FILE *mf, int track, int beat){
         note_arr++;
     }
 }
-/*struct note *A[], struct note *B[]*/
-void play_tracks(int num_tracks, ){
+
+void play_tracks(int num_tracks, ...){
     MIDI_FILE *mf;
     va_list valist;
+    va_start(valist, num_tracks);
+    struct note **track;
     int i;
+
     if ((mf = midiFileCreate("playTracks.mid", TRUE))){
-
         
-        add_track(A, mf, 1, 120);
-        add_track(B, mf, 2, 120);
-
+        for (i = 0; i < num_tracks; i++){
+            track = va_arg(valist, struct note **);
+            add_track(track, mf, i, 120);
+        }
+        
         midiFileClose(mf);
     }
 }
@@ -253,18 +266,28 @@ int main(int argc, char* argv[])
 
     struct note *A[4];  A[3] = NULL;
     struct note *B[4];  B[3] = NULL;
+    struct note *C[5];  C[4] = NULL;
+    struct note *D[5];  D[4] = NULL;
 
     for (i=0; i<3; i++){
         A[i] = malloc(sizeof(struct note*));
         B[i] = malloc(sizeof(struct note*));
+        C[i] = malloc(sizeof(struct note*));
     }
+    C[3] = malloc(sizeof(struct note*));
+    D[3] = malloc(sizeof(struct note*));
      
     struct note *et = new_note("E", 4, "h");
     struct note *dt = new_note("D", 4, "h");
     struct note *ct = new_note("C", 4, "h");
 
     struct note *gt = new_note("G", 4, "h");
-    struct note *ft = new_note("F", 4, "h");
+    struct note *ft = new_note("F", 4, "h.");
+
+    struct note *ctt = new_note("C", 5, "h");
+    struct note *dtt = new_note("D", 5, "w.");
+    struct note *ett = new_note("E", 5, "h");
+    struct note *at = new_note("A", 4, "h");
 
     
 
@@ -276,8 +299,16 @@ int main(int argc, char* argv[])
     B[1] = ft;
     B[2] = et;
 
-    play_two_tracks(A, B);
+    C[0] = ctt;
+    C[1] = at;
+    C[2] = gt;
+    C[3] = ctt;
 
+    D[0] = ctt;
+    D[1] = dtt;
+    D[2] = ctt;
+    D[3] = ett;
 
+    play_tracks(4, A, B, C, D);
 	return 0;
 }
