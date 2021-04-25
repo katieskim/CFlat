@@ -33,24 +33,22 @@ let check (globals, functions) =
 
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls = 
-
-    let add_bind map (name, tys) = StringMap.add name {
+    let add_bind map (name, ty) = StringMap.add name {
       typ = Void;
       fname = name; 
-      formals = tys;
+      formals = [(ty, "x")];
       locals = []; body = [] } map
     in List.fold_left add_bind StringMap.empty
-                             [ ("print", [(Int, "x")]);
-			                         ("printb", [(Bool, "x")]);
-			                         ("printf", [(Float, "x")]);
-			                         ("printbig", [(Int, "x")]);
-                               ("prints", [(String, "x")]);
-						                   ("printn", [(Note, "x")]);
-                               ("printt", [(Tone, "x")]);
-                               ("printr", [(Rhythm, "x")]);
-                               ("printo", [(Octave, "x")]);
-                               ("playnote", [(Note, "x")]);
-                               ("bplaynote", [(Note, "x"); (Int, "y")]);
+                             [ ("print", Int);
+			                         ("printb", Bool);
+			                         ("printf", Float);
+			                         ("printbig", Int);
+                               ("prints", String);
+						                   ("printn", Note);
+                               ("printt", Tone);
+                               ("printr", Rhythm);
+                               ("printo", Octave);
+                               ("playnote", Note);
                                ]
   in
 
@@ -161,12 +159,6 @@ let check (globals, functions) =
                           string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
                           string_of_typ t2 ^ " in " ^ string_of_expr e))
             in (ty, SBinop((t1, e1'), op, (t2, e2')))
-      (* | Call("bplaynote", args) as call -> 
-          (* let param_length = 2 in
-          if List.length args != 2 then 
-            raise (Failure ("expecting " ^ string_of_int param_length ^ 
-                            " arguments in " ^ string_of_expr call)) *)
-          (Void, SCall("bplaynote", [Note, Int])) *)
       | Call(fname, args) as call -> 
           let fd = find_func fname in
           let param_length = List.length fd.formals in
