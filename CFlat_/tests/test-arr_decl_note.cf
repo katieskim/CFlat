@@ -1,0 +1,5 @@
+int main()
+{
+  note[] note_arr;
+  return 0;
+}

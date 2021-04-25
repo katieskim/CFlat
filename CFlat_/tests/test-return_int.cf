@@ -1,0 +1,12 @@
+foo();
+
+int foo()
+{
+    if (true) return 42; 
+    else return;
+}
+
+int main()
+{
+    print(foo);
+}
