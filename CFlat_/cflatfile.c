@@ -112,7 +112,6 @@ void add_note(struct note* note_ptr, MIDI_FILE *mf){
     if (strlen(rlit) > 1 && rlit[1] == '.') {dotted = 1;}   /*checks for dotted value*/
 
     char rhythm = rlit[0];
-    printf("%c\n", rhythm);
     if (rhythm == 's') {midirhythm = MIDI_NOTE_SEMIQUAVER;}
     else if (rhythm == 'e') {midirhythm = MIDI_NOTE_QUAVER;}
     else if (rhythm == 'q') {midirhythm = MIDI_NOTE_CROCHET;}
