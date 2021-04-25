@@ -7,13 +7,12 @@
 #endif
 #include "midifile.h"
 
-
 /* Note struct */
 struct note{
-    char tlit[3];
+    char *tlit;
     int olit;
-    char rlit[3];
-}note;
+    char *rlit;
+} note;
 
 /*Mallocs space for and initializes a new note struct */
 struct note *new_note(char *tone, int octave, char *rhythm){
@@ -32,25 +31,22 @@ struct note *new_note(char *tone, int octave, char *rhythm){
 
 /*INPUT: Takes in a pointer to a single note struct */ 
 /*OUTPUT: A midifile called "hellonote.mid" that plays the note */ 
-void play_note(struct note *n); 
-void bplay_note(struct note *n, int beat); /* bplay_note takes in beat (beats/min) */
+void play_note(struct note* n);
 
 /*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
 /*OUTPUT: No output but it will add the note to the midi_file */ 
-void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat);
+void add_note(struct note* note_ptr, MIDI_FILE *mf);
 
 /*INPUT: Takes in a pointer to an array of note struct pointers */ 
 /*OUTPUT: A midifile called "notearray.mid" that plays a C Major scale.  */ 
-void play_note_arr(struct note *arr[]);
-void bplay_note_arr(struct note *arr[], int beat); /* bplay_note_arr takes in beat (beats/min) */
+/*void play_note_arr(struct note *arr[]);*/
 
 
-
-
+/*
 void play_note_arr(struct note *note_arr[]){
 
     MIDI_FILE *mf;
-    if ((mf = midiFileCreate("helloarray.mid", TRUE))){
+    if ((mf = midiFileCreate("notearray.mid", TRUE))){
 
         while (*note_arr){
 
@@ -58,53 +54,36 @@ void play_note_arr(struct note *note_arr[]){
             printf("%s%s\n", "RHYTHM,", (*note_arr) -> rlit);
             printf("%s%s\n", "OCTAVE,", (*note_arr) -> tlit);
 
-            add_note((*note_arr), mf, 120);
+            add_note((*note_arr), mf);
             note_arr++;
         }
 
         midiFileClose(mf);
     }
 }
+*/
 
-void bplay_note_arr(struct note *note_arr[], int beat){
-    MIDI_FILE *mf;
-    if ((mf = midiFileCreate("helloarraybeat.mid", TRUE))){
-        while (*note_arr){
-            add_note((*note_arr), mf, beat);
-            note_arr++;
-        }
-        midiFileClose(mf);
-    }  
-}
-
-void play_note(struct note *note_ptr) {
+void play_note(struct note* note_ptr) {
 /*char *tlit, int olit, char *rlit */
 MIDI_FILE *mf;
 	if ((mf = midiFileCreate("hellonote.mid", TRUE))){
-		add_note(note_ptr, mf, 120);
+		add_note(note_ptr, mf);
 		midiFileClose(mf);
 		}
 }
 
-void bplay_note(struct note *note_ptr, int beat) {
-/*char *tlit, int olit, char *rlit */
-MIDI_FILE *mf;
-	if ((mf = midiFileCreate("hellonotebeat.mid", TRUE))){
-		add_note(note_ptr, mf, beat);
-		midiFileClose(mf);
-		}
-}
+void add_note(struct note* note_ptr, MIDI_FILE *mf){
 
-void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat){
-
-    char *tlit = note_ptr -> tlit;
-    int olit = note_ptr -> olit;
-    char *rlit = note_ptr -> rlit;
+    char *tlit = note_ptr->tlit;
+    int olit = note_ptr->olit;
+    char *rlit = note_ptr->rlit;
 
     int miditone = 0;
     int is_rest = 0;
     char tone = tlit[0];
-    printf("%s\n", tlit);
+    printf("tone: %s\n", tlit);
+    printf("octave: %d\n", olit);
+    printf("rhythm: %s\n", rlit);
     if (tone == 'R') {is_rest = 1;}
     else if (tone == 'C') {miditone = 0;}
     else if (tone == 'D') {miditone = 2;}
@@ -150,7 +129,7 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat){
         midioctave *= 12;
     }
     /*DEFAULT TIME SIGNATURE */
-    midiSongAddTempo(mf, 1, beat);
+    midiSongAddTempo(mf, 1, 120);
     midiSongAddSimpleTimeSig(mf, 1, 4, MIDI_NOTE_CROCHET); 
 
     midiFileSetTracksDefaultChannel(mf, 1, MIDI_CHANNEL_1);
@@ -163,69 +142,4 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int beat){
     }
     midiTrackAddNote(mf, 1, miditone + midioctave, midirhythm, volume, TRUE, FALSE);
 
-}
-
-
-
-
-/*DRIVER CODE FOR PLAY_NOTE_ARR: Creates a midifile with a C Major Scale */
-int main(int argc, char* argv[])
-{
-
-    /*Need the size of the array*/
-    int num_notes = 12;
-    struct note *arr[num_notes + 1];
-
-    /* Creates space for the array */
-    int i;
-    for (i=0; i<num_notes; i++){
-        arr[i] = malloc(sizeof(struct note*));
-    }
-    
-    arr[num_notes] = NULL;
-    struct note *c = new_note("C", 4, "s");
-    struct note *d = new_note("D", 4, "s.");
-    struct note *e = new_note("E", 4, "e");
-    struct note *f = new_note("F+", 4, "e.");
-    struct note *g = new_note("G", 4, "q");
-    struct note *a = new_note("R", 4, "q.");
-    struct note *b = new_note("B", 4, "h");
-    struct note *c_2 = new_note("C", 5, "h.");
-    struct note *d_2 = new_note("R", 5, "w");
-    struct note *e_2 = new_note("E", 5, "w");
-    struct note *f_2 = new_note("F", 5, "w");
-    struct note *c_flat = new_note("C-", 5, "h");
-
-    arr[0] = c;
-    arr[1] = d;
-    arr[2] = e;
-    arr[3] = f;
-    arr[4] = g;
-    arr[5] = a;
-    arr[6] = b;
-    arr[7] = c_2;
-    arr[8] = d_2;
-    arr[9] = e_2;
-    arr[10] = f_2;
-    arr[11] = c_flat;
-/*
-    arr[9] = d_2;
-    arr[10] = d_s;
-    arr[11] = e_2;
-    arr[12] = f_2;
-    arr[13] = f_s;
-    arr[14] = g_2;
-    arr[15] = g_s;
-    arr[16] = a_2;
-    arr[17] = a_s;
-    arr[18] = b_2;
-    arr[20] = c_3;  */
-
-
-    bplay_note(c, 60);
-    bplay_note(c, 160);
-
-    play_note_arr(arr);
-    bplay_note_arr(arr, 360);
-	return 0;
 }

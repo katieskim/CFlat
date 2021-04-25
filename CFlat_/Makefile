@@ -1,3 +1,8 @@
+CC=gcc
+LINK = $(CC)
+CFLAGS = -O2 -ansi -Wall
+LDFLAGS = -s
+
 # "make test" Compiles everything and runs the regression tests
 
 .PHONY : test
@@ -8,7 +13,7 @@ test : all testall.sh
 # to test linking external code
 
 .PHONY : all
-all : cflat.native printbig.o
+all : cflat.native printbig.o cflatapi.o midifile.o
 
 # "make cflat.native" compiles the compiler
 #
@@ -27,11 +32,17 @@ cflat.native :
 clean :
 	ocamlbuild -clean
 	rm -rf testall.log ocamlllvm *.diff
+	rm -f *.o  *.mid
 
 # Testing the "printbig" example
 
-printbig : printbig.c
+printbig: printbig.c
 	cc -o printbig -DBUILD_TEST printbig.c
+
+# midifiles
+midifile.o: midifile.c	midifile.h
+
+cflatapi.o: cflatapi.c cflatapi.h
 
 # Building the tarball
 
@@ -46,7 +57,7 @@ TESTFILES = $(TESTS:%=test-%.cf) $(TESTS:%=test-%.out)
 
 TARFILES = ast.ml sast.ml codegen.ml Makefile _tags cflat.ml parser.mly \
 	README scanner.mll semant.ml testall.sh \
-	printbig.c arcade-font.pbm font2c \
+	printbig.c cflatapi.c midifile.c arcade-font.pbm font2c \
 	Dockerfile \
 	$(TESTFILES:%=tests/%) 
 

@@ -12,6 +12,9 @@ and sx =
   | SToneLit of string
   | SOctaveLit of int
   | SRhythmLit of string
+  | SToneAccess of string
+  | SOctaveAccess of string
+  | SRhythmAccess of string
   | SStrLit of string
   | SId of string
   | SAssign of string * sexpr
@@ -50,6 +53,9 @@ let rec string_of_sexpr (t, e) =
   | SToneLit(l) -> l
   | SOctaveLit(l) -> string_of_int l
   | SRhythmLit(l) -> l
+  | SToneAccess(n) -> n
+  | SOctaveAccess(n) -> n
+  | SRhythmAccess(n) -> n
   | SStrLit(l) -> l
   | SId(s) -> s
   | SCall(f, el) ->

@@ -36,7 +36,7 @@ let translate (globals, functions) =
   and void_t     = L.void_type   context in
   let str_t      = L.pointer_type i8_t in
   let named_struct_note_t = L.named_struct_type context "named_struct_note_t" in 
-  let unit3 = L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; L.i32_type context; L.pointer_type i8_t |] false in
+  ignore (L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; L.i32_type context; L.pointer_type i8_t |] false);
 
   (* Return the LLVM type for a CFlat type *)
   let ltype_of_typ = function
@@ -70,6 +70,11 @@ let translate (globals, functions) =
   let printbig_func : L.llvalue =
       L.declare_function "printbig" printbig_t the_module in
 
+  let play_note_t : L.lltype =
+      L.function_type i32_t [| L.pointer_type named_struct_note_t |] in
+  let play_note_func : L.llvalue =
+      L.declare_function "play_note" play_note_t the_module in
+
   (* :)))))))))))))))))))) MAKE PRINTN THING *)
   (* :)))))))))))))))))))) MAKE NOTE STRUCT *)
   (* :)))))))))))))))))))) MAKE PLAY STRUCT *)
@@ -89,9 +94,9 @@ let translate (globals, functions) =
   let build_function_body fdecl =
     let (the_function, _) = StringMap.find fdecl.sfname function_decls in
     let builder = L.builder_at_end context (L.entry_block the_function) in
-
+ 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
-    and note_format_str = L.build_global_stringptr "%s\n" "fmt" builder
+    and note_format_str = L.build_global_stringptr "/%s/ /%d/ /%s/\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder 
     and tone_format_str = L.build_global_stringptr "%s\n" "fmt" builder 
     and octave_format_str = L.build_global_stringptr "%d\n" "fmt" builder 
@@ -102,17 +107,16 @@ let translate (globals, functions) =
        declared variables.  Allocate each on the stack, initialize their
        value, if appropriate, and remember their values in the "locals" map *)
     let local_vars =
-      let add_formal m (t, n) p = 
-        L.set_value_name n p;
-	let local = L.build_alloca (ltype_of_typ t) n builder in
+      let add_formal m (t, n) p = L.set_value_name n p;
+	    let local = L.build_alloca (ltype_of_typ t) n builder in
         ignore (L.build_store p local builder);
-	StringMap.add n local m 
+	    StringMap.add n local m 
 
       (* Allocate space for any locally declared variables and add the
        * resulting registers to our map *)
       and add_local m (t, n) =
-	let local_var = L.build_alloca (ltype_of_typ t) n builder
-	in StringMap.add n local_var m 
+	      let local_var = L.build_alloca (ltype_of_typ t) n builder
+	      in StringMap.add n local_var m 
       in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -126,20 +130,21 @@ let translate (globals, functions) =
                    with Not_found -> StringMap.find n global_vars
     in
 
-    (* creates struct *)
-    (* let codegen_note t' o' r' builder = 
-          L.build_struct_gep named_struct_note_t 0 "@.strrrr" builder
-          lookup  *)
-
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
 	      SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFliteral l -> L.const_float_of_string float_t l
       | SNoteLit (t, o, r) -> let t' = expr builder t and 
+                                o' = expr builder o and 
+                                r' = expr builder r in
+                                L.const_named_struct named_struct_note_t [| t'; o'; r' |]
+                                (* let note_struct = (let t' = expr builder t and 
                                   o' = expr builder o and 
                                   r' = expr builder r in
-                                L.const_named_struct named_struct_note_t [| t'; o'; r' |]
+                                L.const_named_struct named_struct_note_t [| t'; o'; r' |]) in
+                                L.build_gep note_struct [| note_struct |] "note_ptr" builder
+                                *)
       | SToneLit t ->  L.build_global_stringptr (t ^ "\x00") "tone_ptr" builder 
       | SOctaveLit o ->  L.const_int i32_t o
       | SRhythmLit r ->  L.build_global_stringptr (r ^ "\x00") "rhythm_ptr" builder 
@@ -148,11 +153,6 @@ let translate (globals, functions) =
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
                             ignore(L.build_store e' (lookup s) builder); e'
-                          (* let (_, x) = e in 
-                            ( match x with
-                              SNoteLit (t, o, r) -> let (t', o', r') = expr builder e in
-                                                      ignore(L.build_store t' (lookup s) builder); (t', o', r')
-                              | _ ->  *)   
       | SBinop ((A.Float,_ ) as e1, op, e2) ->
                           let e1' = expr builder e1 and e2' = expr builder e2 in
                             ( match op with 
@@ -188,43 +188,68 @@ let translate (globals, functions) =
       | SUnop (op, ((t, _) as e)) ->
                           let e' = expr builder e in
                             ( match op with
-                              A.Neg when t = A.Float -> L.build_fneg 
+                              A.Neg when t = A.Float -> L.build_fneg
                             | A.Neg                  -> L.build_neg
                             | A.Not                  -> L.build_not
                             ) e' "tmp" builder
+      | SToneAccess n -> let tb = L.build_struct_gep (lookup n) 0 "@tone" builder in
+                            L.build_load tb ".tone" builder
+      | SOctaveAccess n -> let ob = L.build_struct_gep (lookup n) 1 "@octave" builder in
+                            L.build_load ob ".octave" builder
+      | SRhythmAccess n -> let rb = L.build_struct_gep (lookup n) 2 "@rhythm" builder in
+                            L.build_load rb ".rhythm" builder
+
+                          (* L.build_global_stringptr ("hiiii" ^ "\x00") "tone_ptr" builder  *)
+                          (* L.build_extractvalue (lookup n) 0 ".tone" builder *)
+                            (* in
+                            L.value_name tv *)
+                            (* L.build_global_stringptr tv "tone_ptr" builder *)
+                          (* let nv = lookup n in
+                            let tv = L.build_extractvalue nv 0 ".tone" builder in
+                            let tvv = L.const_extractvalue tv [| 0 |] in
+                            L.build_load tvv "note.tone" builder *)
+                          (* L.const_extractvalue (lookup n) [| 0 |] *)
+                          (* let nv = L.build_load (lookup n) n builder in
+                            L.const_extractvalue nv [| 0 |] *)
+                            (* L.build_extractvalue nv 0 ".tone" builder *)
+                            (* let tb = L.build_struct_gep nv 0 "@tone" builder in
+                            L.build_load tb ".tone" builder *)
+
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
-	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
-	    "printf" builder
+	      L.build_call printf_func [| int_format_str ; (expr builder e) |]
+	      "printf" builder
       | SCall ("printbig", [e]) ->
-	  L.build_call printbig_func [| (expr builder e) |] "printbig" builder
+	      L.build_call printbig_func [| (expr builder e) |] "printbig" builder
+      | SCall ("playnote", [e]) -> let (_, SId n) = e in
+        L.build_call play_note_func [| (lookup n) |] "play_note" builder
       | SCall ("printf", [e]) -> 
-	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
-	    "printf" builder
+	      L.build_call printf_func [| float_format_str ; (expr builder e) |]
+	      "printf" builder
       | SCall ("prints", [e]) -> 
-	  L.build_call printf_func [| str_format_str ; (expr builder e) |]
-	    "printf" builder
+	      L.build_call printf_func [| str_format_str ; (expr builder e) |]
+	      "printf" builder
+      | SCall ("printn", [e]) -> let (_, SId n) = e in
+                            let t' = expr builder (Tone, SToneAccess n) 
+                            and o' = expr builder (Octave, SOctaveAccess n)
+                            and r' = expr builder (Rhythm, SRhythmAccess n) in
+        L.build_call printf_func [| note_format_str ; t'; o'; r' |]
+        "printf" builder
       | SCall ("printt", [e]) -> 
-	  L.build_call printf_func [| tone_format_str ; (expr builder e) |]
-	    "printf" builder
-      | SCall ("printn", [e]) ->
-    L.build_call printf_func [| note_format_str ; (expr builder e) |] 
-      "printf" builder
-
-
-
+	      L.build_call printf_func [| tone_format_str ; (expr builder e) |]
+	      "printf" builder
       | SCall ("printo", [e]) ->
-    L.build_call printf_func [| octave_format_str ; (expr builder e) |]
-      "printf" builder
+        L.build_call printf_func [| octave_format_str ; (expr builder e) |]
+        "printf" builder
       | SCall ("printr", [e]) ->
-    L.build_call printf_func [| rhythm_format_str ; (expr builder e) |]
-      "printf" builder
+        L.build_call printf_func [| rhythm_format_str ; (expr builder e) |]
+        "printf" builder
       | SCall (f, args) ->
-         let (fdef, fdecl) = StringMap.find f function_decls in
-	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
-	 let result = (match fdecl.styp with 
+        let (fdef, fdecl) = StringMap.find f function_decls in
+	      let llargs = List.rev (List.map (expr builder) (List.rev args)) in
+	      let result = (match fdecl.styp with 
                         A.Void -> ""
                       | _ -> f ^ "_result") in
-         L.build_call fdef (Array.of_list llargs) result builder
+        L.build_call fdef (Array.of_list llargs) result builder
     in
     
     (* LLVM insists each basic block end with exactly one "terminator" 

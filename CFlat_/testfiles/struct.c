@@ -16,5 +16,11 @@ int main() {
 	printf("%s %d %s", note1.tone, note1.octave, note1.rhythm);
 
 	
+/*	char* foo;
+	foo = note1.tone;
+	printf("%s", foo);	*/
+	
+	printf("/%s/ /%d/ /%s/", note1.tone, note1.octave, note1.rhythm);
+
 	return 0;
 }

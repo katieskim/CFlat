@@ -1,7 +1,0 @@
-int main()
-{
-	note n;
-	n = ( /C-/ /0/ /3/ );
-	printn(n);
-	return 0;
-}

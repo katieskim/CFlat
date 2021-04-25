@@ -7,7 +7,11 @@ target triple = "x86_64-apple-macosx10.15.0"
 
 @.str = private unnamed_addr constant [3 x i8] c"C-\00", align 1
 @.str.1 = private unnamed_addr constant [3 x i8] c"s.\00", align 1
+<<<<<<< HEAD
 @.str.2 = private unnamed_addr constant [9 x i8] c"%s %d %s\00", align 1
+=======
+@.str.2 = private unnamed_addr constant [15 x i8] c"/%s/ /%d/ /%s/\00", align 1
+>>>>>>> c9312e159e7b97e73e16b356702e0480397ccaa7
 ; Function Attrs: noinline nounwind optnone ssp uwtable
 define i32 @main() #0 {
   %1 = alloca i32, align 4
@@ -25,7 +29,11 @@ define i32 @main() #0 {
   %9 = load i32, i32* %8, align 8
   %10 = getelementptr inbounds %struct.Note, %struct.Note* %2, i32 0, i32 2
   %11 = load i8*, i8** %10, align 8
+<<<<<<< HEAD
   %12 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.2, i64 0, i64 0), i8* %7, i32 %9, i8* %11)
+=======
+  %12 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str.2, i64 0, i64 0), i8* %7, i32 %9, i8* %11)
+>>>>>>> c9312e159e7b97e73e16b356702e0480397ccaa7
   ret i32 0
 }
 declare i32 @printf(i8*, ...) #1

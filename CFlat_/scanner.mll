@@ -13,7 +13,6 @@ rule token = parse
 | '{'      { LBRACE }
 | '}'      { RBRACE }
 | ';'      { SEMI }
-| '.'      { DOT }
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }
@@ -32,6 +31,9 @@ rule token = parse
 | "tone"   { TONE }
 | "octave" { OCTAVE }
 | "rhythm" { RHYTHM }
+| ".tone"  { TONEACCESS }
+| ".octave" { OCTAVEACCESS }
+| ".rhythm" { RHYTHMACCESS }
 | "string" { STRING }
 | "if"     { IF }
 | "else"   { ELSE }
@@ -50,7 +52,7 @@ rule token = parse
 | '"' (['a'-'z' 'A'-'Z' '0'-'9' '_' ' ']* as lxm) '"'   { STRLIT(lxm) }
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )?   as lxm { FLIT(lxm) }
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* (".tone" | ".octave" | ".rhythm")?       as lxm { ID(lxm) }
+| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*       as lxm { ID(lxm) }
 (* make sure it can't be R or A B C D E F G *)
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }

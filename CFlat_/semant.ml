@@ -48,6 +48,7 @@ let check (globals, functions) =
                                ("printt", Tone);
                                ("printr", Rhythm);
                                ("printo", Octave);
+                               ("playnote", Note);
                                ]
   in
 
@@ -114,14 +115,17 @@ let check (globals, functions) =
     let rec expr = function
         Literal  l -> (Int, SLiteral l)
       | Fliteral l -> (Float, SFliteral l)
-      | BoolLit l  -> (Bool, SBoolLit l)
+      | BoolLit l -> (Bool, SBoolLit l)
       | NoteLit (t, o, r) -> (Note, SNoteLit (expr t, expr o, expr r))
       | ToneLit l -> (Tone, SToneLit l)
       | OctaveLit l -> (Octave, SOctaveLit l)
       | RhythmLit l -> (Rhythm, SRhythmLit l)
+      | ToneAccess n -> (Tone, SToneAccess n)
+      | OctaveAccess n -> (Octave, SOctaveAccess n)
+      | RhythmAccess n -> (Rhythm, SRhythmAccess n)
       | StrLit l -> (String, SStrLit l)
-      | Noexpr     -> (Void, SNoexpr)
-      | Id s       -> (type_of_identifier s, SId s)
+      | Noexpr -> (Void, SNoexpr)
+      | Id s -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex -> 
           let lt = type_of_identifier var
           and (rt, e') = expr e in

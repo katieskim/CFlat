@@ -17,6 +17,9 @@ type expr =
   | ToneLit of string
   | OctaveLit of int
   | RhythmLit of string
+  | ToneAccess of string
+  | OctaveAccess of string
+  | RhythmAccess of string
   | StrLit of string
   | Id of string
   | Assign of string * expr
@@ -72,6 +75,9 @@ let rec string_of_expr = function
   | ToneLit(l) -> l
   | OctaveLit(l) -> string_of_int l
   | RhythmLit(l) -> l
+  | ToneAccess(n) -> n
+  | OctaveAccess(n) -> n
+  | RhythmAccess(n) -> n
   | StrLit(l) -> l
   | Id(s) -> s
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
