@@ -75,9 +75,10 @@ let translate (globals, functions) =
   let play_note_func : L.llvalue =
       L.declare_function "play_note" play_note_t the_module in
 
-  (* :)))))))))))))))))))) MAKE PRINTN THING *)
-  (* :)))))))))))))))))))) MAKE NOTE STRUCT *)
-  (* :)))))))))))))))))))) MAKE PLAY STRUCT *)
+  let bplay_note_t : L.lltype =
+      L.function_type i32_t [| L.pointer_type named_struct_note_t ; i32_t |] in
+  let bplay_note_func : L.llvalue =
+      L.declare_function "bplay_note" bplay_note_t the_module in
 
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
@@ -220,8 +221,6 @@ let translate (globals, functions) =
 	      "printf" builder
       | SCall ("printbig", [e]) ->
 	      L.build_call printbig_func [| (expr builder e) |] "printbig" builder
-      | SCall ("playnote", [e]) -> let (_, SId n) = e in
-        L.build_call play_note_func [| (lookup n) |] "play_note" builder
       | SCall ("printf", [e]) -> 
 	      L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	      "printf" builder
@@ -243,6 +242,10 @@ let translate (globals, functions) =
       | SCall ("printr", [e]) ->
         L.build_call printf_func [| rhythm_format_str ; (expr builder e) |]
         "printf" builder
+      | SCall ("playnote", [e]) -> let (_, SId n) = e in
+        L.build_call play_note_func [| (lookup n) |] "play_note" builder
+      | SCall ("bplaynote", [e1 ; e2]) -> let (_, SId n) = e1 in
+        L.build_call bplay_note_func [| (lookup n) ; (expr builder e2) |] "bplay_note" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
 	      let llargs = List.rev (List.map (expr builder) (List.rev args)) in
