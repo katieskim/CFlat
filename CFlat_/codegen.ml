@@ -35,11 +35,12 @@ let translate (globals, functions) =
   and float_t    = L.double_type context
   and void_t     = L.void_type   context in
   let str_t      = L.pointer_type i8_t in
+  let arr_t      = L.array_type i32_t 9 in
   let named_struct_note_t = L.named_struct_type context "named_struct_note_t" in 
   ignore (L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; L.i32_type context; L.pointer_type i8_t |] false);
 
   (* Return the LLVM type for a CFlat type *)
-  let ltype_of_typ = function
+  let ltype_of_primitive_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
     | A.Float -> float_t
@@ -51,12 +52,18 @@ let translate (globals, functions) =
     | A.String -> str_t
   in
 
+  let ltype_of_typ = function
+      A.PrimitiveType(primitive) -> ltype_of_primitive_typ(primitive)
+    | A.ArrayType(typ) -> L.array_type (ltype_of_primitive_typ typ) 9
+  in
+
+
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
     let global_var m (t, n) = 
       let init = match t with
-          A.Float -> L.const_float (ltype_of_typ t) 0.0
-        | _ -> L.const_int (ltype_of_typ t) 0
+          A.Float -> L.const_float (ltype_of_primitive_typ t) 0.0
+        | _ -> L.const_int (ltype_of_primitive_typ t) 0
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
 
@@ -154,7 +161,7 @@ let translate (globals, functions) =
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
                             ignore(L.build_store e' (lookup s) builder); e'
-      | SBinop ((A.Float,_ ) as e1, op, e2) ->
+      | SBinop ((PrimitiveType(A.Float), _) as e1, op, e2) ->
                           let e1' = expr builder e1 and e2' = expr builder e2 in
                             ( match op with 
                               A.Add     -> L.build_fadd
