@@ -1,0 +1,7 @@
+int main()
+{
+  int[] int_arr;
+  int_arr = (int[]) [1,2,3,4];  (: changed the arr syntax to be with [] :)
+  print(int_arr[2]);               (: should print out the array literal :) 
+  return 0;
+}
