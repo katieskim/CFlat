@@ -1,7 +1,7 @@
 int main()
 {
 	note n;
-	n = ( /C-/ /3/ /s/ );
+	n = ( /C-/ /4/ /s./ );
 	playnote(n);
 	
 	return 0;

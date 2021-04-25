@@ -40,7 +40,7 @@ MIDI_FILE *mf;
         midiTrackAddProgramChange(mf, 1, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);   
 		add_note(note_ptr, mf, 1);
 		midiFileClose(mf);
-		}
+	}
 }
 
 void bplay_note(struct note *note_ptr, int beat) {

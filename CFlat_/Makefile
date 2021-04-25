@@ -36,16 +36,13 @@ clean :
 
 # Testing the "printbig" example
 
-printbig : printbig.c
+printbig: printbig.c
 	cc -o printbig -DBUILD_TEST printbig.c
 
 # midifiles
+midifile.o: midifile.c	midifile.h
 
-cflatapi: cflatapi.c cflatapi.h midifile.o
-	$(CC) $(CFLAGS) $(LFLAGS) midifile.o cflatapi.c -o cflatapi
-
-midifile: midifile.c	midifile.h
-
+cflatapi.o: cflatapi.c cflatapi.h
 
 # Building the tarball
 
