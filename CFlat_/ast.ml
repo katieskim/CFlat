@@ -116,7 +116,7 @@ let string_of_primitive_typ = function
 
 let rec string_of_typ = function
     PrimitiveType(t) -> string_of_primitive_typ t
-  | ArrayType(primitive_typ) -> (string_of_primitive_typ primitive_typ) ^ "[]"
+  | ArrayType(t) -> (string_of_primitive_typ t) ^ "[]"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
