@@ -153,7 +153,7 @@ let translate (globals, functions) =
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
                             ignore(L.build_store e' (lookup s) builder); e'
-      | SBinop ((A.Float,_ ) as e1, op, e2) ->
+      | SBinop ((A.Float, _) as e1, op, e2) ->
                           let e1' = expr builder e1 and e2' = expr builder e2 in
                             ( match op with 
                               A.Add     -> L.build_fadd
@@ -198,6 +198,15 @@ let translate (globals, functions) =
                             L.build_load ob ".octave" builder
       | SRhythmAccess n -> let rb = L.build_struct_gep (lookup n) 2 "@rhythm" builder in
                             L.build_load rb ".rhythm" builder
+      | SToneSet (n, e) -> let tb = L.build_struct_gep (lookup n) 0 "@tone" builder in
+                            let e' = expr builder e in
+                            ignore(L.build_store e' tb builder); e'
+      | SOctaveSet (n, e) -> let tb = L.build_struct_gep (lookup n) 1 "@octave" builder in
+                            let e' = expr builder e in
+                            ignore(L.build_store e' tb builder); e'
+      | SRhythmSet (n, e) -> let tb = L.build_struct_gep (lookup n) 2 "@rhythm" builder in
+                            let e' = expr builder e in
+                            ignore(L.build_store e' tb builder); e'
 
                           (* L.build_global_stringptr ("hiiii" ^ "\x00") "tone_ptr" builder  *)
                           (* L.build_extractvalue (lookup n) 0 ".tone" builder *)

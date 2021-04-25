@@ -7,13 +7,13 @@ int main()
 
 	n = ( /C-/ /0/ /s./ );
 
-	t = n.tone;
+	t = n.gettone();
 	printt(t);
 
-	o = n.octave;
+	o = n.getoctave();
 	printo(o);
 
-	r = n.rhythm;
+	r = n.getrhythm();
 	printr(r);
 
 	return 0;

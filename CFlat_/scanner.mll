@@ -31,9 +31,12 @@ rule token = parse
 | "tone"   { TONE }
 | "octave" { OCTAVE }
 | "rhythm" { RHYTHM }
-| ".tone"  { TONEACCESS }
-| ".octave" { OCTAVEACCESS }
-| ".rhythm" { RHYTHMACCESS }
+| ".gettone()"   { TONEACCESS }
+| ".getoctave()" { OCTAVEACCESS }
+| ".getrhythm()" { RHYTHMACCESS }
+| ".settone"     { TONESET }
+| ".setoctave"   { OCTAVESET }
+| ".setrhythm"   { RHYTHMSET }
 | "string" { STRING }
 | "if"     { IF }
 | "else"   { ELSE }
