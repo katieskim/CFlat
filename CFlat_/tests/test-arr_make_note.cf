@@ -1,0 +1,17 @@
+int main()
+{
+  note n;
+  note m;
+  note[] note_arr;
+
+	n = ( /C-/ /4/ /q/ );
+  m = ( /E/ /5/ /w/ );
+  note_arr = make(note, 3);
+
+  note_arr[0] = n;
+  note_arr[1] = n;
+  note_arr[2] = m;  
+
+  print(note_arr[2]);      
+  return 0;
+}

@@ -10,9 +10,12 @@ rule token = parse
 | "(:"     { comment lexbuf }           (* Comments *)
 | '('      { LPAREN }
 | ')'      { RPAREN }
+| '['      { LBRACK }
+| ']'      { RBRACK }                   (* arrays *)
 | '{'      { LBRACE }
 | '}'      { RBRACE }
 | ';'      { SEMI }
+| ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }

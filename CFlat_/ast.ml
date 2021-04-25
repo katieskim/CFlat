@@ -1,6 +1,8 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
-type typ = Int | Bool | Float | Void | Note | String | Tone | Octave | Rhythm
+type primitive_typ = Int | Bool | Float | Void | Note | String | Tone | Octave | Rhythm 
+
+type typ = PrimitiveType of primitive_typ | ArrayType of primitive_typ
 
 type bind = typ * string
 
@@ -107,7 +109,7 @@ let rec string_of_stmt = function
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_typ = function
+let string_of_primitive_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Float -> "float"
@@ -117,6 +119,10 @@ let string_of_typ = function
   | Octave -> "octave"
   | Rhythm -> "rhythm"
   | String -> "string"
+
+let rec string_of_typ = function
+    PrimitiveType(t) -> string_of_primitive_typ t
+  | ArrayType(t) -> (string_of_primitive_typ t) ^ "[]"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 

@@ -31,7 +31,7 @@ struct note *new_note(char *tone, int octave, char *rhythm){
 
 /*INPUT: Takes in a pointer to a single note struct */ 
 /*OUTPUT: A midifile called "hellonote.mid" that plays the note */ 
-void play_note(struct note* n);
+void play_note(struct note* n, char *filename);
 
 /*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
 /*OUTPUT: No output but it will add the note to the midi_file */ 
@@ -63,10 +63,17 @@ void play_note_arr(struct note *note_arr[]){
 }
 */
 
-void play_note(struct note* note_ptr) {
+void play_note(struct note* note_ptr, char *filename) {
 /*char *tlit, int olit, char *rlit */
 MIDI_FILE *mf;
-	if ((mf = midiFileCreate("hellonote.mid", TRUE))){
+    char name[100];
+    strcpy(name, filename);
+    char midi[] = ".mid";
+    strcat(name, midi);
+
+    printf("%s", name);
+
+	if ((mf = midiFileCreate(name, TRUE))){
 		add_note(note_ptr, mf);
 		midiFileClose(mf);
 		}

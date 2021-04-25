@@ -59,11 +59,15 @@ int num_notes = 12;
     arr[18] = b_2;
     arr[20] = c_3;  */
 
-    bplay_note(c, 60);
-    iplay_note(c, 100);
+    play_note(c, "plays_note");
+    play_note(c_flat, "plays_note2");
+    bplay_note(c, 48, "bplays_note");
+    iplay_note(c, 100, "plays_note_instrument");
 
-    play_note_arr(arr);
-    iplay_note_arr(arr, 20);
+    char *name = "plays_note_arr";
+
+    play_note_arr(arr,name);
+    iplay_note_arr(arr, 20, "plays_arr_instrumental");
 
 
     struct note *A[4];  A[3] = NULL;

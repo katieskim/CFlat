@@ -15,7 +15,7 @@ let check (globals, functions) =
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind list) =
     List.iter (function
-	(Void, b) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
+	(PrimitiveType(Void), b) -> raise (Failure ("illegal void " ^ kind ^ " " ^ b))
       | _ -> ()) binds;
     let rec dups = function
         [] -> ()
@@ -33,22 +33,24 @@ let check (globals, functions) =
 
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls = 
-    let add_bind map (name, ty) = StringMap.add name {
-      typ = Void;
+
+    let add_bind map (name, tys) = StringMap.add name {
+      typ = PrimitiveType(Void);
       fname = name; 
-      formals = [(ty, "x")];
+      formals = tys;
       locals = []; body = [] } map
     in List.fold_left add_bind StringMap.empty
-                             [ ("print", Int);
-			                         ("printb", Bool);
-			                         ("printf", Float);
-			                         ("printbig", Int);
-                               ("prints", String);
-						                   ("printn", Note);
-                               ("printt", Tone);
-                               ("printr", Rhythm);
-                               ("printo", Octave);
-                               ("playnote", Note);
+                             [ ("print", [(PrimitiveType(Int), "x")]);
+			                         ("printb", [(PrimitiveType(Bool), "x")]);
+			                         ("printf", [(PrimitiveType(Float), "x")]);
+			                         ("printbig", [(PrimitiveType(Int), "x")]);
+                               ("prints", [(PrimitiveType(String), "x")]);
+						                   ("printn", [(PrimitiveType(Note), "x")]);
+                               ("printt", [(PrimitiveType(Tone), "x")]);
+                               ("printr", [(PrimitiveType(Rhythm), "x")]);
+                               ("printo", [(PrimitiveType(Octave), "x")]);
+                               ("playnote", [(PrimitiveType(Note), "x")]);
+                               ("bplaynote", [(PrimitiveType(Note), "x"); (PrimitiveType(Int), "y")]);
                                ]
   in
 
@@ -113,21 +115,21 @@ let check (globals, functions) =
 
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
-        Literal  l -> (Int, SLiteral l)
-      | Fliteral l -> (Float, SFliteral l)
-      | BoolLit l -> (Bool, SBoolLit l)
-      | NoteLit (t, o, r) -> (Note, SNoteLit (expr t, expr o, expr r))
-      | ToneLit l -> (Tone, SToneLit l)
-      | OctaveLit l -> (Octave, SOctaveLit l)
-      | RhythmLit l -> (Rhythm, SRhythmLit l)
-      | ToneAccess n -> (Tone, SToneAccess n)
-      | OctaveAccess n -> (Octave, SOctaveAccess n)
-      | RhythmAccess n -> (Rhythm, SRhythmAccess n)
-      | ToneSet(n, e) -> (Tone, SToneSet (n, expr e))
-      | OctaveSet(n, e) -> (Octave, SOctaveSet (n, expr e))
-      | RhythmSet(n, e) -> (Rhythm, SRhythmSet (n, expr e))
-      | StrLit l -> (String, SStrLit l)
-      | Noexpr -> (Void, SNoexpr)
+        Literal  l -> (PrimitiveType(Int), SLiteral l)
+      | Fliteral l -> (PrimitiveType(Float), SFliteral l)
+      | BoolLit l -> (PrimitiveType(Bool), SBoolLit l)
+      | NoteLit (t, o, r) -> (PrimitiveType(Note), SNoteLit (expr t, expr o, expr r))
+      | ToneLit l -> (PrimitiveType(Tone), SToneLit l)
+      | OctaveLit l -> (PrimitiveType(Octave), SOctaveLit l)
+      | RhythmLit l -> (PrimitiveType(Rhythm), SRhythmLit l)
+      | ToneAccess n -> (PrimitiveType(Tone), SToneAccess n)
+      | OctaveAccess n -> (PrimitiveType(Octave), SOctaveAccess n)
+      | RhythmAccess n -> (PrimitiveType(Rhythm), SRhythmAccess n)
+      | ToneSet(n, e) -> (PrimitiveType(Tone), SToneSet (n, expr e))
+      | OctaveSet(n, e) -> (PrimitiveType(Octave), SOctaveSet (n, expr e))
+      | RhythmSet(n, e) -> (PrimitiveType(Rhythm), SRhythmSet (n, expr e))
+      | StrLit l -> (PrimitiveType(String), SStrLit l)
+      | Noexpr -> (PrimitiveType(Void), SNoexpr)
       | Id s -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex -> 
           let lt = type_of_identifier var
@@ -138,8 +140,8 @@ let check (globals, functions) =
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
           let ty = match op with
-            Neg when t = Int || t = Float -> t
-          | Not when t = Bool -> Bool
+            Neg when t = PrimitiveType(Int) || t = PrimitiveType(Float) -> t
+          | Not when t = PrimitiveType(Bool) -> PrimitiveType(Bool)
           | _ -> raise (Failure ("illegal unary operator " ^ 
                                  string_of_uop op ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
@@ -151,17 +153,23 @@ let check (globals, functions) =
           let same = t1 = t2 in
           (* Determine expression type based on operator and operand types *)
           let ty = match op with
-            Add | Sub | Mult | Div when same && t1 = Int   -> Int
-          | Add | Sub | Mult | Div when same && t1 = Float -> Float
-          | Equal | Neq            when same               -> Bool
+            Add | Sub | Mult | Div when same && t1 = PrimitiveType(Int)   -> PrimitiveType(Int)
+          | Add | Sub | Mult | Div when same && t1 = PrimitiveType(Float) -> PrimitiveType(Float)
+          | Equal | Neq            when same               -> PrimitiveType(Bool)
           | Less | Leq | Greater | Geq
-                     when same && (t1 = Int || t1 = Float) -> Bool
-          | And | Or when same && t1 = Bool -> Bool
+                     when same && (t1 = PrimitiveType(Int) || t1 = PrimitiveType(Float)) -> PrimitiveType(Bool)
+          | And | Or when same && t1 = PrimitiveType(Bool) -> PrimitiveType(Bool)
           | _ -> raise (
             Failure ("illegal binary operator " ^
                           string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
                           string_of_typ t2 ^ " in " ^ string_of_expr e))
             in (ty, SBinop((t1, e1'), op, (t2, e2')))
+      (* | Call("bplaynote", args) as call -> 
+          (* let param_length = 2 in
+          if List.length args != 2 then 
+            raise (Failure ("expecting " ^ string_of_int param_length ^ 
+                            " arguments in " ^ string_of_expr call)) *)
+          (Void, SCall("bplaynote", [Note, Int])) *)
       | Call(fname, args) as call -> 
           let fd = find_func fname in
           let param_length = List.length fd.formals in
@@ -180,8 +188,8 @@ let check (globals, functions) =
 
     let check_bool_expr e = 
       let (t', e') = expr e
-      and err = "expected Boolean expression in " ^ string_of_expr e
-      in if t' != Bool then raise (Failure err) else (t', e') 
+      in let err = "expected Boolean expression in " ^ string_of_expr e ^ " insted type " ^ (string_of_typ t')
+      in if t' != PrimitiveType(Bool) then raise (Failure err) else (t', e') 
     in
 
     (* Return a semantically-checked statement i.e. containing sexprs *)
