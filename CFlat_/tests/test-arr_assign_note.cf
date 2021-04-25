@@ -9,3 +9,4 @@ int main()
   (: should print out the array literal, the output file for this test is probably wrong :) 
   return 0;
 }
+
