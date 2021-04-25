@@ -22,7 +22,6 @@ struct note *new_note(char *tone, int octave, char *rhythm){
     return n;
 }
 
-
 /* INTERNAL FUNCTIONS, CFLAT USERS SHOULD NOT CALL THESE */
 
 /*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
@@ -197,6 +196,71 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int track){
     midiTrackAddNote(mf, track, miditone + midioctave, midirhythm, volume, TRUE, FALSE);
 
 }
+
+struct note* change_tone(struct note *note, int incr, int is_lower){
+    char *tlit = note -> tlit;
+    int olit = note -> olit;
+
+    int miditone = 0;
+    int is_rest = 0;
+    char tone = tlit[0];
+
+    if (tone == 'R') {is_rest = 1;}
+    else if (tone == 'C') {miditone = 0;}
+    else if (tone == 'D') {miditone = 2;}
+    else if (tone == 'E') {miditone = 4;}
+    else if (tone == 'F') {miditone = 5;}
+    else if (tone == 'G') {miditone = 7;}
+    else if (tone == 'A') {miditone = 9;}
+    else if (tone == 'B') {miditone = 11;}
+    else {printf("%s", "This is not a valid tone.");}
+
+    int accidental = 0;
+    char acc = tlit[1];
+
+    if (acc == '-') {accidental = -1;} 
+    else if (acc == '+') {accidental = 1;}
+    else if (acc == '.') {accidental = 0;}
+
+    /*  else {printf("%s\n", "This is not an allowable accidental value.");}*/
+    if(is_lower){miditone = miditone + accidental - incr;}
+    else{miditone = miditone + accidental + incr;}
+    
+    if (is_lower){
+        while(miditone < 0){
+            miditone += 12;
+            olit -=1;
+        }
+    }else{
+        while (miditone > 11){
+            miditone -= 12;
+            olit +=1;
+        }
+    }
+
+    char *toneMap[] = {"C", "C+", "D", "D+", "E", "F", "F+", "G", "G+", "A", "A+", "B"};
+    strcpy(note->tlit, toneMap[miditone]);
+    note->olit = olit;
+
+    return note;
+}
+
+struct note* change_octave(struct note *note, int incr, int is_lower){
+
+    int olit = note -> olit;
+    
+    if(is_lower) {
+        if (olit - incr >= 0){note -> olit = olit - incr;}
+        else {printf("%s", "You can't lower the octave this much. Octave is left the same.");}
+    }else{
+        if (olit + incr < 11){note -> olit = olit + incr;}
+        else {printf("%s", "You can't raise the octave this much. Octave is left the same.");}
+    }
+    return note;
+}
+
+
+
 
 void add_track(struct note *note_arr[], MIDI_FILE *mf, int track){
 
