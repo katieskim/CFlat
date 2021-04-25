@@ -5,6 +5,7 @@ open Ast
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
+%token LBRACK RBRACK
 %token TONEACCESS OCTAVEACCESS RHYTHMACCESS
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE 
@@ -56,6 +57,10 @@ formal_list:
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
 typ:
+    primitive_typ { PrimitiveType($1) }
+  | array_typ     { $1 }    
+
+primitive_typ:
     INT     { Int   }
   | BOOL    { Bool  }
   | FLOAT   { Float }
@@ -65,6 +70,9 @@ typ:
   | OCTAVE  { Octave }
   | RHYTHM  { Rhythm }
   | STRING  { String }
+
+array_typ:
+  primitive_typ LBRACK RBRACK { ArrayType($1) }
 
 literal:
     LITERAL          { Literal($1)            }
