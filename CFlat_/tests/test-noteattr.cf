@@ -1,9 +1,0 @@
-int main()
-{
-	note n;
-	note v;
-	n = ( /C-/ /4/ /s./ );
-	printt(n.tone);
-	
-	return 0;
-}

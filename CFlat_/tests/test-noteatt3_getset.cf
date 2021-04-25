@@ -1,0 +1,34 @@
+int main()
+{
+	note n;
+	note v;
+	tone t;
+	octave o;
+	rhythm r;
+
+	n = ( /C-/ /4/ /s./ );
+
+	t = n.gettone();
+	o = n.getoctave();
+	r = n.getrhythm();
+
+	v.settone(t);
+	printt(v.gettone());
+
+	v.settone(/A/);
+	printt(v.gettone());
+
+	v.setoctave(o);
+	printo(v.getoctave());
+
+	v.setoctave(/5/);
+	printo(v.getoctave());
+
+	v.setrhythm(r);
+	printr(v.getrhythm());
+
+	v.setrhythm(/h/);
+	printr(v.getrhythm());
+	
+	return 0;
+}
