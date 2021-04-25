@@ -22,6 +22,9 @@ type expr =
   | ToneAccess of string
   | OctaveAccess of string
   | RhythmAccess of string
+  | ToneSet of string * expr
+  | OctaveSet of string * expr
+  | RhythmSet of string * expr
   | StrLit of string
   | Id of string
   | Assign of string * expr
@@ -80,6 +83,9 @@ let rec string_of_expr = function
   | ToneAccess(n) -> n
   | OctaveAccess(n) -> n
   | RhythmAccess(n) -> n
+  | ToneSet(n, e) -> n ^ ".settone(" ^ string_of_expr e ^ ")"
+  | OctaveSet(n, e) -> n ^ ".setoctave(" ^ string_of_expr e ^ ")"
+  | RhythmSet(n, e) -> n ^ ".setrhythm(" ^ string_of_expr e ^ ")"
   | StrLit(l) -> l
   | Id(s) -> s
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
