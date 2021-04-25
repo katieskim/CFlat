@@ -13,7 +13,7 @@ test : all testall.sh
 # to test linking external code
 
 .PHONY : all
-all : cflat.native printbig.o cflatfile.o midifile.o
+all : cflat.native printbig.o cflatapi.o midifile.o
 
 # "make cflat.native" compiles the compiler
 #
@@ -41,8 +41,8 @@ printbig : printbig.c
 
 # midifiles
 
-cflatfile: cflatfile.c midifile.o
-	$(CC) $(CFLAGS) $(LFLAGS) midifile.o cflatfile.c -o cflatfile
+cflatapi: cflatapi.c cflatapi.h midifile.o
+	$(CC) $(CFLAGS) $(LFLAGS) midifile.o cflatapi.c -o cflatapi
 
 midifile: midifile.c	midifile.h
 
@@ -60,7 +60,7 @@ TESTFILES = $(TESTS:%=test-%.cf) $(TESTS:%=test-%.out)
 
 TARFILES = ast.ml sast.ml codegen.ml Makefile _tags cflat.ml parser.mly \
 	README scanner.mll semant.ml testall.sh \
-	printbig.c cflatfile.c midifile.c arcade-font.pbm font2c \
+	printbig.c cflatapi.c midifile.c arcade-font.pbm font2c \
 	Dockerfile \
 	$(TESTFILES:%=tests/%) 
 
