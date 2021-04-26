@@ -1,0 +1,22 @@
+int main()
+{
+    note n;
+    note m;
+
+    octave o;
+    octave v;
+
+    n = (/C/ /4/ /s./);
+    m = (/F/ /5/ /q/);
+
+    o = /3/;
+    v = /3/;
+
+    printb( n.octave() == m.octave() );
+    printb( n.octave() != m.octave() );
+
+    printb( o == v );
+    printb( o != v );
+
+	return 0;
+}

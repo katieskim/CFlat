@@ -19,6 +19,7 @@ and sx =
   | SToneSet of string * sexpr
   | SOctaveSet of string * sexpr
   | SRhythmSet of string * sexpr
+  | SToneRaise of string * sexpr
   | SId of string
   | SAssign of string * sexpr
   | SArrayAssign of string * sexpr * sexpr
@@ -59,12 +60,13 @@ let rec string_of_sexpr (t, e) =
   | SToneLit(l) -> l
   | SOctaveLit(l) -> string_of_int l
   | SRhythmLit(l) -> l
-  | SToneAccess(n) -> n
-  | SOctaveAccess(n) -> n
-  | SRhythmAccess(n) -> n
-  | SToneSet(n, e) -> n ^ ".settone(" ^ string_of_sexpr e ^ ")"
-  | SOctaveSet(n, e) -> n ^ ".setoctave(" ^ string_of_sexpr e ^ ")"
-  | SRhythmSet(n, e) -> n ^ ".setrhythm(" ^ string_of_sexpr e ^ ")"
+  | SToneAccess(n) -> n ^ ".tone()"
+  | SOctaveAccess(n) -> n ^ ".octave()"
+  | SRhythmAccess(n) -> n ^ ".rhythm()"
+  | SToneSet(n, e) -> n ^ ".tone(" ^ string_of_sexpr e ^ ")"
+  | SOctaveSet(n, e) -> n ^ ".octave(" ^ string_of_sexpr e ^ ")"
+  | SRhythmSet(n, e) -> n ^ ".rhythm(" ^ string_of_sexpr e ^ ")"
+  | SToneRaise(n, e) -> n ^ ".raiseTone(" ^ string_of_sexpr e ^ ")"
   | SMakeArray(t, e) -> "make(" ^ string_of_primitive_typ t ^ "," ^ string_of_sexpr e ^ ")"
   | SArrayAssign(n, e1, e2) -> n ^ "[" ^ string_of_sexpr e1 ^ "]" ^ "=" ^ string_of_sexpr e2
   | SArrayAccess(arr_name, e) -> arr_name ^ "[" ^ string_of_sexpr e ^ "]"

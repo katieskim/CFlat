@@ -26,6 +26,7 @@ type expr =
   | ToneSet of string * expr
   | OctaveSet of string * expr
   | RhythmSet of string * expr
+  | ToneRaise of string * expr
   | MakeArray of primitive_typ * expr
   | ArrayAssign of string * expr * expr
   | ArrayAccess of (string * expr)
@@ -100,12 +101,13 @@ let rec string_of_expr = function
   | ToneLit(l) -> l
   | OctaveLit(l) -> string_of_int l
   | RhythmLit(l) -> l
-  | ToneAccess(n) -> n
-  | OctaveAccess(n) -> n
-  | RhythmAccess(n) -> n
-  | ToneSet(n, e) -> n ^ ".settone(" ^ string_of_expr e ^ ")"
-  | OctaveSet(n, e) -> n ^ ".setoctave(" ^ string_of_expr e ^ ")"
-  | RhythmSet(n, e) -> n ^ ".setrhythm(" ^ string_of_expr e ^ ")"
+  | ToneAccess(n) -> n ^ ".tone()"
+  | OctaveAccess(n) -> n ^ ".octave()"
+  | RhythmAccess(n) -> n ^ ".rhythm()"
+  | ToneSet(n, e) -> n ^ ".tone(" ^ string_of_expr e ^ ")"
+  | OctaveSet(n, e) -> n ^ ".octave(" ^ string_of_expr e ^ ")"
+  | RhythmSet(n, e) -> n ^ ".rhythm(" ^ string_of_expr e ^ ")"
+  | ToneRaise(n, e) -> n ^ ".raiseTone(" ^ string_of_expr e ^ ")"
   | MakeArray(t, e) -> "make(" ^ string_of_primitive_typ t ^ "," ^ string_of_expr e ^ ")"
   | ArrayAssign(arr_name, e1, e2) -> arr_name ^ "[" ^ string_of_expr e1 ^ "]" ^ "=" ^ string_of_expr e2
   | ArrayAccess(arr_name, e) -> arr_name ^ "[" ^ string_of_expr e ^ "]"

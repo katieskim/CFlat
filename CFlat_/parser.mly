@@ -8,6 +8,7 @@ open Ast
 %token LBRACK RBRACK
 %token TONEACCESS OCTAVEACCESS RHYTHMACCESS
 %token TONESET OCTAVESET RHYTHMSET
+%token TONERAISE
 %token MAKE
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE 
@@ -30,6 +31,7 @@ open Ast
 %left PLUS MINUS
 %left TIMES DIVIDE
 %right NOT
+%right TONERAISE
 %right TONESET OCTAVESET RHYTHMSET
 %right TONEACCESS OCTAVEACCESS RHYTHMACCESS
 
@@ -133,9 +135,10 @@ expr:
   | ID TONEACCESS    { ToneAccess($1)         }
   | ID OCTAVEACCESS  { OctaveAccess($1)       }
   | ID RHYTHMACCESS  { RhythmAccess($1)       }
-  | ID TONESET LPAREN expr RPAREN          { ToneSet($1, $4)         }
+  | ID TONESET LPAREN expr RPAREN          { ToneSet($1, $4)           }
   | ID OCTAVESET LPAREN expr RPAREN        { OctaveSet($1, $4)         }
   | ID RHYTHMSET LPAREN expr RPAREN        { RhythmSet($1, $4)         }
+  | ID TONERAISE LPAREN expr RPAREN        { ToneRaise($1, $4)         }
   | LPAREN expr RPAREN { $2                   }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }

@@ -8,27 +8,27 @@ int main()
 
 	n = ( /C-/ /4/ /s./ );
 
-	t = n.gettone();
-	o = n.getoctave();
-	r = n.getrhythm();
+	t = n.tone();
+	o = n.octave();
+	r = n.rhythm();
 
-	v.settone(t);
-	printt(v.gettone());
+	v.tone(t);
+	printt(v.tone());
 
-	v.settone(/A/);
-	printt(v.gettone());
+	v.tone(/A/);
+	printt(v.tone());
 
-	v.setoctave(o);
-	printo(v.getoctave());
+	v.octave(o);
+	printo(v.octave());
 
-	v.setoctave(/5/);
-	printo(v.getoctave());
+	v.octave(/5/);
+	printo(v.octave());
 
-	v.setrhythm(r);
-	printr(v.getrhythm());
+	v.rhythm(r);
+	printr(v.rhythm());
 
-	v.setrhythm(/h/);
-	printr(v.getrhythm());
+	v.rhythm(/h/);
+	printr(v.rhythm());
 	
 	return 0;
 }

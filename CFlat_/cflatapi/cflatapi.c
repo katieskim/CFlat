@@ -196,9 +196,15 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int track){
 
 }
 
-struct note* change_tone(struct note *note, int incr, int is_lower){
+struct note change_tone(struct note *note, int incr, int is_lower){
     char *tlit = note -> tlit;
     int olit = note -> olit;
+
+    char *newtlit;
+    int newolit;
+    char *samerlit = note -> rlit;
+    struct note* newnoteptr;
+    struct note newnote;
 
     int miditone = 0;
     int is_rest = 0;
@@ -238,10 +244,13 @@ struct note* change_tone(struct note *note, int incr, int is_lower){
     }
 
     char *toneMap[] = {"C", "C+", "D", "D+", "E", "F", "F+", "G", "G+", "A", "A+", "B"};
-    strcpy(note->tlit, toneMap[miditone]);
-    note->olit = olit;
 
-    return note;
+    strcmp(newtlit, toneMap[miditone]);
+    newolit = olit;
+    newnoteptr = new_note(newtlit, newolit, samerlit);
+    newnote = *newnoteptr;
+
+    return newnote;
 }
 
 struct note* change_octave(struct note *note, int incr, int is_lower){
