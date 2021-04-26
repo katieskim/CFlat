@@ -16,7 +16,6 @@ http://llvm.moe/ocaml/
 
 module L = Llvm
 module A = Ast
-module U = Util
 open Sast 
 
 module StringMap = Map.Make(String)

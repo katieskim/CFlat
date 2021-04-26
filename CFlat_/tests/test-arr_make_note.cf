@@ -6,7 +6,7 @@ int main()
 
 	n = ( /C-/ /4/ /q/ );
   m = ( /E/ /5/ /w/ );
-  notearr = make(note, 3);
+  make(note, 3);
 
   (: note_arr[0] = n; :)
   (: note_arr[1] = n; :)
