@@ -1,0 +1,32 @@
+int main()
+{
+    note n;
+    note m;
+
+
+    n = (/C/ /4/ /s./);
+    m = (/F/ /5/ /q/);
+
+    n.tone();           (: new get function, it should return /C/ :)
+    n.tone(/F/);        (: new set function, it should set tone of n to /F/ :)
+
+    n.raiseTone(5);         (: raise tone. n will have new tone that is 5 halfsteps up from original :)
+    printt(n.tone());   (: /A+/ :)
+
+    n.lowerTone(5);         (: lower tone. n will have original tone again. :)
+    printt(n.tone());   (: /F/ :)
+    printo(n.octave()); (: 4 :)
+
+    n.raiseTone(12);        
+    printt(n.tone());   (: /F/ :)
+    printo(n.octave()); (: 5 :)
+
+    if (n.tone() == m.tone()){
+        prints("LFG");
+    }
+    else{
+        prints("lesnotgo");
+    }
+
+	return 0;
+}

@@ -22,7 +22,6 @@ struct note *new_note(char *tone, int octave, char *rhythm){
     return n;
 }
 
-
 /* INTERNAL FUNCTIONS, CFLAT USERS SHOULD NOT CALL THESE */
 
 /*INPUT: Takes in a pointer to a single note struct and pointer to a midi_file */ 
@@ -159,8 +158,7 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int track){
     else if (acc == '.') {accidental = 0;}
     /*  else {printf("%s\n", "This is not an allowable accidental value.");}*/
 
-    miditone = (miditone + accidental)%12;    /*Accounts for any wraparound needed for B# or Cflat*/
-    
+    miditone = ((miditone + accidental)%12+12)%12;    /*Accounts for any wraparound needed for B# or Cflat*/
 
     /*CONVERTING CFLAT RHYTHM => MIDI RHYTHM*/
     int midirhythm = MIDI_NOTE_CROCHET;
@@ -196,6 +194,136 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int track){
 
     midiTrackAddNote(mf, track, miditone + midioctave, midirhythm, volume, TRUE, FALSE);
 
+}
+
+struct note* change_tone(struct note *note, int incr, int is_lower){
+    char *tlit = note -> tlit;
+    int olit = note -> olit;
+
+    int miditone = 0;
+    int is_rest = 0;
+    char tone = tlit[0];
+
+    if (tone == 'R') {is_rest = 1;}
+    else if (tone == 'C') {miditone = 0;}
+    else if (tone == 'D') {miditone = 2;}
+    else if (tone == 'E') {miditone = 4;}
+    else if (tone == 'F') {miditone = 5;}
+    else if (tone == 'G') {miditone = 7;}
+    else if (tone == 'A') {miditone = 9;}
+    else if (tone == 'B') {miditone = 11;}
+    else {printf("%s", "This is not a valid tone.");}
+
+    int accidental = 0;
+    char acc = tlit[1];
+
+    if (acc == '-') {accidental = -1;} 
+    else if (acc == '+') {accidental = 1;}
+    else if (acc == '.') {accidental = 0;}
+
+    /*  else {printf("%s\n", "This is not an allowable accidental value.");}*/
+    if(is_lower){miditone = miditone + accidental - incr;}
+    else{miditone = miditone + accidental + incr;}
+    
+    if (is_lower){
+        while(miditone < 0){
+            miditone += 12;
+            olit -=1;
+        }
+    }else{
+        while (miditone > 11){
+            miditone -= 12;
+            olit +=1;
+        }
+    }
+
+    char *toneMap[] = {"C", "C+", "D", "D+", "E", "F", "F+", "G", "G+", "A", "A+", "B"};
+    strcpy(note->tlit, toneMap[miditone]);
+    note->olit = olit;
+
+    return note;
+}
+
+struct note* change_octave(struct note *note, int incr, int is_lower){
+
+    int olit = note -> olit;
+    if(is_lower) {
+        if (olit - incr >= 0){note -> olit = olit - incr;}
+        else {printf("%s", "You can't lower the octave this much. Octave is left the same.");}
+    }else{
+        if (olit + incr < 11){note -> olit = olit + incr;}
+        else {printf("%s", "You can't raise the octave this much. Octave is left the same.");}
+    }
+    return note;
+}
+
+int is_tone_equal(struct note *a, struct note *b){
+
+    char *atlit = a -> tlit;
+    char *btlit = b -> tlit;
+
+    int aval = 0;
+    int bval = 0;
+    char atone = atlit[0];
+    char btone = btlit[0];
+
+    if (atone == 'R') {atone = 100;}
+    else if (atone == 'C') {aval = 0;}
+    else if (atone == 'D') {aval = 2;}
+    else if (atone == 'E') {aval = 4;}
+    else if (atone == 'F') {aval = 5;}
+    else if (atone == 'G') {aval = 7;}
+    else if (atone == 'A') {aval = 9;}
+    else if (atone == 'B') {aval = 11;}
+
+    if (btone == 'R') {bval = 100;}
+    else if (btone == 'C') {bval = 0;}
+    else if (btone == 'D') {bval = 2;}
+    else if (btone == 'E') {bval = 4;}
+    else if (btone == 'F') {bval = 5;}
+    else if (btone == 'G') {bval = 7;}
+    else if (btone == 'A') {bval = 9;}
+    else if (btone == 'B') {bval = 11;}
+    else {printf("%s", "This is not a valid tone.");}
+
+    char aacc = atlit[1];
+    char bacc = btlit[1];
+  
+    if (aacc == '-') {aval = aval - 1;} 
+    else if (aacc == '+') {aval = aval + 1;} else{}
+
+    if (bacc == '-') {bval = bval -1;}
+    else if (bacc == '+') {bval = bval + 1;} else{}
+
+    aval = (aval%12+12)%12 ;    /*Accounts for any wraparound needed for B# or Cflat*/
+    bval = (bval%12+12)%12 ;
+
+    if (aval == bval){
+        return 1;
+    }else{
+        return 0;
+    } 
+}
+
+int is_note_equal(struct note *a, struct note *b){
+    if(is_tone_equal(a,b) == 0){
+        return 0;
+    }
+    int aoct = a -> olit;
+    int boct = b -> olit;
+
+    if (aoct != boct){
+        return 0;
+    }
+
+    char *arhythm = a -> rlit;
+    char *brhythm = b -> rlit;
+
+    if (strcmp(arhythm, brhythm) != 0){
+        return 0;
+    }
+/*If we reached here then the notes are equal*/
+    return 1;
 }
 
 void add_track(struct note *note_arr[], MIDI_FILE *mf, int track){

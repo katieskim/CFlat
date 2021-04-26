@@ -34,18 +34,26 @@ void add_note(struct note *note_ptr, MIDI_FILE *mf, int track);
 void add_track(struct note *note_arr[], MIDI_FILE *mf, int track);
 
 
-void play_note(struct note *note_ptr) {
-MIDI_FILE *mf;
-	if ((mf = midiFileCreate("hellonote.mid", TRUE))){
+void play_note(struct note *note_ptr, char *filename) {
+    MIDI_FILE *mf;
+    char name[100];
+    strcpy(name, filename);
+    char midi[] = ".mid";
+    strcat(name, midi);
+	if ((mf = midiFileCreate(name, TRUE))){
         midiTrackAddProgramChange(mf, 1, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);   
 		add_note(note_ptr, mf, 1);
 		midiFileClose(mf);
 	}
 }
 
-void bplay_note(struct note *note_ptr, int beat) {
+void bplay_note(struct note *note_ptr, int beat, char *filename) {
 MIDI_FILE *mf;
-	if ((mf = midiFileCreate("hellonotebeat.mid", TRUE))){
+    char name[100];
+    strcpy(name, filename);
+    char midi[] = ".mid";
+    strcat(name, midi);
+	if ((mf = midiFileCreate(name, TRUE))){
         midiSongAddTempo(mf, 1, beat);
         midiTrackAddProgramChange(mf, 1, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);   
 		add_note(note_ptr, mf, 1);
