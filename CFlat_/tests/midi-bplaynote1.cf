@@ -1,7 +1,7 @@
 int main()
 {
 	note n;
-	n = ( /C-/ /4/ /w/ );
+	n = ( /C-/ /5/ /w/ );
 	bplaynote(n, 360);
 	
 	return 0;

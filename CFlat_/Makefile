@@ -31,8 +31,8 @@ cflat.native :
 .PHONY : clean
 clean :
 	ocamlbuild -clean
-	rm -rf testall.log ocamlllvm *.diff
-	rm -f *.o  *.mid
+	rm -rf testall.log ocamlllvm 
+	rm -f *.o *.out *.mid *.ll *.s *. *.exe *.diff *.err
 
 # Testing the "printbig" example
 

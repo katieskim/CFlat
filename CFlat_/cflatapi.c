@@ -45,7 +45,7 @@ MIDI_FILE *mf;
 
 void bplay_note(struct note *note_ptr, int beat) {
 MIDI_FILE *mf;
-	if ((mf = midiFileCreate("hellonotebeat.mid", TRUE))){
+	if ((mf = midiFileCreate("output.mid", TRUE))){
         midiSongAddTempo(mf, 1, beat);
         midiTrackAddProgramChange(mf, 1, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);   
 		add_note(note_ptr, mf, 1);
