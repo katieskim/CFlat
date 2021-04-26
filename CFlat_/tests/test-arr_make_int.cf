@@ -2,7 +2,7 @@ int main()
 {
   int[] intarr;
   intarr = make(int, 3);
-  intarr[0] = 1;
+  (: intarr[0] = 1; :)
   (: int_arr[1] = 2;  :) 
   (: int_arr[2] = 3;  :)               
   (: print(int_arr);           should print out the array literal :) 

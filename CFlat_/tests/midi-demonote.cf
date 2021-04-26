@@ -1,0 +1,20 @@
+int main()
+{
+	note n;
+
+	n = ( /C-/ /5/ /q/ );
+
+	printt(n.tone());       	(: prints /C-/ :)
+	printo(n.octave());			(: prints /5/  :)
+	printr(n.rhythm());			(: prints /q/  :)
+
+	n.tone(/A+/);	
+	n.octave(/6/);
+	n.rhythm(/h./);
+
+	printt(n.tone());       	(: prints /A+/ :)
+	printo(n.octave());			(: prints /6/  :)
+	printr(n.rhythm());			(: prints /h./ :)
+	
+	return 0;
+}

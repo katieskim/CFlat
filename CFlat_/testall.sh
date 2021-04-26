@@ -131,7 +131,7 @@ CheckMidi() {
     Run "$LLC" "-relocation-model=pic" "${basename}.ll" ">" "${basename}.s" &&
     Run "$CC" "-o" "${basename}.exe" "${basename}.s" "cflatapi.o" "midifile.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
-    Compare output.mid tests/${basename}.mid ${basename}.diff
+    Compare ${basename}.mid tests/${basename}.mid ${basename}.diff
 
      # Report the status and clean up the generated files
 

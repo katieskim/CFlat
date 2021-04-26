@@ -49,7 +49,11 @@ void play_note(struct note *note_ptr, char *filename) {
 
 void bplay_note(struct note *note_ptr, int beat, char *filename) {
 MIDI_FILE *mf;
-	if ((mf = midiFileCreate("output.mid", TRUE))){
+    char name[100];
+    strcpy(name, filename);
+    char midi[] = ".mid";
+    strcat(name, midi);
+	if ((mf = midiFileCreate(name, TRUE))){
         midiSongAddTempo(mf, 1, beat);
         midiTrackAddProgramChange(mf, 1, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);   
 		add_note(note_ptr, mf, 1);

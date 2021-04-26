@@ -1,0 +1,18 @@
+int main()
+{
+	note n;
+	string filename;
+
+	n = ( /C-/ /5/ /h./ );
+	filename = "midi-demonote";
+
+	printt(n.tone());       	(: This will print /C-/ :)
+	printo(n.octave());			(: This will print /5/  :)
+	printr(n.rhythm());			(: This will print /h./ :)
+
+	
+	playnote(n, filename);
+	bplaynote(n, 360, filename);
+	
+	return 0;
+}

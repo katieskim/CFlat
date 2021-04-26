@@ -3,7 +3,7 @@ int main()
 	note n;
 	string file;
 	n = ( /C-/ /4/ /s./ );
-	file = "output";
+	file = "midi-playnote";
 	playnote(n, file);
 	
 	return 0;

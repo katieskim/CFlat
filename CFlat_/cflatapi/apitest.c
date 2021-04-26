@@ -138,10 +138,6 @@ int num_notes = 12;
     printf("%s%d\n", "note equal",is_note_equal(et, ett));
     printf("%s%d\n", "tone equal", is_tone_equal(et, ett));
     printf("%s%d\n", "tone equal", is_tone_equal(b, c_flat));
-
-
-
-
 	return 0;
 
 

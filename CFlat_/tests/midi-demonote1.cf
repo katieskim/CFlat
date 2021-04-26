@@ -1,0 +1,15 @@
+int main()
+{
+	note n;
+    note m; 
+
+	n = ( /C-/ /5/ /w/ );
+    m = ( /C-/ /6/ /w/ ); 
+
+    if (n.tone )
+	
+
+
+	
+	return 0;
+}
