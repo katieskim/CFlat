@@ -18,8 +18,8 @@ struct note *new_note(char *tone, int octave, char *rhythm);
 **INPUT: Takes in a pointer to a single note struct 
 **OUTPUT: A midifile called "(i/b)hellonote.mid" that plays the note 
 */
-void play_note(struct note *n); 
-void bplay_note(struct note *n, int beat); /* bplay_note takes in beat (beats/min) */
+void play_note(struct note *note_ptr, char *filename);
+void bplay_note(struct note *n, int beat, char *filename); /* bplay_note takes in beat (beats/min) */
 void iplay_note(struct note *n, int instrument);  /* iplay_note takes in an instrument 1-127*/
 
 

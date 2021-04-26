@@ -1,8 +1,10 @@
 int main()
 {
 	note n;
+	string file;
 	n = ( /C-/ /4/ /s./ );
-	playnote(n);
+	file = "output";
+	playnote(n, file);
 	
 	return 0;
 }

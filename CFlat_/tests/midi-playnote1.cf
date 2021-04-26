@@ -1,8 +1,10 @@
 int main()
 {
 	note n;
+	string filename;
 	n = ( /A+/ /7/ /h./ );
-	playnote(n);
+	filename = "output";
+	playnote(n, filename);
 	
 	return 0;
 }
