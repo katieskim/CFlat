@@ -2,7 +2,7 @@ int main()
 {
 	note n;
 	string filename;
-	n = ( /C-/ /4/ /w/ );
+	n = ( /C-/ /5/ /w/ );
 	filename = "output";
 	bplaynote(n, 360, filename);
 	
