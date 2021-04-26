@@ -35,8 +35,7 @@ let translate (globals, functions) =
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
   and void_t     = L.void_type   context in
-  let str_t      = L.pointer_type i8_t in
-  let arr_t      = L.array_type i32_t 9
+  let str_t      = L.pointer_type i8_t
   and i32_ptr_t  = L.pointer_type i32_t
   and i8_ptr_t  = L.pointer_type i8_t in
   let named_struct_note_t = L.named_struct_type context "named_struct_note_t" in 
@@ -57,9 +56,8 @@ let translate (globals, functions) =
 
   let ltype_of_typ = function
       A.PrimitiveType(t) -> ltype_of_primitive_typ(A.PrimitiveType(t))
-    | A.ArrayType(t) -> L.array_type (ltype_of_primitive_typ (A.PrimitiveType(t))) 9
+    | A.ArrayType(t) -> L.pointer_type (ltype_of_primitive_typ (A.PrimitiveType(t)))
   in
-
 
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
@@ -143,7 +141,7 @@ let translate (globals, functions) =
 
     (* ========================= Array Constructors ========================= *)
     (* TAKEN FROM C? http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/reports/Inception.pdf
-      Whenever an array is made, we malloc and additional 16 bytes of metadata,
+      Whenever an array is made, we malloc an additional 16 bytes of metadata,
       which contains size and length information. This allows us to implement
       len() in a static context, and opens several possibilities including
       array concatenation, dynamic array resizing, etc.
@@ -192,6 +190,9 @@ let translate (globals, functions) =
       ignore (put_meta body_ptr len_offset len builder);
       L.build_bitcast body_ptr (L.pointer_type element_t) "make_array_ptr" builder
     in
+
+
+    (* ========================= Array Constructors ========================= *)
 
     (* let get_struct_pointer_lltype llval =
       let lltype = L.type_of llval in
@@ -280,7 +281,7 @@ let translate (globals, functions) =
                                 if U.match_struct typ || U.match_array typ
                                   then L.element_type (ltype_of_typ struct_decl_map typ)
                                 else ltype_of_typ struct_decl_map typ *)
-                            in make_array (ltype_of_primitive_typ (A.PrimitiveType(t))) len builder
+                            in make_array (ltype_of_primitive_typ (A.PrimitiveType(t))) (L.const_int i32_t 2) builder
       (* | SArrayAssign (arr_name, idx_expr, val_expr) ->
                               let idx = (expr builder idx_expr)
                               and assign_val = (expr builder val_expr) in
