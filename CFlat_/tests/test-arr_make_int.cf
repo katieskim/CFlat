@@ -1,11 +1,11 @@
 int main()
 {
-  int[] int_arr;
-  int_arr = make(int, 3);
-  int_arr[0] = 1;
-  int_arr[1] = 2;
-  int_arr[2] = 3;                 
-  print(int_arr);           (: should print out the array literal :) 
+  int[] intarr;
+  intarr = make(int, 3);
+  (: int_arr[0] = 1;  :) 
+  (: int_arr[1] = 2;  :) 
+  (: int_arr[2] = 3;  :)               
+  (: print(int_arr);           should print out the array literal :) 
   return 0;
 }
 
