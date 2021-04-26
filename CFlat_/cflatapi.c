@@ -67,19 +67,22 @@ MIDI_FILE *mf;
 		}
 }
 
-void play_note_arr(struct note *note_arr[]){
+void play_note_arr(struct note *note_arr, char *filename){
 
     MIDI_FILE *mf;
-    if ((mf = midiFileCreate("helloarray.mid", TRUE))){
-
-        while (*note_arr){
+    char name[100];
+    strcpy(name, filename);
+    char midi[] = ".mid";
+    strcat(name, midi);
+    if ((mf = midiFileCreate(name, TRUE))){
+        int i = 0;
+        for (i = 0; i < 3; i++) {
 /*
             printf("%s%d\n", "OCTAVE,", (*note_arr) -> olit);
             printf("%s%s\n", "RHYTHM,", (*note_arr) -> rlit);
             printf("%s%s\n", "OCTAVE,", (*note_arr) -> tlit); */
 
-            add_note((*note_arr), mf, 1);
-            note_arr++;
+            add_note((&note_arr[i]), mf, 1);
         }
 
         midiFileClose(mf);

@@ -87,6 +87,11 @@ let translate (globals, functions) =
   let bplay_note_func : L.llvalue =
       L.declare_function "bplay_note" bplay_note_t the_module in
 
+  let play_track_t : L.lltype =
+      L.function_type i32_t [| L.pointer_type named_struct_note_t ; L.pointer_type i8_t |] in
+  let play_track_func : L.llvalue =
+      L.declare_function "play_note_arr" play_track_t the_module in
+
   let change_tone_t : L.lltype =
       L.function_type named_struct_note_t [| L.pointer_type named_struct_note_t ; i32_t ; i32_t |] in
   let change_tone_r : L.lltype = 
@@ -385,12 +390,15 @@ let translate (globals, functions) =
       | SCall ("prints", [e]) -> 
 	      L.build_call printf_func [| str_format_str ; (expr builder e) |]
 	      "printf" builder
-      | SCall ("printn", [e]) -> let (_, SId n) = e in
-                            let t' = expr builder (A.PrimitiveType(A.Tone), SToneAccess n) 
+      | SCall ("printn", [e]) -> 
+        (* match e with *)
+          let (_, SId n) = e   in let t' = expr builder (A.PrimitiveType(A.Tone), SToneAccess n) 
                             and o' = expr builder (A.PrimitiveType(A.Octave), SOctaveAccess n)
                             and r' = expr builder (A.PrimitiveType(A.Rhythm), SRhythmAccess n) in
-        L.build_call printf_func [| note_format_str ; t'; o'; r' |]
-        "printf" builder
+          (* (_, SArrayAccess (arr_name, idx_expr)) -> 
+                          in *)
+                            L.build_call printf_func [| note_format_str ; t'; o'; r' |]
+                            "printf" builder
       | SCall ("printt", [e]) -> 
 	      L.build_call printf_func [| tone_format_str ; (expr builder e) |]
 	      "printf" builder
@@ -404,6 +412,8 @@ let translate (globals, functions) =
         L.build_call play_note_func [| (lookup n) ; (expr builder e2) |] "play_note" builder
       | SCall ("bplaynote", [e1 ; e2 ; e3]) -> let (_, SId n) = e1 in
         L.build_call bplay_note_func [| (lookup n) ; (expr builder e2) ; (expr builder e3)|] "bplay_note" builder
+      | SCall ("playTrack", [e1 ; e2]) -> let (_, SId n) = e1 in
+        L.build_call play_track_func [| (lookup n) ; (expr builder e2) |] "play_track" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
 	      let llargs = List.rev (List.map (expr builder) (List.rev args)) in

@@ -6,11 +6,11 @@ int main()
 
 	n = ( /C-/ /4/ /q/ );
   m = ( /E/ /5/ /w/ );
-  make(note, 6);
+  notearr = make(note, 6);
 
   notearr[0] = n;
   notearr[1] = n;
-  (: notearr[2] = m; :)
+  notearr[2] = m;
 
   (: printn(notearr[0]); :)
   return 0;
