@@ -208,15 +208,7 @@ void play_tracks(int num_tracks, ...){
     }
 }
 
-struct note change_tone(struct note *note, int incr, int is_lower){
-    char *tlit = note -> tlit;
-    int olit = note -> olit;
-
-    char *newtlit;
-    int newolit;
-    char *samerlit = note -> rlit;
-    struct note* newnoteptr;
-    struct note newnote;
+char **change_tone(char *tlit, int incr, int is_lower){
 
     int miditone = 0;
     int is_rest = 0;
@@ -235,32 +227,17 @@ struct note change_tone(struct note *note, int incr, int is_lower){
     int accidental = 0;
     char acc = tlit[1];
 
-    if (acc == '-') {accidental = -1;} 
+    if (acc == '-') {accidental = -1;}
     else if (acc == '+') {accidental = 1;}
     else if (acc == '.') {accidental = 0;}
 
     /*  else {printf("%s\n", "This is not an allowable accidental value.");}*/
     if(is_lower){miditone = miditone + accidental - incr;}
     else{miditone = miditone + accidental + incr;}
-    
-    if (is_lower){
-        while(miditone < 0){
-            miditone += 12;
-            olit -=1;
-        }
-    }else{
-        while (miditone > 11){
-            miditone -= 12;
-            olit +=1;
-        }
-    }
+
+    miditone = ((miditone)%12+12)%12;
 
     char *toneMap[] = {"C", "C+", "D", "D+", "E", "F", "F+", "G", "G+", "A", "A+", "B"};
 
-    strcmp(newtlit, toneMap[miditone]);
-    newolit = olit;
-    newnoteptr = new_note(newtlit, newolit, samerlit);
-    newnote = *newnoteptr;
-
-    return newnote;
+    return &toneMap[miditone];
 }

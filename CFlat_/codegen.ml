@@ -88,7 +88,7 @@ let translate (globals, functions) =
       L.declare_function "bplay_note" bplay_note_t the_module in
 
   let change_tone_t : L.lltype =
-      L.function_type named_struct_note_t [| L.pointer_type named_struct_note_t ; i32_t ; i32_t |] in
+      L.function_type (L.pointer_type str_t) [| L.pointer_type named_struct_note_t ; i32_t ; i32_t |] in
   let change_tone_r : L.lltype = 
       L.return_type change_tone_t in           
   let change_tone_func : L.llvalue = 
@@ -288,19 +288,58 @@ let translate (globals, functions) =
                             let e' = expr builder e in
                             ignore(L.build_store e' rb builder); e'
 
+      | SOctaveRaise (n, e) -> let ob = L.build_struct_gep (lookup n) 1 "@octave" builder in
+                            let e1' = expr builder e and e2' = L.build_load ob ".octave" builder in
+                            let sum = L.build_add e1' e2' "add_octaves" builder in
+                            let x = L.build_store sum ob builder in
+                            L.build_load (lookup n) "raise_octave_of_this_note" builder
+
+      | SOctaveLower (n, e) -> let ob = L.build_struct_gep (lookup n) 1 "@octave" builder in
+                            let e1' = expr builder e and e2' = L.build_load ob ".octave" builder in
+                            let sum = L.build_sub e2' e1' "add_octaves" builder in
+                            let x = L.build_store sum ob builder in
+                            L.build_load (lookup n) "raise_octave_of_this_note" builder
+
+
+
+
+
+
+
+
+
+
+
+
+
       | SToneRaise (n, e) -> let e' = expr builder e in
                             let b' = L.const_int i32_t 0 in
                             (* let r' = L.build_alloca change_tone_r "returned_by_change_tone" builder in *)
                             let n' = L.build_call change_tone_func [| (lookup n) ; e' ; b' |] 
                             "change_tone" builder in
+                            L.build_load n' "returned_tone_ptr" builder
+
+                            (* let nv = L.build_load n' "returned_tone_ptr" builder in
+                            L.build_load nv "returned_tonelit" builder *)
+
+
+
+                            (*let ns = L.build_load nv "returned_tonelit" builder in
+                            expr builder (A.PrimitiveType(A.Tone), SToneLit ns) *)
+
+
+
                             (* let nv = L.build_load n' "from_build_call" builder in *)
                             (* let rv = L.build_load r' "returned_value" builder in *)
-                            ignore(L.build_store n' (lookup n) builder); n'
+
+
+                            (* ignore(L.build_store n' (lookup n) builder); n' :) *)
+
+
+
                             (* ignore(L.build_store rv (lookup n) builder); rv *)
                             (* ignore(L.build_store nv (lookup n) builder); nv *)
 
-
-                            
                             (* expr builder (PrimitiveType(Note), SAssign (n, (PrimitiveType(Note), n'))) *)
 
                             (* let t' = L.build_struct_gep n' 0 "@tone" builder and

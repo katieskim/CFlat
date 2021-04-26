@@ -2,7 +2,7 @@ int main()
 {
     note n;
     note m;
-    note a;
+    tone a;
 
     tone t;
     tone v;
@@ -20,8 +20,8 @@ int main()
     v = m.tone();
     printt(v);          (: /G/ :)
 
-    a = m.raiseTone(1);  (: raises tone of note m by half step, returns new note :)
-    printt(a.tone());    (: /G+/ or /A-/ :)
+    (: printt(m.raiseTone(1));   raises tone of note m by half step, returns new note :)
+    (: printt(a);     /G+/ or /A-/ :)
 
 	return 0;
 }

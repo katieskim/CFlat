@@ -49,6 +49,8 @@ rule token = parse
 | ".octave"   { OCTAVESET }
 | ".rhythm"   { RHYTHMSET }
 | ".raiseTone"    { TONERAISE }
+| ".raiseOctave"  { OCTAVERAISE }
+| ".lowerOctave"  { OCTAVELOWER }
 | "string" { STRING }
 | "if"     { IF }
 | "else"   { ELSE }

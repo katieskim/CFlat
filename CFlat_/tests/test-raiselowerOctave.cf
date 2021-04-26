@@ -1,0 +1,14 @@
+int main()
+{
+  note n;
+  n = (/C/ /4/ /s./);
+  printo(n.octave());
+
+  n = n.raiseOctave(1);
+  printo(n.octave());
+
+  n = n.lowerOctave(3);
+  printo(n.octave());
+
+  return 0;
+}
