@@ -25,6 +25,8 @@ and sx =
   | SBinop of sexpr * op * sexpr
   | SUnop of uop * sexpr
   | SNoexpr
+  | SArrayAccess of string * sexpr
+  | SArrayAssign of string * sexpr * sexpr
 
 type sstmt =
     SBlock of sstmt list

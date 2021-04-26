@@ -150,6 +150,9 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3)   }
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
   | NOT expr         { Unop(Not, $2)          }
+  | ID LBRACK expr RBRACK                 { ArrayAccess($1, $3) }
+  | ID LBRACK expr RBRACK ASSIGN expr     { ArrayAssign($1, $3, $6) }
+
 
 args_opt:
     /* nothing */ { [] }

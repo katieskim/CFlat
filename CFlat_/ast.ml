@@ -32,6 +32,9 @@ type expr =
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Noexpr
+  | ArrayAccess of (string * expr)
+  | ArrayAssign of (string * expr * expr)
+
 
 type stmt =
     Block of stmt list
@@ -95,6 +98,8 @@ let rec string_of_expr = function
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Noexpr -> ""
+  | ArrayAccess(arr_name, e) -> arr_name ^ "[" ^ string_of_expr e ^ "]"
+  | ArrayAssign(arr_name, e1, e2) -> arr_name ^ "[" ^ string_of_expr e1 ^ "]" ^ "=" ^ string_of_expr e2
 
 let rec string_of_stmt = function
     Block(stmts) ->
