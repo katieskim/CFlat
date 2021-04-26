@@ -123,12 +123,13 @@ let check (globals, functions) =
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
           in (check_assign lt rt err, SAssign(var, (rt, e')))
-      (* | ArrayAssign (var, e1, e2) as ex ->
+      | ArrayAssign (var, e1, e2) as ex ->
           let lt = type_of_identifier var
+            and (t', e1') = expr e1
             and (rt, e2') = expr e2 in
             let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
               string_of_typ rt ^ " in " ^ string_of_expr ex
-            in (check_assign lt rt err, SArrayAssign(var, expr e1, (rt, e2'))) *)
+            in (check_assign lt rt err, SArrayAssign(var, (t', e1'), (rt, e2')))
 
           (* let t = (type_of_identifier a_name)
             in check_array_or_throw t a_name; 
@@ -147,7 +148,6 @@ let check (globals, functions) =
           let (t', e') = expr e in
           if t' = PrimitiveType(Int) 
             then (ArrayType(t), SMakeArray(t, (t',e')))
-              (* (ArrayType(t), SMakeArray(t, expr ex)) *)
           else raise (Failure ("illegal make, must provide integer size for " ^  string_of_expr e))
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in

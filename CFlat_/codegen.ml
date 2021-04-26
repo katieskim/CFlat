@@ -280,7 +280,7 @@ let translate (globals, functions) =
                                 if U.match_struct typ || U.match_array typ
                                   then L.element_type (ltype_of_typ struct_decl_map typ)
                                 else ltype_of_typ struct_decl_map typ *)
-                            in make_array (ltype_of_primitive_typ (A.PrimitiveType(t))) (L.const_int i32_t 2) builder
+                            in make_array (ltype_of_primitive_typ (A.PrimitiveType(t))) (len) builder
       (* | SArrayAssign (arr_name, idx_expr, val_expr) ->
                               let idx = (expr builder idx_expr)
                               and assign_val = (expr builder val_expr) in
