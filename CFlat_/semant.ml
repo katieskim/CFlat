@@ -10,6 +10,18 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
+(* Array checking helpers *)
+let match_array = function
+    ArrayType(_) -> true
+  | _ -> false
+
+let check_array_or_throw typ a_name =
+  if match_array typ then () else raise (Failure (a_name ^ " is not an array"))
+
+let get_array_type = function
+    ArrayType(typ) -> typ
+  | _ -> raise (Failure "invalid array type")
+
 let check (globals, functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
@@ -88,6 +100,10 @@ let check (globals, functions) =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in   
 
+    let check_arr_assign lvaluet rvaluet err =
+      if lvaluet = rvaluet then rvaluet else raise (Failure err)
+   in   
+
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
 	                StringMap.empty (globals @ func.formals @ func.locals )
@@ -123,32 +139,6 @@ let check (globals, functions) =
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
           in (check_assign lt rt err, SAssign(var, (rt, e')))
-      | ArrayAssign (var, e1, e2) as ex ->
-          let lt = type_of_identifier var
-            and (t', e1') = expr e1
-            and (rt, e2') = expr e2 in
-            let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
-              string_of_typ rt ^ " in " ^ string_of_expr ex
-            in (check_assign lt rt err, SArrayAssign(var, (t', e1'), (rt, e2')))
-
-          (* let t = (type_of_identifier a_name)
-            in check_array_or_throw t a_name; 
-          let arr_t = get_array_type t 
-            and expr_t = (expr e) in
-          check_assign arr_t expr_t ex
-
-            let check_array_or_throw typ a_name =
-              if match_array typ then () else raise (Failure (a_name ^ " is not an array"))
-
-            let get_array_type = function
-                ArrayType(typ) -> typ
-              | _ -> raise (Failure "invalid array type") *)
-
-      | MakeArray(t, e) as ex -> 
-          let (t', e') = expr e in
-          if t' = PrimitiveType(Int) 
-            then (ArrayType(t), SMakeArray(t, (t',e')))
-          else raise (Failure ("illegal make, must provide integer size for " ^  string_of_expr e))
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
           let ty = match op with
@@ -175,6 +165,23 @@ let check (globals, functions) =
                           string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
                           string_of_typ t2 ^ " in " ^ string_of_expr e))
             in (ty, SBinop((t1, e1'), op, (t2, e2')))
+      | MakeArray(t, e) as ex -> 
+          let (t', e') = expr e in
+          if t' = PrimitiveType(Int) 
+            then (ArrayType(t), SMakeArray(t, (t',e')))
+          else raise (Failure ("illegal make, must provide integer size for " ^  string_of_expr e))
+      | ArrayAccess (a_name, e) ->
+          let t = type_of_identifier a_name
+          and (t', e') = expr e
+          in ignore (check_array_or_throw t a_name);
+          (PrimitiveType(get_array_type t), SArrayAccess(a_name, (t', e'))) 
+      | ArrayAssign (a_name, e1, e2) as ex ->
+          let lt = type_of_identifier a_name
+          and (t', e1') = expr e1
+          and (rt, e2') = expr e2 in
+            let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
+              string_of_typ rt ^ " in " ^ string_of_expr ex
+            in (check_arr_assign lt rt err, SArrayAssign(a_name, (t', e1'), (rt, e2')))
       | Call(fname, args) as call -> 
           let fd = find_func fname in
           let param_length = List.length fd.formals in

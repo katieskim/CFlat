@@ -153,6 +153,7 @@ expr:
   | NOT expr         { Unop(Not, $2)          }
   | MAKE LPAREN primitive_typ COMMA expr RPAREN   { MakeArray($3, $5) }
   | ID LBRACK expr RBRACK ASSIGN expr             { ArrayAssign($1, $3, $6) }
+  | ID LBRACK expr RBRACK                 { ArrayAccess($1, $3) }
 
 args_opt:
     /* nothing */ { [] }

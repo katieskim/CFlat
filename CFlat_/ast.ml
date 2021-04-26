@@ -28,12 +28,14 @@ type expr =
   | RhythmSet of string * expr
   | MakeArray of primitive_typ * expr
   | ArrayAssign of string * expr * expr
+  | ArrayAccess of (string * expr)
   | Id of string
   | Assign of string * expr
   | Call of string * expr list
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Noexpr
+  
 
 type stmt =
     Block of stmt list
@@ -106,6 +108,7 @@ let rec string_of_expr = function
   | RhythmSet(n, e) -> n ^ ".setrhythm(" ^ string_of_expr e ^ ")"
   | MakeArray(t, e) -> "make(" ^ string_of_primitive_typ t ^ "," ^ string_of_expr e ^ ")"
   | ArrayAssign(arr_name, e1, e2) -> arr_name ^ "[" ^ string_of_expr e1 ^ "]" ^ "=" ^ string_of_expr e2
+  | ArrayAccess(arr_name, e) -> arr_name ^ "[" ^ string_of_expr e ^ "]"
   | Id(s) -> s
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
