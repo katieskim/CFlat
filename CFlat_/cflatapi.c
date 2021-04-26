@@ -36,7 +36,7 @@ void add_track(struct note *note_arr[], MIDI_FILE *mf, int track);
 
 void play_note(struct note *note_ptr) {
 MIDI_FILE *mf;
-	if ((mf = midiFileCreate("hellonote.mid", TRUE))){
+	if ((mf = midiFileCreate("output.mid", TRUE))){
         midiTrackAddProgramChange(mf, 1, MIDI_PATCH_ACOUSTIC_GRAND_PIANO);   
 		add_note(note_ptr, mf, 1);
 		midiFileClose(mf);

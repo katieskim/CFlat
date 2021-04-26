@@ -1,0 +1,8 @@
+int main()
+{
+	note n;
+	n = ( /C-/ /4/ /w/ );
+	bplaynote(n, 360);
+	
+	return 0;
+}
