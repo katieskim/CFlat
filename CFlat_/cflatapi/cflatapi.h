@@ -37,5 +37,7 @@ void play_tracks(int i, ...);
 
 struct note* change_tone(struct note *note, int incr, int is_lower);
 struct note* change_octave(struct note *note, int incr, int is_lower);
+int is_tone_equal(struct note *a, struct note *b);
+int is_note_equal(struct note *a, struct note *b);
 
 #endif

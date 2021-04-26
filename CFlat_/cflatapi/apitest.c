@@ -58,7 +58,7 @@ int num_notes = 12;
     arr[17] = a_s;
     arr[18] = b_2;
     arr[20] = c_3;  */
-/*
+
     play_note(c, "plays_note");
     play_note(c_flat, "plays_note2");
     bplay_note(c, 48, "bplays_note");
@@ -67,7 +67,7 @@ int num_notes = 12;
     char *name = "plays_note_arr";
 
     play_note_arr(arr,name);
-    iplay_note_arr(arr, 20, "plays_arr_instrumental");*/
+    iplay_note_arr(arr, 20, "plays_arr_instrumental");
 
     struct note *A[4];  A[3] = NULL;
     struct note *B[4];  B[3] = NULL;
@@ -91,6 +91,7 @@ int num_notes = 12;
 
     struct note *ctt = new_note("C", 5, "h");
     struct note *dtt = new_note("D", 5, "w.");
+    struct note *ktt = new_note("D", 5, "w.");
     struct note *ett = new_note("E", 5, "h");
     struct note *at = new_note("A", 4, "h");
 
@@ -112,9 +113,10 @@ int num_notes = 12;
     D[2] = ctt;
     D[3] = ett;
 
-    /*play_tracks(4, A, B, C, D);*/
+    /*play_tracks(4, A, B, C, D);
 
     printf("%s", at->tlit);
+
     printf("%d\n", at->olit);
     change_octave(at, 1, 0);
 
@@ -130,7 +132,16 @@ int num_notes = 12;
 
     change_octave(at, 42, 0);
 
-    printf("%d\n", at->olit);
+    printf("%d\n", at->olit); */
+
+    printf("%s%d\n", "note equal", is_note_equal(et, dt));
+    printf("%s%d\n", "note equal",is_note_equal(et, ett));
+    printf("%s%d\n", "tone equal", is_tone_equal(et, ett));
+    printf("%s%d\n", "tone equal", is_tone_equal(b, c_flat));
+
+
+
+
 	return 0;
 
 
