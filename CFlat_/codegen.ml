@@ -281,14 +281,15 @@ let translate (globals, functions) =
                                   then L.element_type (ltype_of_typ struct_decl_map typ)
                                 else ltype_of_typ struct_decl_map typ *)
                             in make_array (ltype_of_primitive_typ (A.PrimitiveType(t))) (len) builder
-      (* | SArrayAssign (arr_name, idx_expr, val_expr) ->
+      | SArrayAssign (arr_name, idx_expr, val_expr) ->
                               let idx = (expr builder idx_expr)
                               and assign_val = (expr builder val_expr) in
                               let llname = arr_name ^ "[" ^ L.string_of_llvalue idx ^ "]" in
                               let arr_ptr = lookup arr_name in
                               let arr_ptr_load = L.build_load arr_ptr arr_name builder in
                               let arr_gep = L.build_in_bounds_gep arr_ptr_load [|idx|] llname builder in
-                              (
+                              L.build_store assign_val arr_gep builder
+                              (* (
                                 match get_struct_pointer_lltype assign_val with
                                 (* Note:
                                   assigning a struct will memcpy the contents of the struct over,
@@ -309,6 +310,15 @@ let translate (globals, functions) =
                                     arr_copy_and_free arr_gep assign_val elem_sz restore_ptr builder
                                   | None -> L.build_store assign_val arr_gep builder
                               ) *)
+      | SArrayAccess (arr_name, idx_expr) ->
+        let idx = expr builder idx_expr in
+        let llname = arr_name ^ "[" ^ L.string_of_llvalue idx ^ "]" in
+        let arr_ptr_load =
+            let arr_ptr = lookup arr_name in
+            L.build_load arr_ptr arr_name builder in
+        let arr_gep = L.build_in_bounds_gep arr_ptr_load [|idx|] llname builder in
+        (* let arr_typ = U.get_array_type (lookup_typ arr_name) in *)
+          L.build_load arr_gep (llname ^ "_load") builder
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
 	      L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	      "printf" builder

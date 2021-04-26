@@ -101,7 +101,7 @@ let check (globals, functions) =
     in   
 
     let check_arr_assign lvaluet rvaluet err =
-      if lvaluet = rvaluet then rvaluet else raise (Failure err)
+      if lvaluet = ArrayType(rvaluet) then rvaluet else raise (Failure err)
    in   
 
     (* Build local symbol table of variables for this function *)
@@ -176,12 +176,16 @@ let check (globals, functions) =
           in ignore (check_array_or_throw t a_name);
           (PrimitiveType(get_array_type t), SArrayAccess(a_name, (t', e'))) 
       | ArrayAssign (a_name, e1, e2) as ex ->
-          let lt = type_of_identifier a_name
+          let lt = (type_of_identifier a_name)
+          and (t', e1') = expr e1
+          and (rt, e2') = expr e2 in
+          (PrimitiveType(get_array_type lt), SArrayAssign(a_name, (t', e1'), (rt, e2')))
+          (* let lt = type_of_identifier a_name
           and (t', e1') = expr e1
           and (rt, e2') = expr e2 in
             let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
               string_of_typ rt ^ " in " ^ string_of_expr ex
-            in (check_arr_assign lt rt err, SArrayAssign(a_name, (t', e1'), (rt, e2')))
+            in (check_arr_assign lt rt err, SArrayAssign(a_name, (t', e1'), (rt, e2'))) *)
       | Call(fname, args) as call -> 
           let fd = find_func fname in
           let param_length = List.length fd.formals in
