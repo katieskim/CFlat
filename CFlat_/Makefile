@@ -31,8 +31,8 @@ cflat.native :
 .PHONY : clean
 clean :
 	ocamlbuild -clean
-	rm -rf testall.log ocamlllvm *.diff
-	rm -f *.o  *.mid
+	rm -rf testall.log ocamlllvm 
+	rm -f *.o *.out *.mid *.ll *.s *. *.exe *.diff *.err
 
 # Testing the "printbig" example
 
@@ -45,15 +45,18 @@ midifile.o: midifile.c	midifile.h
 cflatapi.o: cflatapi.c cflatapi.h
 
 # Building the tarball
+TESTS = arr_assign_int arr_assign_note arr_concat_int arr_concat_int arr_decl_int arr_make_int arr_make_note\
+		binop0 binop1 bplaynote for0 for1 helloworld0 helloworld1 if0 if1 if2 int microcfloat1 note noteatt1_declare\
+		noteatt2_get noteatt3_getset playnote printfloat tone_features unop0 while0
 
-TESTS = microcfloat1 hellonote
-
+FAILS = assign_int_note
 # FAILS = microcprint
 
-# TESTFILES = $(TESTS:%=test-%.cf) $(TESTS:%=test-%.out) \
-#             $(FAILS:%=fail-%.cf) $(FAILS:%=fail-%.err)
+MIDI = playnote bplaynote 
 
-TESTFILES = $(TESTS:%=test-%.cf) $(TESTS:%=test-%.out)
+TESTFILES = $(TESTS:%=test-%.cf) $(TESTS:%=test-%.out) \
+            $(FAILS:%=fail-%.cf) $(FAILS:%=fail-%.err) \
+			$(MIDI:%=midi-%.cf) $(MIDI:%=midi-%.mid)
 
 TARFILES = ast.ml sast.ml codegen.ml Makefile _tags cflat.ml parser.mly \
 	README scanner.mll semant.ml testall.sh \

@@ -112,6 +112,41 @@ Check() {
     fi
 }
 
+CheckMidi() {
+    error=0
+    basename=`echo $1 | sed 's/.*\\///
+                             s/.cf//'`
+    reffile=`echo $1 | sed 's/.cf$//'`
+    basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
+
+    echo -n "$basename..."
+
+    echo 1>&2
+    echo "###### Testing $basename" 1>&2
+
+     generatedfiles=""
+
+    generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
+    Run "$CFLAT" "$1" ">" "${basename}.ll" &&
+    Run "$LLC" "-relocation-model=pic" "${basename}.ll" ">" "${basename}.s" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "cflatapi.o" "midifile.o" &&
+    Run "./${basename}.exe" > "${basename}.out" &&
+    Compare output.mid tests/${basename}.mid ${basename}.diff
+
+     # Report the status and clean up the generated files
+
+    if [ $error -eq 0 ] ; then
+	if [ $keep -eq 0 ] ; then
+	    rm -f $generatedfiles
+	fi
+	echo "OK"
+	echo "###### SUCCESS" 1>&2
+    else
+	echo "###### FAILED" 1>&2
+	globalerror=$error
+    fi
+}
+
 CheckFail() {
     error=0
     basename=`echo $1 | sed 's/.*\\///
@@ -176,18 +211,22 @@ if [ $# -ge 1 ]
 then
     files=$@
 else
-    files="tests/test-*.cf tests/fail-*.cf"
+    files="tests/midi-*.cf tests/test-*.cf tests/fail-*.cf"
 fi
 
 for file in $files
 do
     case $file in
+    *midi-*)
+        CheckMidi $file 2>> $globallog
+        ;;
 	*test-*)
 	    Check $file 2>> $globallog
 	    ;;
 	*fail-*)
 	    CheckFail $file 2>> $globallog
 	    ;;
+    
 	*)
 	    echo "unknown file type $file"
 	    globalerror=1

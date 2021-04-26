@@ -34,8 +34,9 @@ let translate (globals, functions) =
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
   and void_t     = L.void_type   context in
-  let str_t      = L.pointer_type i8_t in
-  let arr_t      = L.array_type i32_t 9 in
+  let str_t      = L.pointer_type i8_t
+  and i32_ptr_t  = L.pointer_type i32_t
+  and i8_ptr_t  = L.pointer_type i8_t in
   let named_struct_note_t = L.named_struct_type context "named_struct_note_t" in 
   ignore (L.struct_set_body named_struct_note_t [| L.pointer_type i8_t; L.i32_type context; L.pointer_type i8_t |] false);
 
@@ -54,9 +55,8 @@ let translate (globals, functions) =
 
   let ltype_of_typ = function
       A.PrimitiveType(t) -> ltype_of_primitive_typ(A.PrimitiveType(t))
-    | A.ArrayType(t) -> L.array_type (ltype_of_primitive_typ (A.PrimitiveType(t))) 9
+    | A.ArrayType(t) -> L.pointer_type (ltype_of_primitive_typ (A.PrimitiveType(t)))
   in
-
 
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
@@ -78,12 +78,12 @@ let translate (globals, functions) =
       L.declare_function "printbig" printbig_t the_module in
 
   let play_note_t : L.lltype =
-      L.function_type i32_t [| L.pointer_type named_struct_note_t |] in
+      L.function_type i32_t [| L.pointer_type named_struct_note_t ; L.pointer_type i8_t |] in
   let play_note_func : L.llvalue =
       L.declare_function "play_note" play_note_t the_module in
 
   let bplay_note_t : L.lltype =
-      L.function_type i32_t [| L.pointer_type named_struct_note_t ; i32_t |] in
+      L.function_type i32_t [| L.pointer_type named_struct_note_t ; i32_t ; L.pointer_type i8_t |] in
   let bplay_note_func : L.llvalue =
       L.declare_function "bplay_note" bplay_note_t the_module in
 
@@ -144,6 +144,66 @@ let translate (globals, functions) =
     let lookup n = try StringMap.find n local_vars
                    with Not_found -> StringMap.find n global_vars
     in
+
+    (* ========================= Array Constructors ========================= *)
+    (* TAKEN FROM C? http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/reports/Inception.pdf
+      Whenever an array is made, we malloc an additional 16 bytes of metadata,
+      which contains size and length information. This allows us to implement
+      len() in a static context, and opens several possibilities including
+      array concatenation, dynamic array resizing, etc.
+      The layout will be:
+      +--------------+--------------+----------+--------+
+      | element size | size (bytes) | len[int] | elem1  | ...
+      +--------------+--------------+----------+--------+
+    *)
+
+    let elem_size_offset = L.const_int i32_t (-3)
+    and size_offset = L.const_int i32_t (-2)
+    and len_offset = L.const_int i32_t (-1)
+    and metadata_sz = L.const_int i32_t 12 in  (* 12 bytes overhead *)
+
+    let put_meta body_ptr offset llval builder =
+      let ptr = L.build_bitcast body_ptr i32_ptr_t "i32_ptr_t" builder in
+      let meta_ptr = L.build_gep ptr [| offset |] "meta_ptr" builder in
+      L.build_store llval meta_ptr builder
+    in
+
+    let get_meta body_ptr offset builder =
+      let ptr = L.build_bitcast body_ptr i32_ptr_t "i32_ptr_t" builder in
+      let meta_ptr = L.build_gep ptr [| offset |] "meta_ptr" builder in
+      L.build_load meta_ptr "meta_data" builder
+    in
+
+    let meta_to_body meta_ptr builder =
+      let ptr = L.build_bitcast meta_ptr i8_ptr_t "meta_ptr" builder in
+      L.build_gep ptr [| (L.const_int i8_t (12)) |] "body_ptr" builder
+    in
+
+    let body_to_meta body_ptr builder =
+      let ptr = L.build_bitcast body_ptr i8_ptr_t "body_ptr" builder in
+      L.build_gep ptr [| (L.const_int i8_t (-12)) |] "meta_ptr" builder
+    in
+
+    (* make array *)
+    let make_array element_t len builder =
+      let element_sz = L.build_bitcast (L.size_of element_t) i32_t "b" builder in
+      let body_sz = L.build_mul element_sz len "body_sz" builder in
+      let malloc_sz = L.build_add body_sz metadata_sz "make_array_sz" builder in
+      let meta_ptr = L.build_array_malloc i8_t malloc_sz "make_array" builder in
+      let body_ptr = meta_to_body meta_ptr builder in
+      ignore (put_meta body_ptr elem_size_offset element_sz builder);
+      ignore (put_meta body_ptr size_offset malloc_sz builder);
+      ignore (put_meta body_ptr len_offset len builder);
+      L.build_bitcast body_ptr (L.pointer_type element_t) "make_array_ptr" builder
+    in
+
+
+    (* ========================= Array Constructors ========================= *)
+
+    (* let get_struct_pointer_lltype llval =
+      let lltype = L.type_of llval in
+      U.try_get lltype struct_lltype_list
+    in *)
 
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
@@ -270,6 +330,40 @@ let translate (globals, functions) =
                             (* let tb = L.build_struct_gep nv 0 "@tone" builder in
                             L.build_load tb ".tone" builder *)
 
+      | SMakeArray (t, e) -> let len = expr builder e
+                              (* and element_t =
+                                if U.match_struct typ || U.match_array typ
+                                  then L.element_type (ltype_of_typ struct_decl_map typ)
+                                else ltype_of_typ struct_decl_map typ *)
+                            in make_array (ltype_of_primitive_typ (A.PrimitiveType(t))) (len) builder
+      (* | SArrayAssign (arr_name, idx_expr, val_expr) ->
+                              let idx = (expr builder idx_expr)
+                              and assign_val = (expr builder val_expr) in
+                              let llname = arr_name ^ "[" ^ L.string_of_llvalue idx ^ "]" in
+                              let arr_ptr = lookup arr_name in
+                              let arr_ptr_load = L.build_load arr_ptr arr_name builder in
+                              let arr_gep = L.build_in_bounds_gep arr_ptr_load [|idx|] llname builder in
+                              (
+                                match get_struct_pointer_lltype assign_val with
+                                (* Note:
+                                  assigning a struct will memcpy the contents of the struct over,
+                                  free the former struct, and have the struct ptr now point to the
+                                  array element.
+                                  We do this to prevent assignment "implicitly" duplicating memory
+                                *)
+                                    Some struct_ptr ->
+                                      let elem_type = L.element_type struct_ptr in
+                                      let elem_sz = L.size_of elem_type in
+                                      let restore_ptr =
+                                      (
+                                        match (U.try_get_id_str val_expr) with
+                                          Some s -> Some (lookup s)
+                                          (*TODO: match case for struct literals *)
+                                        | None -> None
+                                      ) in
+                                    arr_copy_and_free arr_gep assign_val elem_sz restore_ptr builder
+                                  | None -> L.build_store assign_val arr_gep builder
+                              ) *)
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
 	      L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	      "printf" builder
@@ -296,10 +390,10 @@ let translate (globals, functions) =
       | SCall ("printr", [e]) ->
         L.build_call printf_func [| rhythm_format_str ; (expr builder e) |]
         "printf" builder
-      | SCall ("playnote", [e]) -> let (_, SId n) = e in
-        L.build_call play_note_func [| (lookup n) |] "play_note" builder
-      | SCall ("bplaynote", [e1 ; e2]) -> let (_, SId n) = e1 in
-        L.build_call bplay_note_func [| (lookup n) ; (expr builder e2) |] "bplay_note" builder
+      | SCall ("playnote", [e1 ; e2]) -> let (_, SId n) = e1 in
+        L.build_call play_note_func [| (lookup n) ; (expr builder e2) |] "play_note" builder
+      | SCall ("bplaynote", [e1 ; e2 ; e3]) -> let (_, SId n) = e1 in
+        L.build_call bplay_note_func [| (lookup n) ; (expr builder e2) ; (expr builder e3)|] "bplay_note" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
 	      let llargs = List.rev (List.map (expr builder) (List.rev args)) in

@@ -10,6 +10,18 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
+(* Array checking helpers *)
+let match_array = function
+    ArrayType(_) -> true
+  | _ -> false
+
+let check_array_or_throw typ a_name =
+  if match_array typ then () else raise (Failure (a_name ^ " is not an array"))
+
+let get_array_type = function
+    ArrayType(typ) -> typ
+  | _ -> raise (Failure "invalid array type")
+
 let check (globals, functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
@@ -49,8 +61,8 @@ let check (globals, functions) =
                                ("printt", [(PrimitiveType(Tone), "x")]);
                                ("printr", [(PrimitiveType(Rhythm), "x")]);
                                ("printo", [(PrimitiveType(Octave), "x")]);
-                               ("playnote", [(PrimitiveType(Note), "x")]);
-                               ("bplaynote", [(PrimitiveType(Note), "x"); (PrimitiveType(Int), "y")]);
+                               ("playnote", [(PrimitiveType(Note), "x"); (PrimitiveType(String), "y")]);
+                               ("bplaynote", [(PrimitiveType(Note), "x"); (PrimitiveType(Int), "y"); (PrimitiveType(String), "z")]);
                                ]
   in
 
@@ -88,24 +100,14 @@ let check (globals, functions) =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in   
 
+    let check_arr_assign lvaluet rvaluet err =
+      if lvaluet = rvaluet then rvaluet else raise (Failure err)
+   in   
+
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
 	                StringMap.empty (globals @ func.formals @ func.locals )
     in
-
-    (* let printMap mp = StringMap.iter (fun key value -> Printf.eprintf "HIIII %s -> %s\n" (key) (string_of_typ value)) mp 
-    in
-    (* Build local symbol table of variables for this function *)
-    let symbols = List.fold_left (fun m (ty, name) -> ignore (match ty with 
-                                    (* for every note n, add in tone, octave, rhythm into 
-                                    symbol table with ids as n.tone, n.octave, n.rhythm *)
-                                      Note -> ignore( StringMap.add (name ^ ".tone") Tone m;
-                                              StringMap.add (name ^ ".octave") Octave m;
-                                              StringMap.add (name ^ ".rhythm") Rhythm m; ); None
-                                    | _ -> None
-                                  ); StringMap.add name ty m)
-	                StringMap.empty (globals @ func.formals @ func.locals )
-    in printMap symbols; *)
 
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
@@ -160,17 +162,27 @@ let check (globals, functions) =
           | Less | Leq | Greater | Geq
                      when same && (t1 = PrimitiveType(Int) || t1 = PrimitiveType(Float)) -> PrimitiveType(Bool)
           | And | Or when same && t1 = PrimitiveType(Bool) -> PrimitiveType(Bool)
-          | _ -> raise (
-            Failure ("illegal binary operator " ^
+          | _ -> raise (Failure ("illegal binary operator " ^
                           string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
                           string_of_typ t2 ^ " in " ^ string_of_expr e))
             in (ty, SBinop((t1, e1'), op, (t2, e2')))
-      (* | Call("bplaynote", args) as call -> 
-          (* let param_length = 2 in
-          if List.length args != 2 then 
-            raise (Failure ("expecting " ^ string_of_int param_length ^ 
-                            " arguments in " ^ string_of_expr call)) *)
-          (Void, SCall("bplaynote", [Note, Int])) *)
+      | MakeArray(t, e) as ex -> 
+          let (t', e') = expr e in
+          if t' = PrimitiveType(Int) 
+            then (ArrayType(t), SMakeArray(t, (t',e')))
+          else raise (Failure ("illegal make, must provide integer size for " ^  string_of_expr e))
+      | ArrayAccess (a_name, e) ->
+          let t = type_of_identifier a_name
+          and (t', e') = expr e
+          in ignore (check_array_or_throw t a_name);
+          (PrimitiveType(get_array_type t), SArrayAccess(a_name, (t', e'))) 
+      | ArrayAssign (a_name, e1, e2) as ex ->
+          let lt = type_of_identifier a_name
+          and (t', e1') = expr e1
+          and (rt, e2') = expr e2 in
+            let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
+              string_of_typ rt ^ " in " ^ string_of_expr ex
+            in (check_arr_assign lt rt err, SArrayAssign(a_name, (t', e1'), (rt, e2')))
       | Call(fname, args) as call -> 
           let fd = find_func fname in
           let param_length = List.length fd.formals in

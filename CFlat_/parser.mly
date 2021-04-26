@@ -9,6 +9,7 @@ open Ast
 %token TONEACCESS OCTAVEACCESS RHYTHMACCESS
 %token TONESET OCTAVESET RHYTHMSET
 %token TONERAISE
+%token MAKE
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token RETURN IF ELSE FOR WHILE 
 %token INT BOOL FLOAT VOID NOTE STRING TONE OCTAVE RHYTHM
@@ -153,6 +154,9 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3)   }
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
   | NOT expr         { Unop(Not, $2)          }
+  | MAKE LPAREN primitive_typ COMMA expr RPAREN   { MakeArray($3, $5) }
+  | ID LBRACK expr RBRACK ASSIGN expr             { ArrayAssign($1, $3, $6) }
+  | ID LBRACK expr RBRACK                 { ArrayAccess($1, $3) }
 
 args_opt:
     /* nothing */ { [] }

@@ -15,6 +15,7 @@ type expr =
     Literal of int
   | Fliteral of string
   | BoolLit of bool
+  | StrLit of string
   | NoteLit of expr * expr * expr
   | ToneLit of string
   | OctaveLit of int
@@ -26,13 +27,16 @@ type expr =
   | OctaveSet of string * expr
   | RhythmSet of string * expr
   | ToneRaise of string * expr
-  | StrLit of string
+  | MakeArray of primitive_typ * expr
+  | ArrayAssign of string * expr * expr
+  | ArrayAccess of (string * expr)
   | Id of string
   | Assign of string * expr
   | Call of string * expr list
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Noexpr
+  
 
 type stmt =
     Block of stmt list
@@ -72,11 +76,27 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
 
+let string_of_primitive_typ = function
+    Int -> "int"
+  | Bool -> "bool"
+  | Float -> "float"
+  | Void -> "void"
+  | Note -> "note"
+  | Tone -> "tone"
+  | Octave -> "octave"
+  | Rhythm -> "rhythm"
+  | String -> "string"
+
+let rec string_of_typ = function
+    PrimitiveType(t) -> string_of_primitive_typ t
+  | ArrayType(t) -> (string_of_primitive_typ t) ^ "[]"
+
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | Fliteral(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
+  | StrLit(l) -> l
   | NoteLit(t, o, r) -> string_of_expr t ^ ", " ^ string_of_expr o ^ ", " ^ string_of_expr r
   | ToneLit(l) -> l
   | OctaveLit(l) -> string_of_int l
@@ -88,7 +108,9 @@ let rec string_of_expr = function
   | OctaveSet(n, e) -> n ^ ".octave(" ^ string_of_expr e ^ ")"
   | RhythmSet(n, e) -> n ^ ".rhythm(" ^ string_of_expr e ^ ")"
   | ToneRaise(n, e) -> n ^ ".raiseTone(" ^ string_of_expr e ^ ")"
-  | StrLit(l) -> l
+  | MakeArray(t, e) -> "make(" ^ string_of_primitive_typ t ^ "," ^ string_of_expr e ^ ")"
+  | ArrayAssign(arr_name, e1, e2) -> arr_name ^ "[" ^ string_of_expr e1 ^ "]" ^ "=" ^ string_of_expr e2
+  | ArrayAccess(arr_name, e) -> arr_name ^ "[" ^ string_of_expr e ^ "]"
   | Id(s) -> s
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
@@ -110,21 +132,6 @@ let rec string_of_stmt = function
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let string_of_primitive_typ = function
-    Int -> "int"
-  | Bool -> "bool"
-  | Float -> "float"
-  | Void -> "void"
-  | Note -> "note"
-  | Tone -> "tone"
-  | Octave -> "octave"
-  | Rhythm -> "rhythm"
-  | String -> "string"
-
-let rec string_of_typ = function
-    PrimitiveType(t) -> string_of_primitive_typ t
-  | ArrayType(t) -> (string_of_primitive_typ t) ^ "[]"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
