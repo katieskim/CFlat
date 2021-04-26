@@ -1,0 +1,31 @@
+int main()
+{
+    note n;
+    note m;
+
+    tone t;
+    tone v;
+
+    tone o;
+    tone p;
+
+    n = (/C/ /4/ /s./);
+    m = (/F/ /5/ /q/);
+
+    t = /A+/;
+    v = /A+/;
+
+    o = /G+/;
+    p = /A-/;
+
+    printb( n.tone() == m.tone() );
+    printb( n.tone() != m.tone() );
+
+    printb( t == v );
+    printb( t != v );
+
+    printb( o == p );
+    printb( o != p );
+
+	return 0;
+}

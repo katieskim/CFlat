@@ -1,0 +1,22 @@
+int main()
+{
+    note n;
+    note m;
+
+    rhythm t;
+    rhythm v;
+
+    n = (/C/ /4/ /s./);
+    m = (/F/ /5/ /q/);
+
+    t = /h/;
+    v = /h/;
+
+    printb( n.rhythm() == m.rhythm() );
+    printb( n.rhythm() != m.rhythm() );
+
+    printb( t == v );
+    printb( t != v );
+
+	return 0;
+}

@@ -1,0 +1,13 @@
+int main()
+{
+    note n;
+    note m;
+
+    n = (/C/ /4/ /s./);
+    m = (/F/ /5/ /q/);
+
+    printb( (n.tone() != m.tone()) && (n.tone() != m.tone()) );
+    printb( (n.tone() != m.tone()) || (n.tone() == m.tone()));
+
+	return 0;
+}

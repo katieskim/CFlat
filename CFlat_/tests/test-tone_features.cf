@@ -2,31 +2,26 @@ int main()
 {
     note n;
     note m;
+    note a;
 
+    tone t;
+    tone v;
 
     n = (/C/ /4/ /s./);
-    m = (/F/ /5/ /q/);
+    m = (/G/ /5/ /q/);
 
-    n.tone();           (: new get function, it should return /C/ :)
+    t = n.tone();       (: new get function, it should return /C/ :)
+    printt(t);          (: /C/ :)
+
     n.tone(/F/);        (: new set function, it should set tone of n to /F/ :)
-
-    n.raiseTone(5);         (: raise tone. n will have new tone that is 5 halfsteps up from original :)
-    printt(n.tone());   (: /A+/ :)
-
-    n.lowerTone(5);         (: lower tone. n will have original tone again. :)
     printt(n.tone());   (: /F/ :)
-    printo(n.octave()); (: 4 :)
+    printt(t);          (: /C/ :)
 
-    n.raiseTone(12);        
-    printt(n.tone());   (: /F/ :)
-    printo(n.octave()); (: 5 :)
+    v = m.tone();
+    printt(v);          (: /G/ :)
 
-    if (n.tone() == m.tone()){
-        prints("LFG");
-    }
-    else{
-        prints("lesnotgo");
-    }
+    a = m.raiseTone(1);  (: raises tone of note m by half step, returns new note :)
+    printt(a.tone());    (: /G+/ or /A-/ :)
 
 	return 0;
 }

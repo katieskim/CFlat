@@ -18,6 +18,7 @@ and sx =
   | SToneSet of string * sexpr
   | SOctaveSet of string * sexpr
   | SRhythmSet of string * sexpr
+  | SToneRaise of string * sexpr
   | SStrLit of string
   | SId of string
   | SAssign of string * sexpr
@@ -56,12 +57,13 @@ let rec string_of_sexpr (t, e) =
   | SToneLit(l) -> l
   | SOctaveLit(l) -> string_of_int l
   | SRhythmLit(l) -> l
-  | SToneAccess(n) -> n
-  | SOctaveAccess(n) -> n
-  | SRhythmAccess(n) -> n
-  | SToneSet(n, e) -> n ^ ".settone(" ^ string_of_sexpr e ^ ")"
-  | SOctaveSet(n, e) -> n ^ ".setoctave(" ^ string_of_sexpr e ^ ")"
-  | SRhythmSet(n, e) -> n ^ ".setrhythm(" ^ string_of_sexpr e ^ ")"
+  | SToneAccess(n) -> n ^ ".tone()"
+  | SOctaveAccess(n) -> n ^ ".octave()"
+  | SRhythmAccess(n) -> n ^ ".rhythm()"
+  | SToneSet(n, e) -> n ^ ".tone(" ^ string_of_sexpr e ^ ")"
+  | SOctaveSet(n, e) -> n ^ ".octave(" ^ string_of_sexpr e ^ ")"
+  | SRhythmSet(n, e) -> n ^ ".rhythm(" ^ string_of_sexpr e ^ ")"
+  | SToneRaise(n, e) -> n ^ ".raiseTone(" ^ string_of_sexpr e ^ ")"
   | SStrLit(l) -> l
   | SId(s) -> s
   | SCall(f, el) ->
