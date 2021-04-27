@@ -130,7 +130,7 @@ let check (globals, functions) =
       | ToneSet(n, e) -> (PrimitiveType(Tone), SToneSet (n, expr e))
       | OctaveSet(n, e) -> (PrimitiveType(Octave), SOctaveSet (n, expr e))
       | RhythmSet(n, e) -> (PrimitiveType(Rhythm), SRhythmSet (n, expr e))
-      | ToneRaise(n, e) -> (PrimitiveType(Tone), SToneRaise (n, expr e))
+      | ToneRaise(n, e) -> (PrimitiveType(Note), SToneRaise (n, expr e))
       | OctaveRaise(n, e) -> (PrimitiveType(Note), SOctaveRaise (n, expr e))
       | OctaveLower(n, e) -> (PrimitiveType(Note), SOctaveLower (n, expr e))
 

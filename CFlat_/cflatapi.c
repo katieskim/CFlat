@@ -208,7 +208,7 @@ void play_tracks(int num_tracks, ...){
     }
 }
 
-char **change_tone(char *tlit, int incr, int is_lower){
+/* char **change_tone(char *tlit, int incr, int is_lower){
 
     int miditone = 0;
     int is_rest = 0;
@@ -230,8 +230,8 @@ char **change_tone(char *tlit, int incr, int is_lower){
     if (acc == '-') {accidental = -1;}
     else if (acc == '+') {accidental = 1;}
     else if (acc == '.') {accidental = 0;}
+    else {printf("%s\n", "This is not an allowable accidental value.");}
 
-    /*  else {printf("%s\n", "This is not an allowable accidental value.");}*/
     if(is_lower){miditone = miditone + accidental - incr;}
     else{miditone = miditone + accidental + incr;}
 
@@ -240,4 +240,68 @@ char **change_tone(char *tlit, int incr, int is_lower){
     char *toneMap[] = {"C", "C+", "D", "D+", "E", "F", "F+", "G", "G+", "A", "A+", "B"};
 
     return &toneMap[miditone];
+} */
+
+void change_tone(struct note *note, int incr, int is_lower){
+
+    char *tlit = note -> tlit;
+    int olit = note -> olit;
+
+    /* char *newtlit;
+    int newolit;
+    char *samerlit = note -> rlit;
+    struct note* newnoteptr;
+    struct note newnote; */
+
+    int miditone = 0;
+    int is_rest = 0;
+    char tone = tlit[0];
+
+    if (tone == 'R') {is_rest = 1;}
+    else if (tone == 'C') {miditone = 0;}
+    else if (tone == 'D') {miditone = 2;}
+    else if (tone == 'E') {miditone = 4;}
+    else if (tone == 'F') {miditone = 5;}
+    else if (tone == 'G') {miditone = 7;}
+    else if (tone == 'A') {miditone = 9;}
+    else if (tone == 'B') {miditone = 11;}
+    else {printf("%s", "This is not a valid tone.");}
+
+    int accidental = 0;
+    char acc = tlit[1];
+
+    if (acc == '-') {accidental = -1;} 
+    else if (acc == '+') {accidental = 1;}
+    else if (acc == '.') {accidental = 0;}
+    else {printf("%s\n", "This is not an allowable accidental value.");}
+
+    if(is_lower){miditone = miditone + accidental - incr;}
+    else{miditone = miditone + accidental + incr;}
+    
+    if (is_lower){
+        while(miditone < 0){
+            miditone += 12;
+            olit -=1;
+        }
+    }else{
+        while (miditone > 11){
+            miditone -= 12;
+            olit +=1;
+        }
+    }
+
+    if (is_rest) {tlit = tlit;}
+
+    char *toneMap[] = {"C", "C+", "D", "D+", "E", "F", "F+", "G", "G+", "A", "A+", "B"};
+
+    /* strcmp(newtlit, toneMap[miditone]);
+    newolit = olit;
+    newnoteptr = new_note(newtlit, newolit, samerlit);
+    newnote = *newnoteptr; */
+
+    strcpy(tlit, toneMap[miditone]);
+    
+    note -> tlit = tlit;
+    note -> olit = olit;
+
 }
