@@ -76,7 +76,7 @@ void play_note_arr(struct note *note_arr, char *filename){
     strcat(name, midi);
     if ((mf = midiFileCreate(name, TRUE))){
         int i = 0;
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < 23; i++) {
 /*
             printf("%s%d\n", "OCTAVE,", (*note_arr) -> olit);
             printf("%s%s\n", "RHYTHM,", (*note_arr) -> rlit);

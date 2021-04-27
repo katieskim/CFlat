@@ -7,13 +7,12 @@ int main()
   octave o;
   int i;
   note forNote;
-
-  
   string file;
 
   file = "LetsDoIt";
   letsdoit = make(note, 25);
   o = /4/;
+
   a_f = (/A-/ /4/ /q/); a_eighth = (/A-/ /4/ /e/);
   b_f = (/B-/ /4/ /q/); b_eighth = (/B-/ /4/ /e/);
   c = (/C/ /4/ /q/);    c_eighth = (/C/ /4/ /e/);
@@ -23,7 +22,7 @@ int main()
   f = (/F/ /4/ /q/ ); f_eighth = (/F/ /4/ /e/);
   g = (/G/ /4/ /q/);
   r = (/R/ /4/ /q/);
-
+  
   letsdoit[0] = f_eighth;
   letsdoit[1] = e_eighth;
   letsdoit[2] = f_eighth;
@@ -51,7 +50,6 @@ int main()
   letsdoit[21] = f;
   letsdoit[22] = r;
 
-  
   
   playtrack(letsdoit, "Letsdoit"); 
   return 0;

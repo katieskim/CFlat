@@ -64,7 +64,7 @@ rule token = parse
 | "void"   { VOID }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
-| '/' ((['A'-'G']['+''-''.']?) as lxm) '/'  { TLIT(lxm) }
+| '/' ((['A'-'G']['+''-''.']?|'R') as lxm) '/'  { TLIT(lxm) }
 | '/' (digit | "-1" as lxm) '/'       { OLIT(int_of_string lxm) }
 | '/' ((['s''e''q''h''w']['.']?) as lxm) '/'            { RLIT(lxm) }
 | '"' ((ascii | esc)* as s)'"'                          { STRLIT(s) }
