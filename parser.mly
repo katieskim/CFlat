@@ -1,26 +1,26 @@
-/* Ocamlyacc parser for C-FLAT */
-  
+/* Ocamlyacc parser for CFlat */
+
 %{
 open Ast
 %}
-  
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN PLUSPLUS MINUSMINUS
+
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
+%token LBRACK RBRACK
+%token TONEACCESS OCTAVEACCESS RHYTHMACCESS
+%token TONESET OCTAVESET RHYTHMSET
+%token TONERAISE OCTAVERAISE OCTAVELOWER
+%token MAKE
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token LBRACKET RBRACKET DOT DQUOTE SQUOTE MOD IN DO BREAK BAR
-%token NOTE MEASURE NONE CONTINUE DEF CHAR STRING 
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID
-%token <int> LITERAL
+%token RETURN IF ELSE FOR WHILE 
+%token INT BOOL FLOAT VOID NOTE STRING TONE OCTAVE RHYTHM
+%token <int> LITERAL OLIT
 %token <bool> BLIT
-%token <string> ID 
-%token <float> FLIT
-%token <string> TLIT         
-%token <string> STRLIT            
+%token <string> ID FLIT STRLIT TLIT RLIT
 %token EOF
 
 %start program
 %type <Ast.program> program
-  
-%left SEMI
+
 %nonassoc NOELSE
 %nonassoc ELSE
 %right ASSIGN
@@ -29,211 +29,141 @@ open Ast
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE MOD
+%left TIMES DIVIDE
 %right NOT
-%left PLUSPLUS MINUSMINUS
-  
+%right TONERAISE OCTAVERAISE OCTAVELOWER
+%right TONESET OCTAVESET RHYTHMSET
+%right TONEACCESS OCTAVEACCESS RHYTHMACCESS
+
 %%
 
-program																				
-	: master_decl EOF		    { () }
-	| program master_decl		{ () }
+program:
+  decls EOF { $1 }
 
-master_decl
-	: init_decls            { () }
-	| vdecl		{ () }
-	| adecl		{ () }
-	| fdecl		{ () }
+decls:
+   /* nothing */ { ([], [])               }
+ | decls vdecl { (($2 :: fst $1), snd $1) }
+ | decls fdecl { (fst $1, ($2 :: snd $1)) }
 
-init_decls
-	: simpl_typ	ID ASSIGN primary_expr SEMI	{ () }
-	| array_typ	ID ASSIGN array_expr SEMI	{ () }
-	| NOTE ID ASSIGN note_expr SEMI	{ () }
-	| MEASURE	ID ASSIGN measure_expr SEMI	{ () }
+fdecl:
+   typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+     { { typ = $1;
+	 fname = $2;
+	 formals = List.rev $4;
+	 locals = List.rev $7;
+	 body = List.rev $8 } }
 
-vdecl
-	: simpl_typ	ID SEMI	{ ($1, $2) }
-	| NOTE ID SEMI { () }
-	| MEASURE	ID SEMI	{ () }
+formals_opt:
+    /* nothing */ { [] }
+  | formal_list   { $1 }
 
-adecl
-	: array_typ ID SEMI	{ () }
+formal_list:
+    typ ID                   { [($1,$2)]     }
+  | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
-fdecl
-	: DEF master_typ ID LPAREN formal_opt RPAREN LBRACE stmt_list RBRACE	{ () }
-  
-formal_opt
-	: /* nothing*/ 	{ [] }
-	| formal_list   { $1 }
-  
-formal_list
-	: typ ID			{ [($1, $2)]    }
-	| formal_list COMMA typ ID	{ ($3,$4) :: $1 }
-  
-master_typ
-	: typ		     { () }
-	| array_typ	{ () }
+typ:
+    primitive_typ { PrimitiveType($1) }
+  | array_typ     { $1 }    
 
-typ		
-	: simpl_typ	{ () }
-	| NOTE	{ () }
-	| MEASURE	{ () }
-	| NONE		{ () }
-	| VOID		{ () }
+primitive_typ:
+    INT     { Int   }
+  | BOOL    { Bool  }
+  | FLOAT   { Float }
+  | VOID    { Void  }
+  | NOTE    { Note  }
+  | TONE    { Tone  }
+  | OCTAVE  { Octave }
+  | RHYTHM  { Rhythm }
+  | STRING  { String }
 
-simpl_typ			
-	: INT		{ () }
-	| FLOAT		{ () }
-	| CHAR		{ () }
-	| STRING	{ () }
-	| BOOL		{ () }
+array_typ:
+  primitive_typ LBRACK RBRACK { ArrayType($1) }
 
-array_typ       /* array-able types no NULL and VOID */
-	: simpl_typ	LBRACKET RBRACKET	{ () }
-	| NOTE	LBRACKET RBRACKET	{ () }
-	| MEASURE	LBRACKET RBRACKET	{ () }
+literal:
+    LITERAL          { Literal($1)            }
+  | FLIT	           { Fliteral($1)           }
+  | BLIT             { BoolLit($1)            }
+  | STRLIT           { StrLit($1)             }
+  | notelit          { $1                     }
+  | tlit             { $1                     }
+  | olit             { $1                     }
+  | rlit             { $1                     }
 
-master_array
-	: array_primary	{ () }
-	/*| array_note	{ () }*/ 
-	| array_measure { () }
+tlit:
+    TLIT             { ToneLit($1)            }
 
-array_primary
-	: primary_expr				{ [] }
-	| array_primary COMMA primary_expr	{ [] }
+olit:
+    OLIT             { OctaveLit($1)          }
 
-/*array_note
-	: note_expr				{ [] }
-	| array_note COMMA note_expr		{ [] }*/
+rlit:
+    RLIT             { RhythmLit($1)          }
 
-array_measure
-	: measure_expr				{ [] }
-	| array_measure COMMA measure_expr	{ [] }
+notelit:
+    LPAREN tlit olit rlit RPAREN    { NoteLit($2, $3, $4)}
+    /* allow for default values? */
 
-array_expr
-	: LBRACKET master_array RBRACKET	{ () }
+vdecl_list:
+    /* nothing */    { [] }
+  | vdecl_list vdecl { $2 :: $1 }
 
-stmt_list
-	: /* nothing*/   { [] }
-	| stmt_list stmt { $2 :: $1 }
- 
-stmt
-	: primary_expr SEMI							{ Expr $1               }
-	| RETURN expr_opt SEMI						{ Return $2             }
-	| LBRACE stmt_list RBRACE					{ Block(List.rev $2)    }
-	| IF LPAREN primary_expr RPAREN stmt %prec NOELSE			{ If($3, $5, Block([])) }
-	| IF LPAREN primary_expr RPAREN stmt ELSE stmt				{ If($3, $5, $7)        }
-	| FOR LPAREN expr_opt SEMI primary_expr SEMI expr_opt RPAREN stmt	{ For($3, $5, $7, $9)   }
-	| WHILE LPAREN primary_expr RPAREN stmt					{ While($3, $5)         }
+vdecl:
+   typ ID SEMI { ($1, $2) }
 
-expr_opt
-	: /* nothing */ { Noexpr }
-	| primary_expr         { $1 }
- 
-primary_expr
-	: LITERAL            { Literal($1)            }
-	| FLIT               { FLiteral($1)           }
-	| BLIT               { BoolLit($1)            }   
-	| TLIT 		     { TLiteral($1)	      }   
-	| STRLIT	     { String($1)	      }
-/*
-	| note_expr          { ()                     }   
-	| measure_expr       { ()                     }     */   
+stmt_list:
+    /* nothing */  { [] }
+  | stmt_list stmt { $2 :: $1 }
 
-	| ID                 { ()                     }
+stmt:
+    expr SEMI                               { Expr $1               }
+  | RETURN expr_opt SEMI                    { Return $2             }
+  | LBRACE stmt_list RBRACE                 { Block(List.rev $2)    }
+  | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
+  | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7)        }
+  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
+                                            { For($3, $5, $7, $9)   }
+  | WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
 
+expr_opt:
+    /* nothing */ { Noexpr }
+  | expr          { $1 }
 
-   
-note_expr
-	:LPAREN TLIT LITERAL LITERAL RPAREN	  { () }
-	| LPAREN TLIT LITERAL FLIT RPAREN	      { () }
+expr:
+    literal          { $1 }
+  | ID               { Id($1) }
+  | ID ASSIGN expr   { Assign($1, $3)         }
+  | ID LPAREN args_opt RPAREN { Call($1, $3)  }
+  | ID TONEACCESS    { ToneAccess($1)         }
+  | ID OCTAVEACCESS  { OctaveAccess($1)       }
+  | ID RHYTHMACCESS  { RhythmAccess($1)       }
+  | ID TONESET LPAREN expr RPAREN          { ToneSet($1, $4)           }
+  | ID OCTAVESET LPAREN expr RPAREN        { OctaveSet($1, $4)         }
+  | ID RHYTHMSET LPAREN expr RPAREN        { RhythmSet($1, $4)         }
+  | ID TONERAISE LPAREN expr RPAREN        { ToneRaise($1, $4)         }
+  | ID OCTAVERAISE LPAREN expr RPAREN      { OctaveRaise($1, $4)       }
+  | ID OCTAVELOWER LPAREN expr RPAREN      { OctaveLower($1, $4)       }
+  | LPAREN expr RPAREN { $2                   }
+  | expr PLUS   expr { Binop($1, Add,   $3)   }
+  | expr MINUS  expr { Binop($1, Sub,   $3)   }
+  | expr TIMES  expr { Binop($1, Mult,  $3)   }
+  | expr DIVIDE expr { Binop($1, Div,   $3)   }
+  | expr EQ     expr { Binop($1, Equal, $3)   }
+  | expr NEQ    expr { Binop($1, Neq,   $3)   }
+  | expr LT     expr { Binop($1, Less,  $3)   }
+  | expr LEQ    expr { Binop($1, Leq,   $3)   }
+  | expr GT     expr { Binop($1, Greater, $3) }
+  | expr GEQ    expr { Binop($1, Geq,   $3)   }
+  | expr AND    expr { Binop($1, And,   $3)   }
+  | expr OR     expr { Binop($1, Or,    $3)   }
+  | MINUS expr %prec NOT { Unop(Neg, $2)      }
+  | NOT expr         { Unop(Not, $2)          }
+  | MAKE LPAREN primitive_typ COMMA expr RPAREN   { MakeArray($3, $5) }
+  | ID LBRACK expr RBRACK ASSIGN expr             { ArrayAssign($1, $3, $6) }
+  | ID LBRACK expr RBRACK                 { ArrayAccess($1, $3) }
 
-measure_expr
+args_opt:
+    /* nothing */ { [] }
+  | args_list  { List.rev $1 }
 
-	: note_expr				{ () }
-	| array_expr COMMA note_expr		{ () }
-
-un_op
-	: NOT		{ () }
-	| PLUSPLUS	{ () }
-	| MINUSMINUS	{ () }
-
-un_expr
-
-	: primary_expr		{ () }
-	| MINUS un_expr		{ [] }
-	| NOT un_expr		{ [] }
-	| un_expr PLUSPLUS	{ [] }
-	| un_expr MINUSMINUS	{ [] }
-
-mult_op
-	: TIMES		{ () }
-	| DIVIDE	{ () }
-	| MOD		{ () }
-	
-mult_expr
-	: un_expr			{ () }
-	| mult_expr mult_op un_expr	{ [] }
-
-add_op
-	: PLUS	{ () }
-	| MINUS	{ () }
-	
-add_expr
-	: mult_expr			{ [] }
-	| add_expr add_op mult_expr	{ [] }
-
-rel_op
-	: LT  { () }
-	| GT  { () }
-	| LEQ { () }
-	| GEQ { () }
-	
-rel_expr
-	: add_expr			{ [] }
-	| rel_expr rel_op add_expr { [] }
-
-eq_expr
-	: rel_expr			{ [] }
-	| eq_expr eq_op rel_expr	{ [] }
-
-eq_op
-	: EQ	{ () }
-	| NEQ	{ () }
-	
-eq_expr
-	: rel_expr			{ [] }
-	| eq_expr eq_op rel_expr	{ [] }
-
-bool_op
-	: AND	{ () }
-	| OR	{ () }
-	
-bool_expr
-	: eq_expr			{ [] }
-	| bool_expr bool_op eq_expr	{ [] }
-
-assign_expr
-	: bool_expr		{ [] }
-	| ID ASSIGN assign_expr	{ [] }
-
-func_expr
-	: ID LPAREN args_opt RPAREN	{ Call($1, $3) }
-
-built_in_func_expr
-	: DOT ID LPAREN args_opt RPAREN   { Call($2, $4) }
-
-args_opt
-	: /* nothing */	{ [] }
-	| args_list	{ List.rev $1 }
-
-args_list
-	: expr_opt			{ [$1] }
-	| args_list COMMA expr_opt	{ $3 :: $1 }
-
-/*
-
-1. How do we make operators mean different things for different data types?
-2. 
-
-*/
+args_list:
+    expr                    { [$1] }
+  | args_list COMMA expr { $3 :: $1 }
