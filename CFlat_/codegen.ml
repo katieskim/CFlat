@@ -87,6 +87,11 @@ let translate (globals, functions) =
   let bplay_note_func : L.llvalue =
       L.declare_function "bplay_note" bplay_note_t the_module in
 
+  let play_note_arr_t : L.lltype =
+      L.function_type i32_t [| L.pointer_type named_struct_note_t ; L.pointer_type i8_t |] in
+  let play_note_array_func : L.llvalue =
+      L.declare_function "play_note_arr" play_note_arr_t the_module in
+
   let change_tone_t : L.lltype =
       L.function_type named_struct_note_t [| L.pointer_type named_struct_note_t ; i32_t ; i32_t |] in
   let change_tone_r : L.lltype = 
@@ -146,7 +151,7 @@ let translate (globals, functions) =
     in
 
     (* ========================= Array Constructors ========================= *)
-    (* TAKEN FROM C? http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/reports/Inception.pdf
+    (* TAKEN/ADAPTED FROM C? http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/reports/Inception.pdf
       Whenever an array is made, we malloc an additional 16 bytes of metadata,
       which contains size and length information. This allows us to implement
       len() in a static context, and opens several possibilities including
@@ -198,12 +203,7 @@ let translate (globals, functions) =
     in
 
 
-    (* ========================= Array Constructors ========================= *)
-
-    (* let get_struct_pointer_lltype llval =
-      let lltype = L.type_of llval in
-      U.try_get lltype struct_lltype_list
-    in *)
+    (* ============================================================================== *)
 
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
@@ -214,15 +214,6 @@ let translate (globals, functions) =
                                 o' = expr builder o and 
                                 r' = expr builder r in
                                 L.const_named_struct named_struct_note_t [| t'; o'; r' |]
-
-                                (* 
-                                let note_struct = (let t' = expr builder t and 
-                                  o' = expr builder o and 
-                                  r' = expr builder r in
-                                L.const_named_struct named_struct_note_t [| t'; o'; r' |]) in
-                                L.build_gep note_struct [| note_struct |] "note_ptr" builder
-                                *)
-
       | SToneLit t ->  L.build_global_stringptr (t ^ "\x00") "tone_ptr" builder 
       | SOctaveLit o ->  L.const_int i32_t o
       | SRhythmLit r ->  L.build_global_stringptr (r ^ "\x00") "rhythm_ptr" builder 
@@ -270,14 +261,12 @@ let translate (globals, functions) =
                             | A.Neg                  -> L.build_neg
                             | A.Not                  -> L.build_not
                             ) e' "tmp" builder
-
       | SToneAccess n -> let tb = L.build_struct_gep (lookup n) 0 "@tone" builder in
                             L.build_load tb ".tone" builder
       | SOctaveAccess n -> let ob = L.build_struct_gep (lookup n) 1 "@octave" builder in
                             L.build_load ob ".octave" builder
       | SRhythmAccess n -> let rb = L.build_struct_gep (lookup n) 2 "@rhythm" builder in
                             L.build_load rb ".rhythm" builder
-
       | SToneSet (n, e) -> let tb = L.build_struct_gep (lookup n) 0 "@tone" builder in
                             let e' = expr builder e in
                             ignore(L.build_store e' tb builder); e'
@@ -287,54 +276,12 @@ let translate (globals, functions) =
       | SRhythmSet (n, e) -> let rb = L.build_struct_gep (lookup n) 2 "@rhythm" builder in
                             let e' = expr builder e in
                             ignore(L.build_store e' rb builder); e'
-
       | SToneRaise (n, e) -> let e' = expr builder e in
                             let b' = L.const_int i32_t 0 in
-                            (* let r' = L.build_alloca change_tone_r "returned_by_change_tone" builder in *)
                             let n' = L.build_call change_tone_func [| (lookup n) ; e' ; b' |] 
                             "change_tone" builder in
-                            (* let nv = L.build_load n' "from_build_call" builder in *)
-                            (* let rv = L.build_load r' "returned_value" builder in *)
                             ignore(L.build_store n' (lookup n) builder); n'
-                            (* ignore(L.build_store rv (lookup n) builder); rv *)
-                            (* ignore(L.build_store nv (lookup n) builder); nv *)
-
-
-                            
-                            (* expr builder (PrimitiveType(Note), SAssign (n, (PrimitiveType(Note), n'))) *)
-
-                            (* let t' = L.build_struct_gep n' 0 "@tone" builder and
-                                o' = L.build_struct_gep n' 1 "@octave" builder and
-                                r' = L.build_struct_gep n' 2 "@rhythm" builder in
-                            let nl = L.const_named_struct named_struct_note_t [| t'; o'; r' |] in
-                            ignore(L.build_store nl (lookup n) builder); nl *)
-                            
-                            (* let n' = L.build_call change_tone_func 
-                              [| (lookup n) ; e' ; b' |] 
-                              "change_tone" builder in
-                            ignore(L.build_store n' (lookup n) builder); n' *)
-
-                          (* L.build_global_stringptr ("hiiii" ^ "\x00") "tone_ptr" builder  *)
-                          (* L.build_extractvalue (lookup n) 0 ".tone" builder *)
-                            (* in
-                            L.value_name tv *)
-                            (* L.build_global_stringptr tv "tone_ptr" builder *)
-                          (* let nv = lookup n in
-                            let tv = L.build_extractvalue nv 0 ".tone" builder in
-                            let tvv = L.const_extractvalue tv [| 0 |] in
-                            L.build_load tvv "note.tone" builder *)
-                          (* L.const_extractvalue (lookup n) [| 0 |] *)
-                          (* let nv = L.build_load (lookup n) n builder in
-                            L.const_extractvalue nv [| 0 |] *)
-                            (* L.build_extractvalue nv 0 ".tone" builder *)
-                            (* let tb = L.build_struct_gep nv 0 "@tone" builder in
-                            L.build_load tb ".tone" builder *)
-
       | SMakeArray (t, e) -> let len = expr builder e
-                              (* and element_t =
-                                if U.match_struct typ || U.match_array typ
-                                  then L.element_type (ltype_of_typ struct_decl_map typ)
-                                else ltype_of_typ struct_decl_map typ *)
                             in make_array (ltype_of_primitive_typ (A.PrimitiveType(t))) (len) builder
       | SArrayAssign (arr_name, idx_expr, val_expr) ->
                               let idx = (expr builder idx_expr)
@@ -344,27 +291,6 @@ let translate (globals, functions) =
                               let arr_ptr_load = L.build_load arr_ptr arr_name builder in
                               let arr_gep = L.build_in_bounds_gep arr_ptr_load [|idx|] llname builder in
                               L.build_store assign_val arr_gep builder
-                              (* (
-                                match get_struct_pointer_lltype assign_val with
-                                (* Note:
-                                  assigning a struct will memcpy the contents of the struct over,
-                                  free the former struct, and have the struct ptr now point to the
-                                  array element.
-                                  We do this to prevent assignment "implicitly" duplicating memory
-                                *)
-                                    Some struct_ptr ->
-                                      let elem_type = L.element_type struct_ptr in
-                                      let elem_sz = L.size_of elem_type in
-                                      let restore_ptr =
-                                      (
-                                        match (U.try_get_id_str val_expr) with
-                                          Some s -> Some (lookup s)
-                                          (*TODO: match case for struct literals *)
-                                        | None -> None
-                                      ) in
-                                    arr_copy_and_free arr_gep assign_val elem_sz restore_ptr builder
-                                  | None -> L.build_store assign_val arr_gep builder
-                              ) *)
       | SArrayAccess (arr_name, idx_expr) ->
         let idx = expr builder idx_expr in
         let llname = arr_name ^ "[" ^ L.string_of_llvalue idx ^ "]" in
@@ -372,7 +298,6 @@ let translate (globals, functions) =
             let arr_ptr = lookup arr_name in
             L.build_load arr_ptr arr_name builder in
         let arr_gep = L.build_in_bounds_gep arr_ptr_load [|idx|] llname builder in
-        (* let arr_typ = U.get_array_type (lookup_typ arr_name) in *)
           L.build_load arr_gep (llname ^ "_load") builder
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
 	      L.build_call printf_func [| int_format_str ; (expr builder e) |]
@@ -404,6 +329,8 @@ let translate (globals, functions) =
         L.build_call play_note_func [| (lookup n) ; (expr builder e2) |] "play_note" builder
       | SCall ("bplaynote", [e1 ; e2 ; e3]) -> let (_, SId n) = e1 in
         L.build_call bplay_note_func [| (lookup n) ; (expr builder e2) ; (expr builder e3)|] "bplay_note" builder
+      | SCall ("playtrack", [e1 ; e2]) -> let (_, SId n) = e1 in
+        L.build_call play_note_array_func [| (expr builder e1) ; (expr builder e2) |] "play_note_array" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
 	      let llargs = List.rev (List.map (expr builder) (List.rev args)) in

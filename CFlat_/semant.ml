@@ -63,6 +63,7 @@ let check (globals, functions) =
                                ("printo", [(PrimitiveType(Octave), "x")]);
                                ("playnote", [(PrimitiveType(Note), "x"); (PrimitiveType(String), "y")]);
                                ("bplaynote", [(PrimitiveType(Note), "x"); (PrimitiveType(Int), "y"); (PrimitiveType(String), "z")]);
+                               ("playtrack", [(ArrayType(Note), "x"); (PrimitiveType(String), "y")]);
                                ]
   in
 

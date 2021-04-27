@@ -12,6 +12,6 @@ int main()
   note_arr[1] = n;
   note_arr[2] = m;  
 
-  playTrack(note_arr[2]);      
+  playtrack(note_arr, "playarr");      
   return 0;
 }
