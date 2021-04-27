@@ -132,6 +132,9 @@ let check (globals, functions) =
       | OctaveSet(n, e) -> (PrimitiveType(Octave), SOctaveSet (n, expr e))
       | RhythmSet(n, e) -> (PrimitiveType(Rhythm), SRhythmSet (n, expr e))
       | ToneRaise(n, e) -> (PrimitiveType(Note), SToneRaise (n, expr e))
+      | OctaveRaise(n, e) -> (PrimitiveType(Note), SOctaveRaise (n, expr e))
+      | OctaveLower(n, e) -> (PrimitiveType(Note), SOctaveLower (n, expr e))
+
       | StrLit l -> (PrimitiveType(String), SStrLit l)
       | Noexpr -> (PrimitiveType(Void), SNoexpr)
       | Id s -> (type_of_identifier s, SId s)

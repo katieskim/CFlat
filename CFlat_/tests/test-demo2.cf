@@ -1,0 +1,61 @@
+int main()
+{
+  note[] letsdoit;
+  note a_f; note b_f; note c; note d_f; note e_f; note e_flat; note f; note g; note c_up; 
+  note f_eighth; note e_eighth; note a_eighth; note b_eighth; note d_eighth; note c_eighth; 
+  note r; 
+  octave o;
+  tone t; 
+  int i;
+  note forNote;
+
+  string file;
+
+  file = "LetsDoIt";
+  letsdoit = make(note, 25);
+  o = /4/;
+  a_f = (/A-/ /4/ /q/); a_eighth = (/A-/ /4/ /e/);
+  b_f = (/B-/ /4/ /q/); b_eighth = (/B-/ /4/ /e/);
+  c = (/C/ /4/ /q/);    c_eighth = (/C/ /4/ /e/);
+  c_up = (/C/ /5/ /q/); 
+  d_f = (/D-/ /4/ /q/); d_eighth = (/D-/ /4/ /e/);
+  e_f = (/E-/ /4/ /q/); e_eighth = (/E-/ /4/ /e/);
+  f = (/F/ /4/ /q/ ); f_eighth = (/F/ /4/ /e/);
+  g = (/G/ /4/ /q/);
+  r = (/R/ /4/ /q/);
+
+  letsdoit[0] = f_eighth;
+  letsdoit[1] = e_eighth;
+  letsdoit[2] = f_eighth;
+  letsdoit[3] = a_eighth;
+  letsdoit[4] = f;
+  letsdoit[5] = e_f;
+  letsdoit[6] = c_eighth;
+  b_eighth.octave(/3/);
+  letsdoit[7] = b_eighth;
+  a_eighth.octave(/3/);
+  letsdoit[8] = a_eighth;
+  letsdoit[9] = b_eighth;
+  letsdoit[10] = c_eighth;
+  letsdoit[11] = d_eighth;
+  letsdoit[12] = e_f;
+  letsdoit[13] = f_eighth;
+  letsdoit[14] = e_eighth;
+  letsdoit[15] = f;
+  letsdoit[16] = c_up;
+  letsdoit[17] = c_up;
+  letsdoit[18] = r;
+  letsdoit[19] = a_f;
+  f.octave(/5/);
+  letsdoit[20] = f; 
+  letsdoit[21] = f;
+  letsdoit[22] = r;
+
+  for (i = 0 ; i < 23 ; i = i + 1) {
+    
+  }
+  
+  playtrack(letsdoit, "Letsdoit"); 
+  return 0;
+
+}

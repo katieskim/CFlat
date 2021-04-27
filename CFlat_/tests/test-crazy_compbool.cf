@@ -7,7 +7,7 @@ int main()
     m = (/F/ /5/ /q/);
 
     printb( (n.tone() != m.tone()) && (n.tone() != m.tone()) );
-    printb( (n.tone() != m.tone()) || (n.tone() == m.tone()));
+    printb( (n.tone() != m.tone()) || (n.tone() == m.tone()) );
 
 	return 0;
 }
